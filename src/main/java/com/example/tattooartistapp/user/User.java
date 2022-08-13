@@ -1,6 +1,8 @@
 package com.example.tattooartistapp.user;
 
 import java.util.List;
+
+import com.example.tattooartistapp.comment.Comment;
 import com.example.tattooartistapp.models.WorkingDays;
 import com.example.tattooartistapp.tattooWork.TattooWork;
 import lombok.*;
@@ -45,4 +47,7 @@ public class User {
 
     @OneToMany(fetch = FetchType.LAZY)
     private List<TattooWork> favoriteTattooWorks;
+
+    @OneToMany(mappedBy = "postedBy",fetch = FetchType.LAZY)
+    private List<Comment> comments;
 }

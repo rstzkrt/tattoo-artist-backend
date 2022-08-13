@@ -15,6 +15,4 @@ public class TattooWork {
 
     @ManyToOne
     private User madeBy;
-
-
 }
