@@ -1,5 +1,8 @@
 package com.example.tattooartistapp.user;
 
+import java.util.List;
+import com.example.tattooartistapp.models.WorkingDays;
+import com.example.tattooartistapp.tattooWork.TattooWork;
 import lombok.*;
 
 import javax.persistence.*;
@@ -25,13 +28,21 @@ public class User {
     private String firstName;
     private String lastName;
     private String email;
-    private String role;
-    private String avatar;
-    private LocalDate dateOfBirth;
+    private String avatarUrl;
+    private LocalDate dateOfBirth;//needed for creating an atrist page
+    private boolean hasArtistPage;
+    //...
 
+    @Enumerated
+    @ElementCollection(targetClass = WorkingDays.class)
+    private List<WorkingDays> workingDaysList;
 
-    //available days enum
-    //fovorite users
-    //favorutire tattoo works
-    //
+    @OneToMany(targetEntity = User.class, fetch = FetchType.LAZY)
+    private List<User> favouriteArtists;
+
+    @OneToMany(mappedBy = "madeBy",fetch = FetchType.LAZY)
+    private List<TattooWork> tattooWorks;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<TattooWork> favoriteTattooWorks;
 }

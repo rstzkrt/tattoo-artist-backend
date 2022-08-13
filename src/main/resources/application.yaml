@@ -7,6 +7,6 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: create-drop
-logging:
-  level:
-    root: info
+#logging:
+#  level:
+#    root: info

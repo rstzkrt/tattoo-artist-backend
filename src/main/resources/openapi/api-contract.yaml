@@ -1,8 +1,212 @@
 openapi: 3.0.3
 info:
-  title: client-contract
-  description: client-contract
+  title: api-contract
+  description: api-contract
   version: 1.0.0
-servers:
-  - url: 'https'
 paths:
+  /users:
+    get:
+      operationId: getAllUsers
+      description: get users
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      operationId: createUser
+      description: add user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDto'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users/{id}:
+    get:
+      operationId: getUserById
+      description: get user
+      parameters:
+        - in: path
+          name: id
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      operationId: deleteUser
+      description: get user
+      parameters:
+        - in: path
+          name: id
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      operationId: updateUser
+      description: update user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDto'
+      parameters:
+        - in: path
+          name: id
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    UserDto:
+      type: object
+      required:
+        -
+      properties:
+        id:
+          type: string
+          format: uuid
+        uid:
+          type: string
+          description: id for firebase auth
+        firstName:
+          type: string
+        lastName:
+          type: string
+        avatarUrl:
+          type: string
+        birthDate:
+          type: string
+          format: date
+        workDays:
+          $ref: '#/components/schemas/WorkingDays'
+
+    Works:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        description:
+          type: string
+        price:
+          type: number
+        commentIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    Item:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+
+    Comment:
+      type: object
+      properties:
+        postDate:
+          type: string
+          format: date
+        postedBy:
+          type: string
+          format: uuid
+        message:
+          type: string
+        workId:
+          type: string
+
+    WorkingDays:
+      enum:
+        - MONDAY
+        - TUESDAY
+        - WEDNESDAY
+        - THURSDAY
+        - FRIDAY
+        - SATURDAY
+        - SUNDAY
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
