@@ -1,4 +1,4 @@
-package com.example.tattooartistapp.exceptions;
+package com.example.tattooartistbackend.exceptions;
 
 import lombok.Getter;
 import lombok.Setter;

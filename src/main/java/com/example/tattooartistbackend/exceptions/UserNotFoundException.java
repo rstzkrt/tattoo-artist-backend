@@ -1,6 +1,6 @@
-package com.example.tattooartistapp.exceptions;
+package com.example.tattooartistbackend.exceptions;
 
-import com.example.tattooartistapp.user.User;
+import com.example.tattooartistbackend.user.User;
 
 import javax.persistence.EntityNotFoundException;
 

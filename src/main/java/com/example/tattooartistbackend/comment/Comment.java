@@ -1,9 +1,8 @@
-package com.example.tattooartistapp.comment;
+package com.example.tattooartistbackend.comment;
 
-import com.example.tattooartistapp.tattooWork.TattooWork;
-import com.example.tattooartistapp.user.User;
+import com.example.tattooartistbackend.tattooWork.TattooWork;
+import com.example.tattooartistbackend.user.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

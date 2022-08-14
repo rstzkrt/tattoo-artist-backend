@@ -1,4 +1,4 @@
-package com.example.tattooartistapp.exceptions;
+package com.example.tattooartistbackend.exceptions;
 
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 

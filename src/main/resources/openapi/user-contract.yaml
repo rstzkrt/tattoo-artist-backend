@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
-  title: api-contract
-  description: api-contract
+  title: user-api-contract
+  description: user-api-contract
   version: 1.0.0
 paths:
   /users:
@@ -86,11 +86,7 @@ paths:
             format: uuid
       responses:
         200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserDto'
+          description: no content
         default:
           description: error payload
           content:
@@ -151,47 +147,53 @@ components:
         birthDate:
           type: string
           format: date
+        email:
+          type: string
+        hasArtistPage:
+          type: boolean
         workDays:
-          $ref: '#/components/schemas/WorkingDays'
-
-    Works:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        description:
-          type: string
-        price:
-          type: number
-        commentIds:
           type: array
           items:
-            type: string
-            format: uuid
+            $ref: '#/components/schemas/WorkingDays'
+        averageRating:
+          type: number
+        minTattooWorkPrice:
+          type: number
+        maxTattooWorkPrice:
+          type: number
+        phoneNumber:
+          type: string
+        street:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+        state:
+          type: string
+        postalCode:
+          type: string
+        otherInformation:
+          type: string
 
-    Item:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-
-    Comment:
-      type: object
-      properties:
-        postDate:
-          type: string
-          format: date
-        postedBy:
-          type: string
-          format: uuid
-        message:
-          type: string
-        workId:
-          type: string
+#    Address:
+#      type: object
+#      properties:
+#        id:
+#          type: string
+#          format: uuid
+#        street:
+#          type: string
+#        city:
+#          type: string
+#        country:
+#          type: string
+#        state:
+#          type: string
+#        postalCode:
+#          type: string
+#        otherInformation:
+#          type: string
 
     WorkingDays:
       enum:

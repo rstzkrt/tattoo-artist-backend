@@ -1,6 +1,6 @@
-package com.example.tattooartistapp.tattooWork;
+package com.example.tattooartistbackend.tattooWork;
 
-import com.example.tattooartistapp.user.User;
+import com.example.tattooartistbackend.user.User;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

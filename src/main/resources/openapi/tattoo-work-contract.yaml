@@ -1,0 +1,27 @@
+openapi: 3.0.3
+info:
+  title: tattoo-work-contract
+  description: tattoo-work
+  version: 1.0.0
+paths:
+  /:
+
+
+
+components:
+  schemas:
+    TattooWorks:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        description:
+          type: string
+        price:
+          type: number
+        commentIds:
+          type: array
+          items:
+            type: string
+            format: uuid

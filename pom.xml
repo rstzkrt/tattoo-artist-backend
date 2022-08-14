@@ -94,7 +94,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-					<mainClass>com.example.tattooartistapp.TattooArtistBackendApplication</mainClass>
+					<mainClass>com.example.tattooartistbackend.TattooArtistBackendApplication</mainClass>
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
@@ -110,15 +110,15 @@
 				<version>6.0.1</version>
 				<executions>
 					<execution>
-						<id>1</id>
+						<id>user</id>
 						<goals>
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>${project.basedir}/src/main/resources/openapi/api-contract.yaml</inputSpec>
+							<inputSpec>${project.basedir}/src/main/resources/openapi/user-contract.yaml</inputSpec>
 							<generatorName>spring</generatorName>
-							<modelPackage>com.example.tattooartistapp.models</modelPackage>
-							<apiPackage>com.example.tattooartistapp.apis</apiPackage>
+							<modelPackage>com.example.tattooartistbackend.user.models</modelPackage>
+							<apiPackage>com.example.tattooartistbackend.user.apis</apiPackage>
 							<output>${project.build.directory}/generated-sources</output>
 							<skipValidateSpec>true</skipValidateSpec>
 							<supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
@@ -128,6 +128,67 @@
 							</configOptions>
 						</configuration>
 					</execution>
+
+					<execution>
+						<id>item</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>${project.basedir}/src/main/resources/openapi/item-contract.yaml</inputSpec>
+							<generatorName>spring</generatorName>
+							<modelPackage>com.example.tattooartistbackend.item.models</modelPackage>
+							<apiPackage>com.example.tattooartistbackend.item.apis</apiPackage>
+							<output>${project.build.directory}/generated-sources</output>
+							<skipValidateSpec>true</skipValidateSpec>
+							<supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
+							<configOptions>
+								<interfaceOnly>true</interfaceOnly>
+								<delegatePattern>false</delegatePattern>
+							</configOptions>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>comment</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>${project.basedir}/src/main/resources/openapi/comment-contract.yaml</inputSpec>
+							<generatorName>spring</generatorName>
+							<modelPackage>com.example.tattooartistbackend.comment.models</modelPackage>
+							<apiPackage>com.example.tattooartistbackend.comment.apis</apiPackage>
+							<output>${project.build.directory}/generated-sources</output>
+							<skipValidateSpec>true</skipValidateSpec>
+							<supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
+							<configOptions>
+								<interfaceOnly>true</interfaceOnly>
+								<delegatePattern>false</delegatePattern>
+							</configOptions>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>tattooWork</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>${project.basedir}/src/main/resources/openapi/tattoo-work-contract.yaml</inputSpec>
+							<generatorName>spring</generatorName>
+							<modelPackage>com.example.tattooartistbackend.tattooWork.models</modelPackage>
+							<apiPackage>com.example.tattooartistbackend.tattooWork.apis</apiPackage>
+							<output>${project.build.directory}/generated-sources</output>
+							<skipValidateSpec>true</skipValidateSpec>
+							<supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
+							<configOptions>
+								<interfaceOnly>true</interfaceOnly>
+								<delegatePattern>false</delegatePattern>
+							</configOptions>
+						</configuration>
+					</execution>
+
 				</executions>
 			</plugin>
 

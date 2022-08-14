@@ -1,4 +1,4 @@
-package com.example.tattooartistapp.comment;
+package com.example.tattooartistbackend.tattooWork;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface CommentRepository extends JpaRepository<Comment, UUID> {
+public interface TattooWorkRepository extends JpaRepository<TattooWork, UUID> {
 }

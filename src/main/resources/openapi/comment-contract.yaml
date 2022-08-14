@@ -1,0 +1,22 @@
+openapi: 3.0.3
+info:
+  title: comment-contract
+  description: comment
+  version: 1.0.0
+paths:
+  
+components:
+  schemas:
+    Comment:
+      type: object
+      properties:
+        postDate:
+          type: string
+          format: date
+        postedBy:
+          type: string
+          format: uuid
+        message:
+          type: string
+        workId:
+          type: string
