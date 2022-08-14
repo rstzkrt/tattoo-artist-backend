@@ -125,6 +125,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+
+# create atrist app endpoint
+# favourite - unfav user and post , give rating
+
 components:
   schemas:
     UserDto:
@@ -159,8 +163,12 @@ components:
           type: number
         minTattooWorkPrice:
           type: number
+        minTattooWorkPriceCurrency:
+          $ref: './tattoo-work-contract.yaml/#/components/schemas/Currency'
         maxTattooWorkPrice:
           type: number
+        maxTattooWorkPriceCurrency:
+          $ref: './tattoo-work-contract.yaml/#/components/schemas/Currency'
         phoneNumber:
           type: string
         street:

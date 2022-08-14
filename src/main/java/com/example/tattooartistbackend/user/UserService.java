@@ -3,6 +3,7 @@ package com.example.tattooartistbackend.user;
 import com.example.tattooartistbackend.address.Address;
 import com.example.tattooartistbackend.address.AddressRepository;
 import com.example.tattooartistbackend.exceptions.UserNotFoundException;
+import com.example.tattooartistbackend.tattooWork.TattooWorkRepository;
 import com.example.tattooartistbackend.user.models.UserDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +23,7 @@ public class UserService {
     private final AddressRepository addressRepository;
 
     public UserDto createUser(UserDto userDto) {
-        Address address =
-                Address.builder()
+        Address address = Address.builder()
                         .state(userDto.getState())
                         .postalCode(userDto.getPostalCode())
                         .country(userDto.getCountry())
@@ -45,7 +45,7 @@ public class UserService {
     public Optional<UserDto> findUserById(UUID id) {
         return Optional.of(userRepository.findById(id)
                 .map(User::toDto)
-                .orElseThrow());
+                .orElseThrow(UserNotFoundException::new));
     }
 
     public Optional<UserDto> updateUser(UUID id, UserDto userDto) {

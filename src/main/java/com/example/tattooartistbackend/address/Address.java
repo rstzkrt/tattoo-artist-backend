@@ -1,10 +1,18 @@
 package com.example.tattooartistbackend.address;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.util.UUID;
+
+import static javax.persistence.GenerationType.AUTO;
 
 @Entity
 @Getter
@@ -16,6 +24,7 @@ import java.util.UUID;
 public class Address {
 
     @Id
+    @GeneratedValue(strategy = AUTO)
     private UUID id;
     private String street;
     private String city;

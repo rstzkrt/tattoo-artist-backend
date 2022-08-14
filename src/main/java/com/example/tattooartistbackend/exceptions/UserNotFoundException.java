@@ -7,6 +7,6 @@ import javax.persistence.EntityNotFoundException;
 public class UserNotFoundException extends EntityNotFoundException {
 
     public UserNotFoundException() {
-        super(User.class.getSimpleName());
+        super(User.class.getSimpleName()+ " not found !");
     }
 }
