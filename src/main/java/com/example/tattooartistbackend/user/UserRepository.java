@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
 
-    @Query("SELECT u from User u WHERE (:firstName is null or u.firstName = :firstName)")
-    List<User> findAllUsers(String firstName);
+    @Query("SELECT u from User u WHERE (:firstName is null or u.firstName = :firstName) OR (:lastName is null or u.lastName = :lastName)")
+    List<User> findAllUsers(String firstName,String lastName);
 
 }

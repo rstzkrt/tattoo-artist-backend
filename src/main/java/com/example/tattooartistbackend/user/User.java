@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static javax.persistence.GenerationType.AUTO;
 
@@ -56,7 +57,7 @@ public class User {
     @OneToMany(mappedBy = "postedBy", fetch = FetchType.LAZY)
     private List<Comment> comments;
 
-    public static User fromDto(UserDto userDto, Address address) {
+    public static User fromDto(UserDto userDto, Address address,List<TattooWork> favoriteTattooWorks,List<TattooWork> tattooWorks,List<User> favouriteArtists,List<Comment> comments) {
         return User.builder()
                 .id(userDto.getId())
                 .avatarUrl(userDto.getAvatarUrl())
@@ -69,10 +70,10 @@ public class User {
                 .hasArtistPage(userDto.getHasArtistPage() != null && userDto.getHasArtistPage())
                 .businessAddress(address)
                 .uid(userDto.getUid())
-                .tattooWorks(new ArrayList<>())
-                .favouriteArtists(new ArrayList<>())
-                .comments(new ArrayList<>())
-                .favoriteTattooWorks(new ArrayList<>())
+                .tattooWorks(tattooWorks == null ? new ArrayList<>() : tattooWorks )
+                .favouriteArtists(favouriteArtists == null ? new ArrayList<>() : favouriteArtists )
+                .comments(comments == null ? new ArrayList<>() : comments )
+                .favoriteTattooWorks(favoriteTattooWorks == null ? new ArrayList<>() : favoriteTattooWorks )
                 .build();
     }
 
@@ -94,6 +95,30 @@ public class User {
         userDto.country(businessAddress.getCountry());
         userDto.postalCode(businessAddress.getPostalCode());
         userDto.otherInformation(businessAddress.getOtherInformation());
+        userDto.favoriteArtistIds(
+                favouriteArtists
+                        .stream()
+                        .map(User::getId)
+                        .toList()
+        );
+        userDto.favoriteTattooWorkIds(
+                favoriteTattooWorks
+                        .stream()
+                        .map(TattooWork::getId)
+                        .toList()
+        );
+        userDto.commentIds(
+                comments
+                        .stream()
+                        .map(Comment::getId)
+                        .toList()
+        );
+        userDto.tattooWorkIds(
+                tattooWorks
+                        .stream()
+                        .map(TattooWork::getId)
+                        .toList()
+        );
 
         if (userDto.getMaxTattooWorkPriceCurrency() != null) {
             userDto.setMaxTattooWorkPriceCurrency(userDto.getMaxTattooWorkPriceCurrency());

@@ -4,6 +4,9 @@ info:
   description: comment
   version: 1.0.0
 paths:
+  /comments:
+
+
   
 components:
   schemas:

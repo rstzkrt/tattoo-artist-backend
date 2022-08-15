@@ -1,17 +1,20 @@
 package com.example.tattooartistbackend.tattooWork;
 
 import com.example.tattooartistbackend.user.User;
+import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.util.Currency;
 import java.util.UUID;
-
 import static javax.persistence.GenerationType.AUTO;
 
 @Entity
+@Getter
+@Setter
+@ToString
+@Builder
+@RequiredArgsConstructor
+@AllArgsConstructor
 public class TattooWork {
 
     @Id
@@ -23,4 +26,7 @@ public class TattooWork {
 
     private Double price;
     private Currency currency;
+
+    private String coverPhoto;
+    //list url
 }

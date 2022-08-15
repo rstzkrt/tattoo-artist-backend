@@ -8,6 +8,19 @@ paths:
     get:
       operationId: getAllUsers
       description: get users
+      parameters:
+        - in: query
+          name: firstName
+          description: user firstname
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: lastName
+          description: user lastname
+          required: false
+          schema:
+            type: string
       responses:
         200:
           description: OK
@@ -124,17 +137,167 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      operationId: createArtistAccount
+      description: create artist page
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDto'
+      parameters:
+        - in: path
+          name: id
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
+  /users/{user_id}/tattoo-works/{post_id}/favorites:
+    put:
+      operationId: favoriteTattooWork
+      parameters:
+        - in: path
+          name: user_id
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          name: post_id
+          description: tattooWork post id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
-# create atrist app endpoint
-# favourite - unfav user and post , give rating
+    delete:
+      operationId: unfavoriteTattooWork
+      parameters:
+        - in: path
+          name: user_id
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          name: post_id
+          description: tattooWork post id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: no content
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
+  /users/{user_id}/tattoo-artist/{artist_id}/favorites:
+    put:
+      operationId: favoriteTattooArtist
+      parameters:
+        - in: path
+          name: user_id
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          name: artist_id
+          description: artist id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      operationId: unfavoriteTattooArtist
+      parameters:
+        - in: path
+          name: user_id
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          name: artist_id
+          description: artist id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: no content
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+#ToDO split dto to response and  request
 components:
   schemas:
+
+    ClientReqDto:
+      type: object
+
+    TattooArtistAccReqDto:
+      type: object
+
     UserDto:
       type: object
-      required:
-        -
       properties:
         id:
           type: string
@@ -183,25 +346,26 @@ components:
           type: string
         otherInformation:
           type: string
-
-#    Address:
-#      type: object
-#      properties:
-#        id:
-#          type: string
-#          format: uuid
-#        street:
-#          type: string
-#        city:
-#          type: string
-#        country:
-#          type: string
-#        state:
-#          type: string
-#        postalCode:
-#          type: string
-#        otherInformation:
-#          type: string
+        favoriteArtistIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        favoriteTattooWorkIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        commentIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        tattooWorkIds:
+          type: array
+          items:
+            type: string
+            format: uuid
 
     WorkingDays:
       enum:

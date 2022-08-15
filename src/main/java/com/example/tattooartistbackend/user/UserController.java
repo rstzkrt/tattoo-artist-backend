@@ -16,6 +16,12 @@ import java.util.UUID;
 public class UserController implements UsersApi {
 
     private final UserService userService;
+
+    @Override
+    public ResponseEntity<UserDto> createArtistAccount(UUID id, UserDto userDto) {
+        return ResponseEntity.ok(userService.createArtistAccount(id, userDto));
+    }
+
     @Override
     public ResponseEntity<UserDto> createUser(UserDto userDto) {
         return new ResponseEntity<>(userService.createUser(userDto), HttpStatus.CREATED);
@@ -28,8 +34,18 @@ public class UserController implements UsersApi {
     }
 
     @Override
-    public ResponseEntity<List<UserDto>> getAllUsers() {
-        return new ResponseEntity<>(userService.findAllUsers(), HttpStatus.OK);
+    public ResponseEntity<UserDto> favoriteTattooArtist(UUID userId, UUID artistId) {
+        return  ResponseEntity.ok(userService.favoriteTattooArtist(userId, artistId));
+    }
+
+    @Override
+    public ResponseEntity<UserDto> favoriteTattooWork(UUID userId, UUID postId) {
+        return  ResponseEntity.ok(userService.favoriteTattooWork(userId, postId));
+    }
+
+    @Override
+    public ResponseEntity<List<UserDto>> getAllUsers(String firstName, String lastName) {
+        return new ResponseEntity<>(userService.findAllUsers(firstName,lastName), HttpStatus.OK);
     }
 
     @Override
@@ -37,6 +53,18 @@ public class UserController implements UsersApi {
         return userService.findUserById(id)
                 .map(userDto -> new ResponseEntity<>(userDto,HttpStatus.OK))
                 .orElseThrow(UserNotFoundException::new);
+    }
+
+    @Override
+    public ResponseEntity<Void> unfavoriteTattooArtist(UUID userId, UUID artistId) {
+        userService.unfavoriteTattooArtist(userId, artistId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @Override
+    public ResponseEntity<Void> unfavoriteTattooWork(UUID userId, UUID postId) {
+        userService.unfavoriteTattooWork(userId, postId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Override
