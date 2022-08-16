@@ -29,7 +29,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/UserDto'
+                  $ref: '#/components/schemas/UserResponseDto'
         default:
           description: error payload
           content:
@@ -45,14 +45,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserDto'
+              $ref: '#/components/schemas/UserResponseDto'
       responses:
         201:
           description: Created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserDto'
+                $ref: '#/components/schemas/UserResponseDto'
         default:
           description: error payload
           content:
@@ -78,7 +78,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserDto'
+                $ref: '#/components/schemas/UserResponseDto'
         default:
           description: error payload
           content:
@@ -115,7 +115,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserDto'
+              $ref: '#/components/schemas/UserResponseDto'
       parameters:
         - in: path
           name: id
@@ -130,7 +130,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserDto'
+                $ref: '#/components/schemas/UserResponseDto'
         default:
           description: error payload
           content:
@@ -145,7 +145,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserDto'
+              $ref: '#/components/schemas/UserResponseDto'
       parameters:
         - in: path
           name: id
@@ -160,7 +160,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserDto'
+                $ref: '#/components/schemas/UserResponseDto'
         default:
           description: error payload
           content:
@@ -192,7 +192,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserDto'
+                $ref: '#/components/schemas/UserResponseDto'
         default:
           description: error payload
           content:
@@ -251,7 +251,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserDto'
+                $ref: '#/components/schemas/UserResponseDto'
         default:
           description: error payload
           content:
@@ -286,17 +286,46 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-#ToDO split dto to response and  request
+#ToDO split dto to response and  request , create artist page service, ...test all endpoints ... move to comments or tattoo works
 components:
   schemas:
 
     ClientReqDto:
       type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        birthDate:
+          type: string
+          format: date
+        email:
+          type: string
 
     TattooArtistAccReqDto:
       type: object
+      properties:
+        phoneNumber:
+          type: string
+        workDays:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkingDays'
+        street:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+        state:
+          type: string
+        postalCode:
+          type: string
+        otherInformation:
+          type: string
 
-    UserDto:
+    UserResponseDto:
       type: object
       properties:
         id:

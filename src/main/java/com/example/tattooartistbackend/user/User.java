@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static javax.persistence.GenerationType.AUTO;
 
@@ -60,7 +59,7 @@ public class User {
     public static User fromDto(UserDto userDto, Address address,List<TattooWork> favoriteTattooWorks,List<TattooWork> tattooWorks,List<User> favouriteArtists,List<Comment> comments) {
         return User.builder()
                 .id(userDto.getId())
-                .avatarUrl(userDto.getAvatarUrl())
+                .avatarUrl(userDto.getAvatarUrl()==null? "defaultUrl": userDto.getAvatarUrl())
                 .phoneNumber(userDto.getPhoneNumber())
                 .dateOfBirth(userDto.getBirthDate())
                 .firstName(userDto.getFirstName())

@@ -4,8 +4,7 @@ info:
   description: tattoo-work
   version: 1.0.0
 paths:
-  /:
-
+  /tattoo-works: #get all to show on the main page ,will be able to filtered
 
 components:
   schemas:
