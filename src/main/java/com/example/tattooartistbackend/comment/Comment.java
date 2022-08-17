@@ -17,7 +17,7 @@ import static javax.persistence.GenerationType.AUTO;
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class Comment {
+public class Comment { //comments for the tatoo works but feedbacks(reviews) are for the tattoo artists
 
     @Id
     @GeneratedValue(strategy = AUTO)
@@ -26,7 +26,7 @@ public class Comment {
     private User postedBy;
     private String message;
     private LocalDate postDate;
-    @ManyToOne
+    @OneToOne
     private TattooWork tattooWork;
     private Double rate;
 }
