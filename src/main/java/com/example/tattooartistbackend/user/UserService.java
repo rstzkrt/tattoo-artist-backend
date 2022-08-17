@@ -1,17 +1,22 @@
 package com.example.tattooartistbackend.user;
 
+
 import com.example.tattooartistbackend.address.Address;
 import com.example.tattooartistbackend.address.AddressRepository;
-import com.example.tattooartistbackend.comment.Comment;
+
 import com.example.tattooartistbackend.comment.CommentRepository;
 import com.example.tattooartistbackend.exceptions.UserNotFoundException;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
 import com.example.tattooartistbackend.tattooWork.TattooWorkRepository;
-import com.example.tattooartistbackend.user.models.UserDto;
+import com.example.tattooartistbackend.user.models.ClientReqDto;
+import com.example.tattooartistbackend.user.models.TattooArtistAccReqDto;
+import com.example.tattooartistbackend.user.models.UserResponseDto;
+import com.example.tattooartistbackend.user.models.UserUpdateRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,50 +30,39 @@ public class UserService {
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
     private final TattooWorkRepository tattooWorkRepository;
+
     private final CommentRepository commentRepository;
 
-    public UserDto createUser(UserDto userDto) {//as client
-        Address address = addressRepository.save(addressFromDto(userDto));
-        return userRepository.save(User.fromDto(userDto, address, null, null, null, null)).toDto();
+    public UserResponseDto createUser(ClientReqDto clientReqDto) {
+        //assign uid
+        return userRepository.save(User.fromClientRequestDto(clientReqDto)).toUserResponseDto();
     }
 
-    public List<UserDto> findAllUsers(String firstName, String lastName) {
+    public List<UserResponseDto> findAllUsers(String firstName, String lastName) {
         return userRepository.findAllUsers(firstName, lastName)
                 .stream()
-                .map(User::toDto)
+                .map(User::toUserResponseDto)
                 .collect(Collectors.toList());
     }
 
-    public Optional<UserDto> findUserById(UUID id) {
+    public Optional<UserResponseDto> findUserById(UUID id) {
         return Optional.of(userRepository.findById(id)
-                .map(User::toDto)
+                .map(User::toUserResponseDto)
                 .orElseThrow(UserNotFoundException::new));
     }
 
-    public Optional<UserDto> updateUser(UUID id, UserDto userDto) {
-        List<TattooWork> tattooWorks = userDto.getTattooWorkIds()
-                .stream()
-                .map(tattooWorkRepository::findById)
-                .map(Optional::orElseThrow)
-                .toList();
-        List<TattooWork> favoriteTattooWorks = userDto.getTattooWorkIds().stream().map(tattooWorkRepository::findById).map(Optional::orElseThrow).collect(Collectors.toList());
-        List<Comment> comments = userDto.getTattooWorkIds().stream().map(commentRepository::findById).map(Optional::orElseThrow).collect(Collectors.toList());
-        List<User> favoriteArtists = userDto.getTattooWorkIds().stream().map(userRepository::findById).map(Optional::orElseThrow).collect(Collectors.toList());
+    public Optional<UserResponseDto> updateUser(UUID id, UserUpdateRequestDto userUpdateRequestDto) {
         return Optional.ofNullable(userRepository.findById(id)
                 .map(user -> {
-                    Address address = addressRepository.findById(user.getBusinessAddress().getId()).orElseThrow();
-                    address.setCity(userDto.getCity());
-                    address.setState(userDto.getState());
-                    address.setCountry(userDto.getCountry());
-                    address.setPostalCode(userDto.getPostalCode());
-                    address.setStreet(userDto.getStreet());
-                    address.setOtherInformation(userDto.getOtherInformation());
-                    addressRepository.save(address);
-                    User userToUpdate = User.fromDto(userDto, address, favoriteTattooWorks, tattooWorks, favoriteArtists, comments);
-                    userToUpdate.setId(id);
+                    Address address = updateReqToAddress(user, userUpdateRequestDto.getCity(), userUpdateRequestDto.getState(), userUpdateRequestDto.getCountry(), userUpdateRequestDto.getPostalCode(), userUpdateRequestDto.getStreet(), userUpdateRequestDto.getOtherInformation());
+                    User userToUpdate = User.fromUserUpdateRequestDto(userUpdateRequestDto, address, user.getTattooWorks(), user.getTattooWorks(), user.getFavouriteArtists(), user.getComments());
+                    userToUpdate.setId(user.getId());
+                    userToUpdate.setUid(user.getUid());
+                    userToUpdate.setHasArtistPage(user.isHasArtistPage());
+                    userToUpdate.setDateOfBirth(user.getDateOfBirth());
                     return userRepository.save(userToUpdate);
                 })
-                .map(User::toDto)
+                .map(User::toUserResponseDto)
                 .orElseThrow(UserNotFoundException::new));
     }
 
@@ -80,14 +74,14 @@ public class UserService {
         }
     }
 
-    public UserDto favoriteTattooArtist(UUID userId, UUID artistId) {
+    public UserResponseDto favoriteTattooArtist(UUID userId, UUID artistId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         User artist = userRepository.findById(artistId).orElseThrow(UserNotFoundException::new);
 
         List<User> favouriteArtists = user.getFavouriteArtists();
         favouriteArtists.add(artist);
         user.setFavouriteArtists(favouriteArtists);
-        return userRepository.save(user).toDto();
+        return userRepository.save(user).toUserResponseDto();
     }
 
     public void unfavoriteTattooArtist(UUID userId, UUID artistId) {
@@ -110,28 +104,63 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public UserDto favoriteTattooWork(UUID userId, UUID postId) {
+    public UserResponseDto favoriteTattooWork(UUID userId, UUID postId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         TattooWork tattooWork = tattooWorkRepository.findById(postId).orElseThrow();
 
         List<TattooWork> favoriteTattooWorks = user.getFavoriteTattooWorks();
         favoriteTattooWorks.add(tattooWork);
         user.setFavoriteTattooWorks(favoriteTattooWorks);
-        return userRepository.save(user).toDto();
+        return userRepository.save(user).toUserResponseDto();
     }
 
-    public UserDto createArtistAccount(UUID id, UserDto userDto) {//TODO
-        return null;
+    public UserResponseDto createArtistAccount(UUID id, TattooArtistAccReqDto tattooArtistAccReqDto) {
+        return userRepository.findById(id)
+                .map(user -> {
+                    if (LocalDate.now().getYear() - user.getDateOfBirth().getYear() < 18) {
+                        try {
+                            throw new RuntimeException("UNDER AGE!");
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    Address address = tattooArtistToAddress(user, tattooArtistAccReqDto.getCity(), tattooArtistAccReqDto.getState(), tattooArtistAccReqDto.getCountry(), tattooArtistAccReqDto.getPostalCode(), tattooArtistAccReqDto.getStreet(), tattooArtistAccReqDto.getOtherInformation());
+                    User userToUpdate = User.fromTattooArtistAccReqDto(tattooArtistAccReqDto, address, user.getTattooWorks(), user.getTattooWorks(), user.getFavouriteArtists(), user.getComments());
+                    userToUpdate.setId(user.getId());
+                    userToUpdate.setUid(user.getUid());
+                    userToUpdate.setEmail(user.getEmail());
+                    userToUpdate.setFirstName(user.getFirstName());
+                    userToUpdate.setLastName(user.getLastName());
+                    userToUpdate.setDateOfBirth(user.getDateOfBirth());
+                    userToUpdate.setAvatarUrl(user.getAvatarUrl());
+
+                    return userRepository.save(userToUpdate);
+                })
+                .map(User::toUserResponseDto)
+                .orElseThrow(UserNotFoundException::new);
     }
 
-    private Address addressFromDto(UserDto userDto) {
-        return Address.builder()
-                .state(userDto.getState())
-                .postalCode(userDto.getPostalCode())
-                .country(userDto.getCountry())
-                .city(userDto.getCity())
-                .street(userDto.getStreet())
-                .otherInformation(userDto.getOtherInformation())
-                .build();
+    private Address getAddress(User user, String city, String state, String country, String postalCode, String street, String otherInformation) {
+        if(!user.isHasArtistPage()){
+            return null;
+        }
+        Address address = addressRepository.findById(user.getBusinessAddress().getId()).orElseThrow();
+        address.setCity(city);
+        address.setState(state);
+        address.setCountry(country);
+        address.setPostalCode(postalCode);
+        address.setStreet(street);
+        address.setOtherInformation(otherInformation);
+        addressRepository.save(address);
+        return address;
     }
+
+    private Address updateReqToAddress(User user, String city, String state, String country, String postalCode, String street, String otherInformation) {
+        return getAddress(user, city, state, country, postalCode, street, otherInformation);
+    }
+
+    private Address tattooArtistToAddress(User user, String city, String state, String country, String postalCode, String street, String otherInformation) {
+        return getAddress(user, city, state, country, postalCode, street, otherInformation);
+    }
+
 }

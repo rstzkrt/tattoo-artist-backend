@@ -29,4 +29,6 @@ public class TattooWork {
 
     private String coverPhoto;
     //list url
+
+
 }

@@ -3,9 +3,7 @@ package com.example.tattooartistbackend.user;
 import com.example.tattooartistbackend.address.Address;
 import com.example.tattooartistbackend.comment.Comment;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
-import com.example.tattooartistbackend.user.models.Currency;
-import com.example.tattooartistbackend.user.models.UserDto;
-import com.example.tattooartistbackend.user.models.WorkingDays;
+import com.example.tattooartistbackend.user.models.*;
 import lombok.*;
 
 import javax.persistence.*;
@@ -56,98 +54,173 @@ public class User {
     @OneToMany(mappedBy = "postedBy", fetch = FetchType.LAZY)
     private List<Comment> comments;
 
-    public static User fromDto(UserDto userDto, Address address,List<TattooWork> favoriteTattooWorks,List<TattooWork> tattooWorks,List<User> favouriteArtists,List<Comment> comments) {
+//    public static User fromUserResponseDto(UserResponseDto userDto, Address address, List<TattooWork> favoriteTattooWorks, List<TattooWork> tattooWorks, List<User> favouriteArtists, List<Comment> comments) {
+//        return User.builder()
+//                .id(userDto.getId())
+//                .avatarUrl(userDto.getAvatarUrl() == null ? "defaultUrl" : userDto.getAvatarUrl())
+//                .phoneNumber(userDto.getPhoneNumber())
+//                .dateOfBirth(userDto.getBirthDate())
+//                .firstName(userDto.getFirstName())
+//                .lastName(userDto.getLastName())
+//                .email(userDto.getEmail())
+//                .workingDaysList(userDto.getWorkDays())
+//                .hasArtistPage(userDto.getHasArtistPage() != null && userDto.getHasArtistPage())
+//                .businessAddress(address)
+//                .uid(userDto.getUid())
+//                .tattooWorks(tattooWorks == null ? new ArrayList<>() : tattooWorks)
+//                .favouriteArtists(favouriteArtists == null ? new ArrayList<>() : favouriteArtists)
+//                .comments(comments == null ? new ArrayList<>() : comments)
+//                .favoriteTattooWorks(favoriteTattooWorks == null ? new ArrayList<>() : favoriteTattooWorks)
+//                .build();
+//    }
+
+    public static User fromClientRequestDto(ClientReqDto clientReqDto) {
         return User.builder()
-                .id(userDto.getId())
-                .avatarUrl(userDto.getAvatarUrl()==null? "defaultUrl": userDto.getAvatarUrl())
-                .phoneNumber(userDto.getPhoneNumber())
-                .dateOfBirth(userDto.getBirthDate())
-                .firstName(userDto.getFirstName())
-                .lastName(userDto.getLastName())
-                .email(userDto.getEmail())
-                .workingDaysList(userDto.getWorkDays())
-                .hasArtistPage(userDto.getHasArtistPage() != null && userDto.getHasArtistPage())
-                .businessAddress(address)
-                .uid(userDto.getUid())
-                .tattooWorks(tattooWorks == null ? new ArrayList<>() : tattooWorks )
-                .favouriteArtists(favouriteArtists == null ? new ArrayList<>() : favouriteArtists )
-                .comments(comments == null ? new ArrayList<>() : comments )
-                .favoriteTattooWorks(favoriteTattooWorks == null ? new ArrayList<>() : favoriteTattooWorks )
+                .id(null)
+                .avatarUrl(clientReqDto.getAvatarUrl() == null ? "defaultUrl" : clientReqDto.getAvatarUrl())
+                .phoneNumber(null)
+                .dateOfBirth(clientReqDto.getBirthDate())
+                .firstName(clientReqDto.getFirstName())
+                .lastName(clientReqDto.getLastName())
+                .email(clientReqDto.getEmail())
+                .workingDaysList(null)
+                .hasArtistPage(false)
+                .businessAddress(null)
+                .uid(null)
+                .tattooWorks(new ArrayList<>())
+                .favouriteArtists(new ArrayList<>())
+                .comments(new ArrayList<>())
+                .favoriteTattooWorks(new ArrayList<>())
                 .build();
     }
 
-    public UserDto toDto() {
-        UserDto userDto = new UserDto();
-        userDto.setId(id);
-        userDto.uid(uid);
-        userDto.firstName(firstName);
-        userDto.lastName(lastName);
-        userDto.email(email);
-        userDto.phoneNumber(phoneNumber);
-        userDto.avatarUrl(avatarUrl);
-        userDto.birthDate(dateOfBirth);
-        userDto.hasArtistPage(hasArtistPage);
-        userDto.workDays(workingDaysList);
-        userDto.street(businessAddress.getStreet());
-        userDto.state(businessAddress.getState());
-        userDto.city(businessAddress.getCity());
-        userDto.country(businessAddress.getCountry());
-        userDto.postalCode(businessAddress.getPostalCode());
-        userDto.otherInformation(businessAddress.getOtherInformation());
-        userDto.favoriteArtistIds(
-                favouriteArtists
-                        .stream()
-                        .map(User::getId)
-                        .toList()
-        );
-        userDto.favoriteTattooWorkIds(
-                favoriteTattooWorks
-                        .stream()
-                        .map(TattooWork::getId)
-                        .toList()
-        );
-        userDto.commentIds(
-                comments
-                        .stream()
-                        .map(Comment::getId)
-                        .toList()
-        );
-        userDto.tattooWorkIds(
-                tattooWorks
-                        .stream()
-                        .map(TattooWork::getId)
-                        .toList()
-        );
+    public static User fromTattooArtistAccReqDto(TattooArtistAccReqDto tattooArtistAccReqDto, Address address, List<TattooWork> favoriteTattooWorks, List<TattooWork> tattooWorks, List<User> favouriteArtists, List<Comment> comments) {
+        return User.builder()
+                .phoneNumber(tattooArtistAccReqDto.getPhoneNumber())
+                .workingDaysList(tattooArtistAccReqDto.getWorkDays())
+                .hasArtistPage(true)
+                .businessAddress(address)
+                .tattooWorks(tattooWorks == null ? new ArrayList<>() : tattooWorks)
+                .favouriteArtists(favouriteArtists == null ? new ArrayList<>() : favouriteArtists)
+                .comments(comments == null ? new ArrayList<>() : comments)
+                .favoriteTattooWorks(favoriteTattooWorks == null ? new ArrayList<>() : favoriteTattooWorks)
+                .build();
+    }
 
-        if (userDto.getMaxTattooWorkPriceCurrency() != null) {
-            userDto.setMaxTattooWorkPriceCurrency(userDto.getMaxTattooWorkPriceCurrency());
+    public static User fromUserUpdateRequestDto(UserUpdateRequestDto userUpdateRequestDto, Address address, List<TattooWork> favoriteTattooWorks, List<TattooWork> tattooWorks, List<User> favouriteArtists, List<Comment> comments) {
+        return User.builder()
+                .avatarUrl(userUpdateRequestDto.getAvatarUrl() == null ? "defaultUrl" : userUpdateRequestDto.getAvatarUrl())
+                .phoneNumber(userUpdateRequestDto.getPhoneNumber())
+                .firstName(userUpdateRequestDto.getFirstName())
+                .lastName(userUpdateRequestDto.getLastName())
+                .email(userUpdateRequestDto.getEmail())
+                .workingDaysList(userUpdateRequestDto.getWorkDays())
+                .businessAddress(address)
+                .tattooWorks(tattooWorks == null ? new ArrayList<>() : tattooWorks)
+                .favouriteArtists(favouriteArtists == null ? new ArrayList<>() : favouriteArtists)
+                .comments(comments == null ? new ArrayList<>() : comments)
+                .favoriteTattooWorks(favoriteTattooWorks == null ? new ArrayList<>() : favoriteTattooWorks)
+                .build();
+    }
+
+
+    public UserResponseDto toUserResponseDto() {
+        UserResponseDto userResponseDto = new UserResponseDto();
+        userResponseDto.setId(id);
+        userResponseDto.setUid(uid);
+        userResponseDto.setFirstName(firstName);
+        userResponseDto.setLastName(lastName);
+        userResponseDto.setEmail(email);
+        userResponseDto.setPhoneNumber(phoneNumber);
+        userResponseDto.setAvatarUrl(avatarUrl);
+        userResponseDto.setBirthDate(dateOfBirth);
+        userResponseDto.setHasArtistPage(hasArtistPage);
+        userResponseDto.setWorkDays(workingDaysList);
+        if (businessAddress != null) {
+            userResponseDto.setStreet(businessAddress.getStreet());
+            userResponseDto.setState(businessAddress.getState());
+            userResponseDto.setCity(businessAddress.getCity());
+            userResponseDto.setCountry(businessAddress.getCountry());
+            userResponseDto.setPostalCode(businessAddress.getPostalCode());
+            userResponseDto.setOtherInformation(businessAddress.getOtherInformation());
+        }
+        userResponseDto.setStreet(null);
+        userResponseDto.setState(null);
+        userResponseDto.setCity(null);
+        userResponseDto.setCountry(null);
+        userResponseDto.setPostalCode(null);
+        userResponseDto.setOtherInformation(null);
+
+        if (this.favouriteArtists.isEmpty()) {
+            userResponseDto.setFavoriteArtistIds(new ArrayList<>());
         } else {
-            userDto.setMaxTattooWorkPriceCurrency(Currency.EUR);
+            userResponseDto.setFavoriteArtistIds(
+                    favouriteArtists
+                            .stream()
+                            .map(User::getId)
+                            .toList()
+            );
         }
 
-        if (userDto.getMinTattooWorkPriceCurrency() != null) {
-            userDto.setMinTattooWorkPriceCurrency(userDto.getMaxTattooWorkPriceCurrency());
+        if (this.favoriteTattooWorks.isEmpty()) {
+            userResponseDto.setFavoriteTattooWorkIds(new ArrayList<>());
         } else {
-            userDto.setMinTattooWorkPriceCurrency(Currency.EUR);
+            userResponseDto.setFavoriteTattooWorkIds(
+                    favoriteTattooWorks
+                            .stream()
+                            .map(TattooWork::getId)
+                            .toList());
+        }
+        if (this.comments.isEmpty()) {
+            userResponseDto.setCommentIds(new ArrayList<>());
+        } else {
+            userResponseDto.setCommentIds(
+                    comments
+                            .stream()
+                            .map(Comment::getId)
+                            .toList()
+            );
+        }
+        if (this.tattooWorks.isEmpty()) {
+            userResponseDto.setTattooWorkIds(new ArrayList<>());
+        } else {
+            userResponseDto.setTattooWorkIds(
+                    tattooWorks
+                            .stream()
+                            .map(TattooWork::getId)
+                            .toList()
+            );
         }
 
-        if (userDto.getAverageRating() != null) {
-            userDto.setAverageRating(userDto.getAverageRating());
+        if (userResponseDto.getMaxTattooWorkPriceCurrency() != null) {
+            userResponseDto.setMaxTattooWorkPriceCurrency(userResponseDto.getMaxTattooWorkPriceCurrency());
         } else {
-            userDto.setAverageRating(BigDecimal.valueOf(0));
+            userResponseDto.setMaxTattooWorkPriceCurrency(Currency.EUR);
         }
 
-        if (userDto.getMinTattooWorkPrice() != null) {
-            userDto.setMinTattooWorkPrice(userDto.getMinTattooWorkPrice());
+        if (userResponseDto.getMinTattooWorkPriceCurrency() != null) {
+            userResponseDto.setMinTattooWorkPriceCurrency(userResponseDto.getMaxTattooWorkPriceCurrency());
         } else {
-            userDto.setMinTattooWorkPrice(BigDecimal.valueOf(0));
+            userResponseDto.setMinTattooWorkPriceCurrency(Currency.EUR);
         }
 
-        if (userDto.getMaxTattooWorkPrice() != null) {
-            userDto.setMaxTattooWorkPrice(userDto.getMaxTattooWorkPrice());
+        if (userResponseDto.getAverageRating() != null) {
+            userResponseDto.setAverageRating(userResponseDto.getAverageRating());
         } else {
-            userDto.setMaxTattooWorkPrice(BigDecimal.valueOf(0));
+            userResponseDto.setAverageRating(BigDecimal.valueOf(0));
         }
-        return userDto;
+
+        if (userResponseDto.getMinTattooWorkPrice() != null) {
+            userResponseDto.setMinTattooWorkPrice(userResponseDto.getMinTattooWorkPrice());
+        } else {
+            userResponseDto.setMinTattooWorkPrice(BigDecimal.valueOf(0));
+        }
+
+        if (userResponseDto.getMaxTattooWorkPrice() != null) {
+            userResponseDto.setMaxTattooWorkPrice(userResponseDto.getMaxTattooWorkPrice());
+        } else {
+            userResponseDto.setMaxTattooWorkPrice(BigDecimal.valueOf(0));
+        }
+        return userResponseDto;
     }
 }
