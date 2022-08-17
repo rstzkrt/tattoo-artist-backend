@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    password: resat123
+    username: postgres
+    url: jdbc:postgresql://localhost:5432/tattoo_artist
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+#logging:
+#  level:
+#    root: info
