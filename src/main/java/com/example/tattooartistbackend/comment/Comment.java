@@ -1,10 +1,13 @@
 package com.example.tattooartistbackend.comment;
 
+import com.example.tattooartistbackend.comment.models.CommentRequestDto;
+import com.example.tattooartistbackend.comment.models.CommentResponseDto;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
 import com.example.tattooartistbackend.user.User;
 import lombok.*;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -28,5 +31,26 @@ public class Comment { //comments for the tatoo works but feedbacks(reviews) are
     private LocalDate postDate;
     @OneToOne
     private TattooWork tattooWork;
-    private Double rate;
+    private BigDecimal rate;
+
+    public static Comment fromDto(CommentRequestDto commentRequestDto, User postedBy, TattooWork tattooWork) {
+        return Comment.builder()
+                .message(commentRequestDto.getMessage())
+                .postDate(LocalDate.now())
+                .postedBy(postedBy)
+                .rate(commentRequestDto.getRate())
+                .tattooWork(tattooWork)
+                .build();
+    }
+
+    public static CommentResponseDto toResponseDto(Comment comment) {
+        CommentResponseDto commentResponseDto = new CommentResponseDto();
+        commentResponseDto.setId(comment.getId());
+        commentResponseDto.setMessage(comment.getMessage());
+        commentResponseDto.setPostDate(comment.getPostDate());
+        commentResponseDto.setPostedBy(comment.getPostedBy().getId());
+        commentResponseDto.setWorkId(comment.getTattooWork().getId());
+        commentResponseDto.setRate(comment.getRate());
+        return commentResponseDto;
+    }
 }

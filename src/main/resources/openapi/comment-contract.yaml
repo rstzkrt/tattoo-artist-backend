@@ -5,7 +5,7 @@ info:
   version: 1.0.0
 paths:
 
-  /commnets/{comment_id}:
+  /comments/{comment_id}:
     get:
       operationId: getCommentById
       description: get comment by id
@@ -23,9 +23,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CommentResponseDto'
+                $ref: '#/components/schemas/CommentResponseDto'
         default:
           description: error payload
           content:
@@ -112,9 +110,17 @@ paths:
             application/json:
               schema:
                 $ref: './user-contract.yaml/#/components/schemas/ErrorResponse'
-    post:
+    post:                                                                           # rating verildiginde user average rating calculate et
       operationId: createComment
       description: create comment
+      parameters:
+        - in: path
+          name: tattooWork_id
+          description: tattooWork id
+          required: true
+          schema:
+            type: string
+            format: uuid
       requestBody:
         required: true
         content:
@@ -127,7 +133,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserResponseDto'
+                $ref: '#/components/schemas/CommentResponseDto'
         default:
           description: error payload
           content:
@@ -173,5 +179,6 @@ components:
           type: string
         workId:
           type: string
+          format: uuid
         rate:
           type: number
