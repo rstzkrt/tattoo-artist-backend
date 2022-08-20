@@ -7,6 +7,9 @@ import com.example.tattooartistbackend.user.User;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -27,10 +30,14 @@ public class Comment { //comments for the tatoo works but feedbacks(reviews) are
     private UUID id;
     @ManyToOne
     private User postedBy;
+    @NotBlank
     private String message;
     private LocalDate postDate;
     @OneToOne(cascade = CascadeType.REMOVE)
     private TattooWork tattooWork;
+    @NotBlank
+    @Max(value = 5)
+    @Min(value = 1)
     private BigDecimal rate;
 
     public static Comment fromDto(CommentRequestDto commentRequestDto, User postedBy, TattooWork tattooWork) {

@@ -10,6 +10,8 @@ import net.minidev.json.annotate.JsonIgnore;
 import org.hibernate.query.criteria.internal.ValueHandlerFactory;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
@@ -30,17 +32,18 @@ public class User {
     @GeneratedValue(strategy = AUTO)
     private UUID id;
     private String uid;
+    @NotBlank(message = "firstName cannot be null!")
     private String firstName;
+    @NotBlank(message = "firstName cannot be null!")
     private String lastName;
+    @Email
     private String email;
     private String phoneNumber;
     private String avatarUrl;
-    private LocalDate dateOfBirth;//needed for creating an arist page
+    private LocalDate dateOfBirth;
     private boolean hasArtistPage;
-
     private Double averageRating;
     @OneToOne
-
     private Address businessAddress;
     @Enumerated
     @ElementCollection(targetClass = WorkingDays.class)
