@@ -60,6 +60,19 @@ public class TattooWorkController implements TattooWorksApi {
     }
 
     /**
+     * GET /tattoo-works/{id}
+     * get tattoo work
+     *
+     * @param id tattoo-work id (required)
+     * @return OK (status code 200)
+     * or error payload (status code 200)
+     */
+    @Override
+    public ResponseEntity<TattooWorksResponseDto> getTattooWorkById(UUID id) {
+        return ResponseEntity.ok(tattooWorkService.getTattooWorkById(id));
+    }
+
+    /**
      * PATCH /tattoo-works/{id}
      * patch
      *

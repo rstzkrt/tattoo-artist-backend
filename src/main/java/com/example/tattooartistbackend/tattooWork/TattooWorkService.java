@@ -48,7 +48,7 @@ public class TattooWorkService {
         }
     }
     public List<TattooWorksResponseDto> getAllTattooWorks(String country, BigDecimal price){
-       return tattooWorkRepository.findAll()
+       return tattooWorkRepository.findAllFilter(country,price)
                .stream()
                .map(TattooWork::toTattooWorksResponseDto)
                .collect(Collectors.toList());
@@ -61,6 +61,12 @@ public class TattooWorkService {
         tattooWork.setCurrency(tattooWorkPatchRequestDto.getCurrency());
         tattooWork.setPhotos(tattooWorkPatchRequestDto.getPhotos());                //split to 2 patch endpoints add photos - delete photos...
         tattooWork.setCoverPhoto(tattooWorkPatchRequestDto.getCoverPhoto());
-        return null;
+        tattooWorkRepository.save(tattooWork);
+        return TattooWork.toTattooWorksResponseDto(tattooWork);
+    }
+
+    public TattooWorksResponseDto getTattooWorkById(UUID id) {
+        var tattooWork=tattooWorkRepository.findById(id).orElseThrow();
+        return TattooWork.toTattooWorksResponseDto(tattooWork);
     }
 }

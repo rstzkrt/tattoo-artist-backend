@@ -7,6 +7,7 @@ import com.example.tattooartistbackend.tattooWork.models.TattooWorkPostRequestDt
 import com.example.tattooartistbackend.tattooWork.models.TattooWorksResponseDto;
 import com.example.tattooartistbackend.user.User;
 import lombok.*;
+import net.minidev.json.annotate.JsonIgnore;
 
 import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
@@ -18,6 +19,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.UUID;
 import java.util.List;
 
@@ -45,11 +47,16 @@ public class TattooWork {
     private String coverPhoto;
     @ElementCollection
     private List<String> photos;
-    private Integer like_number;
-    private Integer dislike_number;
     private String description;
     @OneToOne(cascade = CascadeType.REMOVE)
     private Comment comment;// will be posted under tattoo-work by the person who had the tattoo but like and dislike will be able to given by anybody else
+
+    @ElementCollection
+    @JsonIgnore
+    private List<UUID> dislikerIds;//
+    @ElementCollection
+    @JsonIgnore
+    private List<UUID> likerIds;//
 
     public static TattooWork fromTattooWorkPostRequest(TattooWorkPostRequestDto tattooWorkPostRequestDto, User client, User madeBy) {
         return TattooWork.builder()
@@ -57,9 +64,9 @@ public class TattooWork {
                 .comment(null)
                 .coverPhoto(tattooWorkPostRequestDto.getCoverPhoto())
                 .currency(tattooWorkPostRequestDto.getCurrency())
+                .likerIds(new ArrayList<>())
+                .dislikerIds(new ArrayList<>())
                 .description(tattooWorkPostRequestDto.getDescription())
-                .dislike_number(0)
-                .like_number(0)
                 .madeBy(madeBy)
                 .photos(tattooWorkPostRequestDto.getPhotos())
                 .price(tattooWorkPostRequestDto.getPrice())
@@ -76,25 +83,9 @@ public class TattooWork {
         res.setPhotos(tattooWork.getPhotos());
         res.setClientId(tattooWork.getClient().getId());
         res.setCommentId(tattooWork.getComment()==null? null :tattooWork.getComment().getId());
-        res.setDislikeNumber(tattooWork.getDislike_number());
-        res.setLikeNumber(tattooWork.getLike_number());
+        res.setDislikeNumber(tattooWork.dislikerIds.size());
+        res.setLikeNumber(tattooWork.likerIds.size());
         res.setMadeById(tattooWork.getMadeBy().getId());
         return res;
     }
-
-
-//    public static TattooWork fromTattooWorkPatchRequest(TattooWorkPatchRequestDto tattooWorkPatchRequestDto){
-//        return TattooWork.builder()
-//                .client(client)
-//                .comment(comment)
-//                .coverPhoto(tattooWorkPostRequestDto.getCoverPhoto())
-//                .currency(tattooWorkPostRequestDto.getCurrency())
-//                .description(tattooWorkPostRequestDto.getDescription())
-//                .dislike_number(0)
-//                .like_number(0)
-//                .madeBy(madeBy)
-//                .photos(tattooWorkPostRequestDto.getPhotos())
-//                .price(tattooWorkPostRequestDto.getPrice())
-//                .build();
-//    }
 }
