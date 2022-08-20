@@ -36,6 +36,20 @@ public class UserController implements UsersApi {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    /**
+     * DELETE /users/{user_id}/tattoo-work/{post_id}/like
+     * dislike
+     *
+     * @param userId user id (required)
+     * @param postId artist id (required)
+     * @return no content (status code 200)
+     * or error payload (status code 200)
+     */
+    @Override
+    public ResponseEntity<Void> dislikeTattooWork(UUID userId, UUID postId) {
+        return UsersApi.super.dislikeTattooWork(userId, postId);
+    }
+
     @Override
     public ResponseEntity<UserResponseDto> favoriteTattooArtist(UUID userId, UUID artistId) {
         return  ResponseEntity.ok(userService.favoriteTattooArtist(userId, artistId));
@@ -56,6 +70,20 @@ public class UserController implements UsersApi {
         return userService.findUserById(id)
                 .map(userDto -> new ResponseEntity<>(userDto,HttpStatus.OK))
                 .orElseThrow(UserNotFoundException::new);
+    }
+
+    /**
+     * POST /users/{user_id}/tattoo-work/{post_id}/like
+     * like
+     *
+     * @param userId user id (required)
+     * @param postId post_id (required)
+     * @return no content (status code 200)
+     * or error payload (status code 200)
+     */
+    @Override
+    public ResponseEntity<Void> likeTattooWork(UUID userId, UUID postId) {
+        return UsersApi.super.likeTattooWork(userId, postId);
     }
 
     @Override

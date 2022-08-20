@@ -3,10 +3,12 @@ spring:
     password: resat123
     username: postgres
     url: jdbc:postgresql://localhost:5432/tattoo_artist
+    driver-class-name: org.postgresql.Driver
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: create
-#logging:
-#  level:
-#    root: info
+      ddl-auto: update
+    generate-ddl: true
+logging:
+  level:
+    root: info

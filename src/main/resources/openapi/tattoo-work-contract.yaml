@@ -5,10 +5,155 @@ info:
   version: 1.0.0
 paths:
   /tattoo-works: #get all to show on the main page ,will be able to filtered
+    get:
+      operationId: getAllTattooWorks
+      description: get all tattooWorks
+      parameters:
+        - in: query
+          name: country
+          description: country
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: price
+          description: country
+          required: false
+          schema:
+            type: number
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TattooWorksResponseDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: './user-contract.yaml/#/components/schemas/ErrorResponse'
+    post:
+      operationId: createTattooWork
+      description: create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TattooWorkPostRequestDto'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TattooWorksResponseDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
+  /tattoo-works/{id}:
+    delete:
+      operationId: deleteTattooWork
+      description: delete
+      parameters:
+        - in: path
+          name: id
+          description: tattoo-work id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        204:
+          description: no content
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      operationId: patchTattooWork
+      description: patch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TattooWorkPatchRequestDto'
+      parameters:
+        - in: path
+          name: id
+          description: tattoo-work id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TattooWorksResponseDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+#add photos delete photos / or extart photos to another domain
 components:
   schemas:
-    TattooWorks:
+
+    TattooWorkPostRequestDto:
+      type: object
+      properties:
+        description:
+          type: string
+        price:
+          type: number
+        currency:
+          $ref: '#/components/schemas/Currency'
+        coverPhoto:
+          type: string
+        photos:
+          type: array
+          items:
+            type: string
+        clientId:
+          type: string
+          format: uuid
+        madeById:
+          type: string
+          format: uuid
+
+    TattooWorkPatchRequestDto:
+      type: object
+      properties:
+        description:
+          type: string
+        price:
+          type: number
+        currency:
+          $ref: '#/components/schemas/Currency'
+        coverPhoto:
+          type: string
+        photos:
+          type: array
+          items:
+            type: string
+
+    TattooWorksResponseDto:
       type: object
       properties:
         id:
@@ -16,15 +161,29 @@ components:
           format: uuid
         description:
           type: string
+        clientId:
+          type: string
+          format: uuid
         price:
           type: number
-        commentIds:
+        commentId:
+          type: string
+          format: uuid
+        currency:
+          $ref: '#/components/schemas/Currency'
+        dislike_number:
+          type: integer
+        like_number:
+          type: integer
+        coverPhoto:
+          type: string
+        photos:
           type: array
           items:
             type: string
-            format: uuid
-        currency:
-          $ref: '#/components/schemas/Currency'
+        madeById:
+          type: string
+          format: uuid
 
     Currency:
       enum:

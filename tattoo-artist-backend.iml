@@ -19,7 +19,7 @@
         <setting name="validation-enabled" value="true" />
         <setting name="provider-name" value="Hibernate" />
         <datasource-mapping>
-          <factory-entry name="entityManagerFactory" />
+          <factory-entry name="entityManagerFactory" value="2256e60c-91bf-4b88-9983-7b64378cb3f6" />
           <factory-entry name="tattoo-artist-backend" />
         </datasource-mapping>
         <naming-strategy-map />
