@@ -23,19 +23,20 @@ import static javax.persistence.GenerationType.AUTO;
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class Comment { //comments for the tatoo works but feedbacks(reviews) are for the tattoo artists
+public class Comment {
 
     @Id
     @GeneratedValue(strategy = AUTO)
     private UUID id;
     @ManyToOne
+    @ToString.Exclude
     private User postedBy;
     @NotBlank
     private String message;
     private LocalDate postDate;
+    @ToString.Exclude
     @OneToOne(cascade = CascadeType.REMOVE)
     private TattooWork tattooWork;
-    @NotBlank
     @Max(value = 5)
     @Min(value = 1)
     private BigDecimal rate;

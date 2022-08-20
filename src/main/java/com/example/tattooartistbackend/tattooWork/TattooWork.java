@@ -2,7 +2,6 @@ package com.example.tattooartistbackend.tattooWork;
 
 import com.example.tattooartistbackend.comment.Comment;
 import com.example.tattooartistbackend.tattooWork.models.Currency;
-import com.example.tattooartistbackend.tattooWork.models.TattooWorkPatchRequestDto;
 import com.example.tattooartistbackend.tattooWork.models.TattooWorkPostRequestDto;
 import com.example.tattooartistbackend.tattooWork.models.TattooWorksResponseDto;
 import com.example.tattooartistbackend.user.User;
@@ -19,6 +18,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -39,8 +39,9 @@ public class TattooWork {
     @GeneratedValue(strategy = AUTO)
     private UUID id;
     @ManyToOne
+    @ToString.Exclude
     private User madeBy;
-    @NotBlank
+    @NotNull
     private BigDecimal price;
     @ManyToOne
     private User client;
@@ -52,15 +53,17 @@ public class TattooWork {
     private List<String> photos;
     @NotBlank
     private String description;
+
+    @ToString.Exclude
     @OneToOne(cascade = CascadeType.REMOVE)
-    private Comment comment;// will be posted under tattoo-work by the person who had the tattoo but like and dislike will be able to given by anybody else
+    private Comment comment;
 
     @ElementCollection
     @JsonIgnore
-    private List<UUID> dislikerIds;//
+    private List<UUID> dislikerIds;
     @ElementCollection
     @JsonIgnore
-    private List<UUID> likerIds;//
+    private List<UUID> likerIds;
 
     public static TattooWork fromTattooWorkPostRequest(TattooWorkPostRequestDto tattooWorkPostRequestDto, User client, User madeBy) {
         return TattooWork.builder()
