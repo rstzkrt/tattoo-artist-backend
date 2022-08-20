@@ -287,7 +287,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-#ToDO, create artist page service, ...test all endpoints ... move to comments or tattoo works
 components:
   schemas:
 

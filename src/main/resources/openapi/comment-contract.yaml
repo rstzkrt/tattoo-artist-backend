@@ -1,18 +1,174 @@
 openapi: 3.0.3
 info:
   title: comment-contract
-  description: comment
+  description: comment-openapi-contract
   version: 1.0.0
 paths:
-  /comments:
 
+  /comments/{comment_id}:
+    get:
+      operationId: getCommentById
+      description: get comment by id
+      parameters:
+        - in: path
+          name: comment_id
+          description: comment id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentResponseDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: './user-contract.yaml/#/components/schemas/ErrorResponse'
 
-  
+    delete:
+      operationId: deleteCommentById
+      description: delete comment by id
+      parameters:
+        - in: path
+          name: comment_id
+          description: comment id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        204:
+          description: no content
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      operationId: editComment
+      description: edit comment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentPatchRequestDto'
+      parameters:
+        - in: path
+          name: comment_id
+          description: comment id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentResponseDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /comments/tattooworks/{tattooWork_id}:
+    get:
+      operationId: getCommentsByTattooWorkId
+      description: get comments
+      parameters:
+        - in: path
+          name: tattooWork_id
+          description: tattooWork id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommentResponseDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: './user-contract.yaml/#/components/schemas/ErrorResponse'
+    post:                                                                           # rating verildiginde user average rating calculate et
+      operationId: createComment
+      description: create comment
+      parameters:
+        - in: path
+          name: tattooWork_id
+          description: tattooWork id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentRequestDto'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentResponseDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
-    Comment:
+
+    CommentPatchRequestDto:
       type: object
       properties:
+        rate:
+          type: number
+        message:
+          type: string
+
+    CommentRequestDto:
+      type: object
+      properties:
+        postedBy:
+          type: string
+          format: uuid
+        message:
+          type: string
+        rate:
+          type: number
+
+
+    CommentResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
         postDate:
           type: string
           format: date
@@ -23,3 +179,6 @@ components:
           type: string
         workId:
           type: string
+          format: uuid
+        rate:
+          type: number
