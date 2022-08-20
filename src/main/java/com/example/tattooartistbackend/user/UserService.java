@@ -152,8 +152,6 @@ public class UserService {
                     userToUpdate.setLastName(user.getLastName());
                     userToUpdate.setDateOfBirth(user.getDateOfBirth());
                     userToUpdate.setAvatarUrl(user.getAvatarUrl());
-
-                    System.out.println(user.toString());
                     return userRepository.save(userToUpdate);
                 })
                 .map(User::toUserResponseDto)
