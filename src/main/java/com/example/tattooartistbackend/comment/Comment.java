@@ -29,7 +29,7 @@ public class Comment { //comments for the tatoo works but feedbacks(reviews) are
     private User postedBy;
     private String message;
     private LocalDate postDate;
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE)
     private TattooWork tattooWork;
     private BigDecimal rate;
 
