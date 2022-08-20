@@ -4,17 +4,16 @@ import com.example.tattooartistbackend.address.Address;
 import com.example.tattooartistbackend.comment.Comment;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
 import com.example.tattooartistbackend.user.models.*;
-import com.example.tattooartistbackend.user.models.Currency;
 import lombok.*;
-import net.minidev.json.annotate.JsonIgnore;
-import org.hibernate.query.criteria.internal.ValueHandlerFactory;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import static javax.persistence.GenerationType.AUTO;
 
@@ -23,7 +22,6 @@ import static javax.persistence.GenerationType.AUTO;
 @Getter
 @Setter
 @Builder
-@ToString
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class User {
@@ -86,7 +84,6 @@ public class User {
                 .workingDaysList(tattooArtistAccReqDto.getWorkDays())
                 .hasArtistPage(true)
                 .businessAddress(address)
-//                .averageRating(0.0)
                 .tattooWorks(tattooWorks == null ? new ArrayList<>() : tattooWorks)
                 .favouriteArtists(favouriteArtists == null ? new ArrayList<>() : favouriteArtists)
                 .comments(comments == null ? new ArrayList<>() : comments)
@@ -101,7 +98,6 @@ public class User {
                 .firstName(userUpdateRequestDto.getFirstName())
                 .lastName(userUpdateRequestDto.getLastName())
                 .email(userUpdateRequestDto.getEmail())
-//                .averageRating(BigDecimal.valueOf(0.0))
                 .workingDaysList(userUpdateRequestDto.getWorkDays())
                 .businessAddress(address)
                 .tattooWorks(tattooWorks == null ? new ArrayList<>() : tattooWorks)
@@ -216,5 +212,19 @@ public class User {
             userResponseDto.setMaxTattooWorkPrice(BigDecimal.valueOf(0));
         }
         return userResponseDto;
+    }
+
+    public String toString() {
+        return "User(id=" + this.getId() +
+                ", uid=" + this.getUid() +
+                ", firstName=" + this.getFirstName() +
+                ", lastName=" + this.getLastName() +
+                ", email=" + this.getEmail() +
+                ", phoneNumber=" + this.getPhoneNumber() +
+                ", avatarUrl=" + this.getAvatarUrl() +
+                ", dateOfBirth=" + this.getDateOfBirth() +
+                ", hasArtistPage=" + this.isHasArtistPage() +
+                ", averageRating=" + this.getAverageRating() +
+                ", workingDaysList=" + this.getWorkingDaysList();
     }
 }

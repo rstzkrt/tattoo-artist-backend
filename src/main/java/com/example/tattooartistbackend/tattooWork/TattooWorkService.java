@@ -59,7 +59,7 @@ public class TattooWorkService {
         tattooWork.setDescription(tattooWorkPatchRequestDto.getDescription());
         tattooWork.setPrice(tattooWorkPatchRequestDto.getPrice());
         tattooWork.setCurrency(tattooWorkPatchRequestDto.getCurrency());
-        tattooWork.setPhotos(tattooWorkPatchRequestDto.getPhotos());                //split to 2 patch endpoints add photos - delete photos...
+        tattooWork.setPhotos(tattooWorkPatchRequestDto.getPhotos());
         tattooWork.setCoverPhoto(tattooWorkPatchRequestDto.getCoverPhoto());
         tattooWorkRepository.save(tattooWork);
         return TattooWork.toTattooWorksResponseDto(tattooWork);

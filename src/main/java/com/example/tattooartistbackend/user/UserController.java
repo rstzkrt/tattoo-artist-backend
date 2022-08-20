@@ -2,10 +2,7 @@ package com.example.tattooartistbackend.user;
 
 import com.example.tattooartistbackend.exceptions.UserNotFoundException;
 import com.example.tattooartistbackend.user.apis.UsersApi;
-import com.example.tattooartistbackend.user.models.ClientReqDto;
-import com.example.tattooartistbackend.user.models.TattooArtistAccReqDto;
-import com.example.tattooartistbackend.user.models.UserResponseDto;
-import com.example.tattooartistbackend.user.models.UserUpdateRequestDto;
+import com.example.tattooartistbackend.user.models.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -105,5 +102,18 @@ public class UserController implements UsersApi {
         return userService.updateUser(id,userUpdateRequestDto)
                 .map(userDto1 -> new ResponseEntity<>(userDto1,HttpStatus.CREATED))
                 .orElseThrow(UserNotFoundException::new);
+    }
+
+    /**
+     * GET /users/{id}/price-interval
+     * price interval
+     *
+     * @param id user id (required)
+     * @return OK (status code 200)
+     * or error payload (status code 200)
+     */
+    @Override
+    public ResponseEntity<TattooArtistPriceInterval> userPriceInterval(UUID id) {
+        return ResponseEntity.ok(userService.userPriceInterval(id));
     }
 }

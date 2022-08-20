@@ -11,7 +11,6 @@ import java.util.List;
 @Repository
 public interface TattooWorkRepository extends JpaRepository<TattooWork, UUID> {
 
-    //user price range or price interval
     TattooWork findTopByMadeBy_IdOrderByPriceDesc(UUID madeBy);
 
     TattooWork findTopByMadeBy_IdOrderByPriceAsc(UUID madeBy);
