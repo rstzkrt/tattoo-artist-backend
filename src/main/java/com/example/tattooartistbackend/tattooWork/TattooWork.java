@@ -18,6 +18,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -39,14 +40,17 @@ public class TattooWork {
     private UUID id;
     @ManyToOne
     private User madeBy;
+    @NotBlank
     private BigDecimal price;
     @ManyToOne
     private User client;
     @Enumerated(EnumType.STRING)
     private Currency currency;
+    @NotBlank
     private String coverPhoto;
     @ElementCollection
     private List<String> photos;
+    @NotBlank
     private String description;
     @OneToOne(cascade = CascadeType.REMOVE)
     private Comment comment;// will be posted under tattoo-work by the person who had the tattoo but like and dislike will be able to given by anybody else
