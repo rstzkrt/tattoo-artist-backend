@@ -8,10 +8,7 @@ import com.example.tattooartistbackend.comment.CommentRepository;
 import com.example.tattooartistbackend.exceptions.UserNotFoundException;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
 import com.example.tattooartistbackend.tattooWork.TattooWorkRepository;
-import com.example.tattooartistbackend.user.models.ClientReqDto;
-import com.example.tattooartistbackend.user.models.TattooArtistAccReqDto;
-import com.example.tattooartistbackend.user.models.UserResponseDto;
-import com.example.tattooartistbackend.user.models.UserUpdateRequestDto;
+import com.example.tattooartistbackend.user.models.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -54,12 +51,15 @@ public class UserService {
     public Optional<UserResponseDto> updateUser(UUID id, UserUpdateRequestDto userUpdateRequestDto) {
         return Optional.ofNullable(userRepository.findById(id)
                 .map(user -> {
-                    Address address = updateReqToAddress(user, userUpdateRequestDto.getCity(), userUpdateRequestDto.getState(), userUpdateRequestDto.getCountry(), userUpdateRequestDto.getPostalCode(), userUpdateRequestDto.getStreet(), userUpdateRequestDto.getOtherInformation());
-                    User userToUpdate = User.fromUserUpdateRequestDto(userUpdateRequestDto, address, user.getTattooWorks(), user.getTattooWorks(), user.getFavouriteArtists(), user.getComments());
+                    Address address = updateReqToAddress(user, userUpdateRequestDto.getCity(), userUpdateRequestDto.getState(),
+                            userUpdateRequestDto.getCountry(), userUpdateRequestDto.getPostalCode(), userUpdateRequestDto.getStreet(), userUpdateRequestDto.getOtherInformation());
+                    User userToUpdate = User.fromUserUpdateRequestDto(userUpdateRequestDto, address, user.getTattooWorks(),
+                            user.getTattooWorks(), user.getFavouriteArtists(), user.getComments());
                     userToUpdate.setId(user.getId());
                     userToUpdate.setUid(user.getUid());
                     userToUpdate.setHasArtistPage(user.isHasArtistPage());
                     userToUpdate.setDateOfBirth(user.getDateOfBirth());
+                    userToUpdate.setAverageRating(user.getAverageRating());
                     return userRepository.save(userToUpdate);
                 })
                 .map(User::toUserResponseDto)
@@ -142,7 +142,8 @@ public class UserService {
                             .build();
 
                     addressRepository.save(address);
-                    User userToUpdate = User.fromTattooArtistAccReqDto(tattooArtistAccReqDto, address, user.getTattooWorks(), user.getTattooWorks(), user.getFavouriteArtists(), user.getComments());
+                    User userToUpdate = User.fromTattooArtistAccReqDto(tattooArtistAccReqDto,
+                            address, user.getTattooWorks(), user.getTattooWorks(), user.getFavouriteArtists(), user.getComments());
 
                     userToUpdate.setId(user.getId());
                     userToUpdate.setUid(user.getUid());
@@ -217,4 +218,18 @@ public class UserService {
         }
     }
 
+    public TattooArtistPriceInterval userPriceInterval(UUID id) {
+        var tattooWorkMAX= tattooWorkRepository.findTopByMadeBy_IdOrderByPriceDesc(id);
+        var tattooWorkMIN= tattooWorkRepository.findTopByMadeBy_IdOrderByPriceAsc(id);
+        System.out.println(tattooWorkMIN);
+        System.out.println(tattooWorkMAX);
+        return createTattooArtistPriceInterval(tattooWorkMAX,tattooWorkMIN);
+    }
+
+    public TattooArtistPriceInterval createTattooArtistPriceInterval(TattooWork tattooWorkWithMaxPrice, TattooWork tattooWorkWithMinPrice){
+        TattooArtistPriceInterval tattooArtistPriceInterval= new TattooArtistPriceInterval();
+        tattooArtistPriceInterval.setMaxPrice(tattooWorkWithMaxPrice.getPrice());
+        tattooArtistPriceInterval.setMinPrice(tattooWorkWithMinPrice.getPrice());
+        return tattooArtistPriceInterval;
+    }
 }
