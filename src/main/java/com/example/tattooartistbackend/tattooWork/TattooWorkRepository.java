@@ -16,6 +16,6 @@ public interface TattooWorkRepository extends JpaRepository<TattooWork, UUID> {
 
     TattooWork findTopByMadeBy_IdOrderByPriceAsc(UUID madeBy);
 
-    @Query("SELECT t from TattooWork t WHERE (:country is null or t.client.businessAddress.country = :country) OR (:price is null or t.price = :price)")
+    @Query("SELECT t from TattooWork t WHERE (:country is null or t.madeBy.businessAddress.country = :country) AND (:price is null or t.price = :price)")
     List<TattooWork> findAllFilter(String country, BigDecimal price);
 }

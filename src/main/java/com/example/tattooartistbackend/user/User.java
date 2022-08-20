@@ -6,6 +6,8 @@ import com.example.tattooartistbackend.tattooWork.TattooWork;
 import com.example.tattooartistbackend.user.models.*;
 import com.example.tattooartistbackend.user.models.Currency;
 import lombok.*;
+import net.minidev.json.annotate.JsonIgnore;
+import org.hibernate.query.criteria.internal.ValueHandlerFactory;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -38,6 +40,7 @@ public class User {
 
     private Double averageRating;
     @OneToOne
+
     private Address businessAddress;
     @Enumerated
     @ElementCollection(targetClass = WorkingDays.class)
@@ -50,33 +53,10 @@ public class User {
     private List<TattooWork> tattooWorks;
 
     @OneToMany(fetch = FetchType.LAZY)
-    private List<TattooWork> favoriteTattooWorks;//
+    private List<TattooWork> favoriteTattooWorks;
 
-    @OneToMany(mappedBy = "postedBy", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "postedBy", fetch = FetchType.LAZY,cascade = CascadeType.REMOVE)
     private List<Comment> comments;
-
-
-
-//    public static User fromUserResponseDto(UserResponseDto userDto, Address address, List<TattooWork> favoriteTattooWorks, List<TattooWork> tattooWorks, List<User> favouriteArtists, List<Comment> comments) {
-//        return User.builder()
-//                .id(userDto.getId())
-//                .avatarUrl(userDto.getAvatarUrl() == null ? "defaultUrl" : userDto.getAvatarUrl())
-//                .phoneNumber(userDto.getPhoneNumber())
-//                .dateOfBirth(userDto.getBirthDate())
-//                .firstName(userDto.getFirstName())
-//                .lastName(userDto.getLastName())
-//                .email(userDto.getEmail())
-//                .workingDaysList(userDto.getWorkDays())
-//                .hasArtistPage(userDto.getHasArtistPage() != null && userDto.getHasArtistPage())
-//                .businessAddress(address)
-//                .uid(userDto.getUid())
-//                .tattooWorks(tattooWorks == null ? new ArrayList<>() : tattooWorks)
-//                .favouriteArtists(favouriteArtists == null ? new ArrayList<>() : favouriteArtists)
-//                .comments(comments == null ? new ArrayList<>() : comments)
-//                .favoriteTattooWorks(favoriteTattooWorks == null ? new ArrayList<>() : favoriteTattooWorks)
-//                .build();
-//    }
-
     public static User fromClientRequestDto(ClientReqDto clientReqDto) {
         return User.builder()
                 .id(null)
@@ -89,7 +69,6 @@ public class User {
                 .workingDaysList(null)
                 .hasArtistPage(false)
                 .businessAddress(null)
-//                .averageRating(0.0)
                 .uid(null)
                 .tattooWorks(new ArrayList<>())
                 .favouriteArtists(new ArrayList<>())
@@ -104,7 +83,7 @@ public class User {
                 .workingDaysList(tattooArtistAccReqDto.getWorkDays())
                 .hasArtistPage(true)
                 .businessAddress(address)
-                .averageRating(0.0)
+//                .averageRating(0.0)
                 .tattooWorks(tattooWorks == null ? new ArrayList<>() : tattooWorks)
                 .favouriteArtists(favouriteArtists == null ? new ArrayList<>() : favouriteArtists)
                 .comments(comments == null ? new ArrayList<>() : comments)
@@ -119,7 +98,7 @@ public class User {
                 .firstName(userUpdateRequestDto.getFirstName())
                 .lastName(userUpdateRequestDto.getLastName())
                 .email(userUpdateRequestDto.getEmail())
-                .averageRating(0.0)
+//                .averageRating(BigDecimal.valueOf(0.0))
                 .workingDaysList(userUpdateRequestDto.getWorkDays())
                 .businessAddress(address)
                 .tattooWorks(tattooWorks == null ? new ArrayList<>() : tattooWorks)
@@ -147,7 +126,6 @@ public class User {
         }else{
             userResponseDto.setAverageRating(BigDecimal.valueOf(0));
         }
-
         if (businessAddress != null) {
             userResponseDto.setStreet(businessAddress.getStreet());
             userResponseDto.setState(businessAddress.getState());

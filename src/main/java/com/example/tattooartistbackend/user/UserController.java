@@ -37,7 +37,7 @@ public class UserController implements UsersApi {
     }
 
     /**
-     * DELETE /users/{user_id}/tattoo-work/{post_id}/like
+     * DELETE /users/{user_id}/tattoo-works/{post_id}/like
      * dislike
      *
      * @param userId user id (required)
@@ -47,7 +47,8 @@ public class UserController implements UsersApi {
      */
     @Override
     public ResponseEntity<Void> dislikeTattooWork(UUID userId, UUID postId) {
-        return UsersApi.super.dislikeTattooWork(userId, postId);
+        userService.dislike(userId,postId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
@@ -73,7 +74,7 @@ public class UserController implements UsersApi {
     }
 
     /**
-     * POST /users/{user_id}/tattoo-work/{post_id}/like
+     * POST /users/{user_id}/tattoo-works/{post_id}/like
      * like
      *
      * @param userId user id (required)
@@ -83,7 +84,8 @@ public class UserController implements UsersApi {
      */
     @Override
     public ResponseEntity<Void> likeTattooWork(UUID userId, UUID postId) {
-        return UsersApi.super.likeTattooWork(userId, postId);
+        userService.like(userId,postId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override

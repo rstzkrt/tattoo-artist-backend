@@ -12,8 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.UUID;
+import java.math.RoundingMode;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,35 +27,35 @@ public class CommentService {
     private final TattooWorkRepository tattooWorkRepository;
 
     public CommentResponseDto createComment(UUID tattooWorkId, CommentRequestDto commentRequestDto) {
-        //client averate reating set
         var tattooWork = tattooWorkRepository.findById(tattooWorkId).orElseThrow();
         var client = userRepository.findById(commentRequestDto.getPostedBy()).orElseThrow();
-        setAverageRating(client);
+        if (tattooWork.getComment() != null) {
+            throw new RuntimeException("The post already has a comment!");
+        }
         var comment = commentRepository.save(Comment.fromDto(commentRequestDto, client, tattooWork));
-        var comments = client.getComments();
-        comments.add(comment);
-        userRepository.save(client);
+        var clientComments = client.getComments();
+        clientComments.add(comment);
         tattooWork.setComment(comment);
         tattooWorkRepository.save(tattooWork);
-        client.setComments(comments);
+        client.setComments(clientComments);
+        setAverageRating(client);
+        userRepository.save(client);
         return Comment.toResponseDto(comment);
     }
 
     public void deleteCommentById(UUID commentId) {
-        //client averate reating set
-
         if (commentRepository.existsById(commentId)) {
             var comment = commentRepository.findById(commentId).orElseThrow();
             var tattooWork = tattooWorkRepository.findById(comment.getTattooWork().getId()).orElseThrow();
             var client = userRepository.findById(comment.getPostedBy().getId()).orElseThrow();
             var comments = client.getComments();
             comments.remove(comment);
-            userRepository.save(client);
             tattooWork.setComment(null);
             tattooWorkRepository.save(tattooWork);
             commentRepository.deleteById(commentId);
             client.setComments(comments);
             setAverageRating(client);
+            userRepository.save(client);
         } else {
             throw new UserNotFoundException();
         }
@@ -65,15 +66,21 @@ public class CommentService {
         var s = tattooWorks
                 .stream()
                 .map(tattooWork1 -> {
-                    if(tattooWork1.getComment()==null){
-                        return BigDecimal.valueOf(0);
+                    if (tattooWork1.getComment() == null) {
+                        return null;
+                    } else {
+                        return tattooWork1.getComment().getRate();
                     }
-                    return tattooWork1.getComment().getRate();
-                }).toList();
-        var total = 0;
-        s.forEach(bigDecimal -> bigDecimal.add(BigDecimal.valueOf(total)));
-        client.setAverageRating(Double.valueOf(total / s.size()));
-
+                })
+                .toList();
+        BigDecimal total = BigDecimal.valueOf(0);
+        for (BigDecimal bigDecimal : s) {
+            System.out.println(bigDecimal);
+            if (bigDecimal != null) {
+                total = bigDecimal.add(total);
+            }
+        }
+        client.setAverageRating(total.divide(BigDecimal.valueOf(s.size()), 2, RoundingMode.HALF_EVEN).doubleValue());
     }
 
     public CommentResponseDto editComment(UUID commentId, CommentPatchRequestDto commentPatchRequestDto) {
@@ -81,7 +88,6 @@ public class CommentService {
         var tattooWork = tattooWorkRepository.findById(comment.getTattooWork().getId()).orElseThrow();
         var client = userRepository.findById(comment.getPostedBy().getId()).orElseThrow();
         var comments = client.getComments();
-        setAverageRating(client);
         comments.remove(comment);
         comment.setRate(commentPatchRequestDto.getRate());
         comment.setMessage(commentPatchRequestDto.getMessage());
@@ -90,8 +96,11 @@ public class CommentService {
         client.setComments(comments);
         userRepository.save(client);
         tattooWork.setComment(comment);
+        System.out.println(client.getAverageRating());
         tattooWorkRepository.save(tattooWork);
-        return null;
+        setAverageRating(client);
+        userRepository.save(client);
+        return Comment.toResponseDto(comment);
     }
 
     public CommentResponseDto getCommentById(UUID commentId) {
@@ -104,5 +113,4 @@ public class CommentService {
                 .map(Comment::toResponseDto)
                 .collect(Collectors.toList());
     }
-
 }

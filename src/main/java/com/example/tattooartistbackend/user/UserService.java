@@ -163,13 +163,6 @@ public class UserService {
         if(!user.isHasArtistPage()){
             return null;
         }
-//        if(user.getBusinessAddress()==null){
-//            try {
-//                throw  new Exception("user address is null");
-//            } catch (Exception e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
         Address address = addressRepository.findById(user.getBusinessAddress().getId()).orElseThrow();
         address.setCity(city);
         address.setState(state);
@@ -184,11 +177,44 @@ public class UserService {
     private Address updateReqToAddress(User user, String city, String state, String country, String postalCode, String street, String otherInformation) {
         return getAddress(user, city, state, country, postalCode, street, otherInformation);
     }
-    public void like(){
 
+    public void like(UUID userId, UUID postId){
+        var user= userRepository.findById(userId).orElseThrow();
+        var tattooWork= tattooWorkRepository.findById(postId).orElseThrow();
+
+        if (!tattooWork.getLikerIds().contains(userId)){
+            if(tattooWork.getDislikerIds().contains(userId)){
+                var tattooWorkDislikerIds=tattooWork.getDislikerIds();
+                tattooWorkDislikerIds.remove(userId);
+                tattooWork.setDislikerIds(tattooWorkDislikerIds);
+                tattooWorkRepository.save(tattooWork);
+            }
+            var tattooWorkLikerIds=tattooWork.getLikerIds();
+            tattooWorkLikerIds.add(userId);
+            tattooWork.setLikerIds(tattooWorkLikerIds);
+            tattooWorkRepository.save(tattooWork);
+        } else {
+            throw new RuntimeException("Already voted");
+        }
     }
-    public void dislike(){
 
+    public void dislike(UUID userId, UUID postId){
+        var user= userRepository.findById(userId).orElseThrow();
+        var tattooWork= tattooWorkRepository.findById(postId).orElseThrow();
+        if (!tattooWork.getDislikerIds().contains(userId)){
+            if(tattooWork.getLikerIds().contains(userId)){
+                var tattooWorkLikerIds=tattooWork.getLikerIds();
+                tattooWorkLikerIds.remove(userId);
+                tattooWork.setLikerIds(tattooWorkLikerIds);
+                tattooWorkRepository.save(tattooWork);
+            }
+            var tattooWorkDislikerIds=tattooWork.getDislikerIds();
+            tattooWorkDislikerIds.add(userId);
+            tattooWork.setDislikerIds(tattooWorkDislikerIds);
+            tattooWorkRepository.save(tattooWork);
+        }else {
+            throw new RuntimeException("Already voted");
+        }
     }
 
 }
