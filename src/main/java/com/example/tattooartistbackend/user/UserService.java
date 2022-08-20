@@ -79,14 +79,18 @@ public class UserService {
         User artist = userRepository.findById(artistId).orElseThrow(UserNotFoundException::new);
 
         List<User> favouriteArtists = user.getFavouriteArtists();
-        favouriteArtists.add(artist);
-        user.setFavouriteArtists(favouriteArtists);
-        return userRepository.save(user).toUserResponseDto();
+        if(favouriteArtists.contains(artist)) {
+            return user.toUserResponseDto();
+        }else {
+            favouriteArtists.add(artist);
+            user.setFavouriteArtists(favouriteArtists);
+            return userRepository.save(user).toUserResponseDto();
+        }
     }
 
     public void unfavoriteTattooArtist(UUID userId, UUID artistId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        User artist = userRepository.findById(artistId).orElseThrow(UserNotFoundException::new);
+        User artist =userRepository.findById(artistId).orElseThrow(UserNotFoundException::new);
 
         List<User> favouriteArtists = user.getFavouriteArtists();
         favouriteArtists.remove(artist);
@@ -107,11 +111,15 @@ public class UserService {
     public UserResponseDto favoriteTattooWork(UUID userId, UUID postId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         TattooWork tattooWork = tattooWorkRepository.findById(postId).orElseThrow();
-
         List<TattooWork> favoriteTattooWorks = user.getFavoriteTattooWorks();
-        favoriteTattooWorks.add(tattooWork);
-        user.setFavoriteTattooWorks(favoriteTattooWorks);
-        return userRepository.save(user).toUserResponseDto();
+
+        if(favoriteTattooWorks.contains(tattooWork)) {
+            return user.toUserResponseDto();
+        }else {
+            favoriteTattooWorks.add(tattooWork);
+            user.setFavoriteTattooWorks(favoriteTattooWorks);
+            return userRepository.save(user).toUserResponseDto();
+        }
     }
 
     public UserResponseDto createArtistAccount(UUID id, TattooArtistAccReqDto tattooArtistAccReqDto) {
@@ -124,8 +132,18 @@ public class UserService {
                             throw new RuntimeException(e);
                         }
                     }
-                    Address address = tattooArtistToAddress(user, tattooArtistAccReqDto.getCity(), tattooArtistAccReqDto.getState(), tattooArtistAccReqDto.getCountry(), tattooArtistAccReqDto.getPostalCode(), tattooArtistAccReqDto.getStreet(), tattooArtistAccReqDto.getOtherInformation());
+                    Address address = Address.builder()
+                            .otherInformation(tattooArtistAccReqDto.getOtherInformation())
+                            .street(tattooArtistAccReqDto.getStreet())
+                            .city(tattooArtistAccReqDto.getCity())
+                            .country(tattooArtistAccReqDto.getCountry())
+                            .postalCode(tattooArtistAccReqDto.getPostalCode())
+                            .state(tattooArtistAccReqDto.getState())
+                            .build();
+
+                    addressRepository.save(address);
                     User userToUpdate = User.fromTattooArtistAccReqDto(tattooArtistAccReqDto, address, user.getTattooWorks(), user.getTattooWorks(), user.getFavouriteArtists(), user.getComments());
+
                     userToUpdate.setId(user.getId());
                     userToUpdate.setUid(user.getUid());
                     userToUpdate.setEmail(user.getEmail());
@@ -134,6 +152,7 @@ public class UserService {
                     userToUpdate.setDateOfBirth(user.getDateOfBirth());
                     userToUpdate.setAvatarUrl(user.getAvatarUrl());
 
+                    System.out.println(user.toString());
                     return userRepository.save(userToUpdate);
                 })
                 .map(User::toUserResponseDto)
@@ -144,6 +163,13 @@ public class UserService {
         if(!user.isHasArtistPage()){
             return null;
         }
+//        if(user.getBusinessAddress()==null){
+//            try {
+//                throw  new Exception("user address is null");
+//            } catch (Exception e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
         Address address = addressRepository.findById(user.getBusinessAddress().getId()).orElseThrow();
         address.setCity(city);
         address.setState(state);
@@ -158,9 +184,11 @@ public class UserService {
     private Address updateReqToAddress(User user, String city, String state, String country, String postalCode, String street, String otherInformation) {
         return getAddress(user, city, state, country, postalCode, street, otherInformation);
     }
+    public void like(){
 
-    private Address tattooArtistToAddress(User user, String city, String state, String country, String postalCode, String street, String otherInformation) {
-        return getAddress(user, city, state, country, postalCode, street, otherInformation);
+    }
+    public void dislike(){
+
     }
 
 }

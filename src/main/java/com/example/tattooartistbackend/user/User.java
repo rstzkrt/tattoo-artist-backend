@@ -4,14 +4,13 @@ import com.example.tattooartistbackend.address.Address;
 import com.example.tattooartistbackend.comment.Comment;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
 import com.example.tattooartistbackend.user.models.*;
+import com.example.tattooartistbackend.user.models.Currency;
 import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static javax.persistence.GenerationType.AUTO;
 
@@ -19,8 +18,8 @@ import static javax.persistence.GenerationType.AUTO;
 @Table(name = "app_user")
 @Getter
 @Setter
-@ToString
 @Builder
+@ToString
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class User {
@@ -36,6 +35,8 @@ public class User {
     private String avatarUrl;
     private LocalDate dateOfBirth;//needed for creating an arist page
     private boolean hasArtistPage;
+
+    private Double averageRating;
     @OneToOne
     private Address businessAddress;
     @Enumerated
@@ -45,14 +46,16 @@ public class User {
     @OneToMany(targetEntity = User.class, fetch = FetchType.LAZY)
     private List<User> favouriteArtists;
 
-    @OneToMany(mappedBy = "madeBy", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "madeBy", fetch = FetchType.LAZY,cascade = CascadeType.REMOVE)
     private List<TattooWork> tattooWorks;
 
     @OneToMany(fetch = FetchType.LAZY)
-    private List<TattooWork> favoriteTattooWorks;
+    private List<TattooWork> favoriteTattooWorks;//
 
     @OneToMany(mappedBy = "postedBy", fetch = FetchType.LAZY)
     private List<Comment> comments;
+
+
 
 //    public static User fromUserResponseDto(UserResponseDto userDto, Address address, List<TattooWork> favoriteTattooWorks, List<TattooWork> tattooWorks, List<User> favouriteArtists, List<Comment> comments) {
 //        return User.builder()
@@ -86,6 +89,7 @@ public class User {
                 .workingDaysList(null)
                 .hasArtistPage(false)
                 .businessAddress(null)
+//                .averageRating(0.0)
                 .uid(null)
                 .tattooWorks(new ArrayList<>())
                 .favouriteArtists(new ArrayList<>())
@@ -100,6 +104,7 @@ public class User {
                 .workingDaysList(tattooArtistAccReqDto.getWorkDays())
                 .hasArtistPage(true)
                 .businessAddress(address)
+                .averageRating(0.0)
                 .tattooWorks(tattooWorks == null ? new ArrayList<>() : tattooWorks)
                 .favouriteArtists(favouriteArtists == null ? new ArrayList<>() : favouriteArtists)
                 .comments(comments == null ? new ArrayList<>() : comments)
@@ -114,6 +119,7 @@ public class User {
                 .firstName(userUpdateRequestDto.getFirstName())
                 .lastName(userUpdateRequestDto.getLastName())
                 .email(userUpdateRequestDto.getEmail())
+                .averageRating(0.0)
                 .workingDaysList(userUpdateRequestDto.getWorkDays())
                 .businessAddress(address)
                 .tattooWorks(tattooWorks == null ? new ArrayList<>() : tattooWorks)
@@ -136,6 +142,12 @@ public class User {
         userResponseDto.setBirthDate(dateOfBirth);
         userResponseDto.setHasArtistPage(hasArtistPage);
         userResponseDto.setWorkDays(workingDaysList);
+        if(averageRating!=null){
+            userResponseDto.setAverageRating(BigDecimal.valueOf(averageRating));
+        }else{
+            userResponseDto.setAverageRating(BigDecimal.valueOf(0));
+        }
+
         if (businessAddress != null) {
             userResponseDto.setStreet(businessAddress.getStreet());
             userResponseDto.setState(businessAddress.getState());
@@ -143,13 +155,14 @@ public class User {
             userResponseDto.setCountry(businessAddress.getCountry());
             userResponseDto.setPostalCode(businessAddress.getPostalCode());
             userResponseDto.setOtherInformation(businessAddress.getOtherInformation());
+        }else{
+            userResponseDto.setStreet(null);
+            userResponseDto.setState(null);
+            userResponseDto.setCity(null);
+            userResponseDto.setCountry(null);
+            userResponseDto.setPostalCode(null);
+            userResponseDto.setOtherInformation(null);
         }
-        userResponseDto.setStreet(null);
-        userResponseDto.setState(null);
-        userResponseDto.setCity(null);
-        userResponseDto.setCountry(null);
-        userResponseDto.setPostalCode(null);
-        userResponseDto.setOtherInformation(null);
 
         if (this.favouriteArtists.isEmpty()) {
             userResponseDto.setFavoriteArtistIds(new ArrayList<>());

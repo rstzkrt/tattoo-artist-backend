@@ -228,7 +228,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /users/{user_id}/tattoo-artist/{artist_id}/favorites:
+  /users/{user_id}/tattoo-artists/{artist_id}/favorites:
     put:
       operationId: favoriteTattooArtist
       parameters:
@@ -272,6 +272,62 @@ paths:
             format: uuid
         - in: path
           name: artist_id
+          description: artist id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        204:
+          description: no content
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users/{user_id}/tattoo-works/{post_id}/likes:
+    put:
+      operationId: likeTattooWork
+      description: like
+      parameters:
+        - in: path
+          name: user_id
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          name: post_id
+          description: post_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: no content
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      operationId: dislikeTattooWork
+      description: dislike
+      parameters:
+        - in: path
+          name: user_id
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          name: post_id
           description: artist id
           required: true
           schema:
