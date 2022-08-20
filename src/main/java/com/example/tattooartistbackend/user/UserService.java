@@ -217,10 +217,9 @@ public class UserService {
     }
 
     public TattooArtistPriceInterval userPriceInterval(UUID id) {
+        userRepository.findById(id).orElseThrow(UserNotFoundException::new);
         var tattooWorkMAX= tattooWorkRepository.findTopByMadeBy_IdOrderByPriceDesc(id);
         var tattooWorkMIN= tattooWorkRepository.findTopByMadeBy_IdOrderByPriceAsc(id);
-        System.out.println(tattooWorkMIN);
-        System.out.println(tattooWorkMAX);
         return createTattooArtistPriceInterval(tattooWorkMAX,tattooWorkMIN);
     }
 
