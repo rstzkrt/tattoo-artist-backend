@@ -171,7 +171,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:8080/users/71c9344e-1e4a-4fa4-8175-c2e2d121022b/price-interval",
+									"raw": "http://localhost:8080/users/fbbc2723-c0dc-4cdb-b806-31acc7b6f34b/price-interval",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -179,7 +179,7 @@
 									"port": "8080",
 									"path": [
 										"users",
-										"71c9344e-1e4a-4fa4-8175-c2e2d121022b",
+										"fbbc2723-c0dc-4cdb-b806-31acc7b6f34b",
 										"price-interval"
 									]
 								}
@@ -440,7 +440,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/tattoo-works/600134dd-9d0f-4561-b564-4c7496854c4f",
+							"raw": "http://localhost:8080/tattoo-works/48a5600f-488c-4a35-aaa9-dc403d29252e",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -448,7 +448,7 @@
 							"port": "8080",
 							"path": [
 								"tattoo-works",
-								"600134dd-9d0f-4561-b564-4c7496854c4f"
+								"48a5600f-488c-4a35-aaa9-dc403d29252e"
 							]
 						}
 					},
@@ -538,7 +538,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"rate\":3,\r\n    \"message\":\"amazing\"\r\n}",
+							"raw": "{\r\n    \"rate\":3.5,\r\n    \"message\":\"amazing\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -575,6 +575,131 @@
 							"path": [
 								"comments",
 								"352cf76f-a847-4b90-9205-888a38684ad2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "review",
+			"item": [
+				{
+					"name": "review get by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/reviews/80cd8ee6-7c59-42a1-a18a-211b057ce4a6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"reviews",
+								"80cd8ee6-7c59-42a1-a18a-211b057ce4a6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/reviews/80cd8ee6-7c59-42a1-a18a-211b057ce4a6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"reviews",
+								"80cd8ee6-7c59-42a1-a18a-211b057ce4a6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/reviews/users/80cd8ee6-7c59-42a1-a18a-211b057ce4a6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"reviews",
+								"users",
+								"80cd8ee6-7c59-42a1-a18a-211b057ce4a6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all by user id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/reviews/users/80cd8ee6-7c59-42a1-a18a-211b057ce4a6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"reviews",
+								"users",
+								"80cd8ee6-7c59-42a1-a18a-211b057ce4a6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update patch",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/reviews/80cd8ee6-7c59-42a1-a18a-211b057ce4a6",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"reviews",
+								"80cd8ee6-7c59-42a1-a18a-211b057ce4a6"
 							]
 						}
 					},

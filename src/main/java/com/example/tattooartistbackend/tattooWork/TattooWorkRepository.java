@@ -5,15 +5,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.List;
 
 @Repository
 public interface TattooWorkRepository extends JpaRepository<TattooWork, UUID> {
 
-    TattooWork findTopByMadeBy_IdOrderByConvertedPriceValueDesc(UUID madeBy);
+    Optional<TattooWork> findTopByMadeBy_IdOrderByConvertedPriceValueDesc(UUID madeBy);
 
-    TattooWork findTopByMadeBy_IdOrderByConvertedPriceValueAsc(UUID madeBy);
+    Optional<TattooWork> findTopByMadeBy_IdOrderByConvertedPriceValueAsc(UUID madeBy);
 
     @Query("SELECT t from TattooWork t WHERE (:country is null or t.madeBy.businessAddress.country = :country) AND (:price is null or t.price = :price)")
     List<TattooWork> findAllFilter(String country, BigDecimal price);
