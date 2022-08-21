@@ -2,11 +2,29 @@ package com.example.tattooartistbackend.user;
 
 import com.example.tattooartistbackend.address.Address;
 import com.example.tattooartistbackend.comment.Comment;
-import com.example.tattooartistbackend.generated.models.*;
+import com.example.tattooartistbackend.generated.models.ClientReqDto;
+import com.example.tattooartistbackend.generated.models.TattooArtistAccReqDto;
+import com.example.tattooartistbackend.generated.models.UserResponseDto;
+import com.example.tattooartistbackend.generated.models.UserUpdateRequestDto;
+import com.example.tattooartistbackend.generated.models.WorkingDays;
+import com.example.tattooartistbackend.review.Review;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
@@ -58,6 +76,13 @@ public class User {
 
     @OneToMany(mappedBy = "postedBy", fetch = FetchType.LAZY,cascade = CascadeType.REMOVE)
     private List<Comment> comments;
+
+    @OneToMany(mappedBy="postedBy",fetch = FetchType.LAZY,cascade = CascadeType.REMOVE)
+    private List<Review> givenReviews;
+
+    @OneToMany(mappedBy="receiver",fetch = FetchType.LAZY,cascade = CascadeType.REMOVE)
+    private List<Review> takenReviews;
+
     public static User fromClientRequestDto(ClientReqDto clientReqDto) {
         return User.builder()
                 .id(null)
@@ -75,10 +100,12 @@ public class User {
                 .favouriteArtists(new ArrayList<>())
                 .comments(new ArrayList<>())
                 .favoriteTattooWorks(new ArrayList<>())
+                .givenReviews(new ArrayList<>())
+                .takenReviews(new ArrayList<>())
                 .build();
     }
 
-    public static User fromTattooArtistAccReqDto(TattooArtistAccReqDto tattooArtistAccReqDto, Address address, List<TattooWork> favoriteTattooWorks, List<TattooWork> tattooWorks, List<User> favouriteArtists, List<Comment> comments) {
+    public static User fromTattooArtistAccReqDto(TattooArtistAccReqDto tattooArtistAccReqDto, Address address, List<TattooWork> favoriteTattooWorks, List<TattooWork> tattooWorks, List<User> favouriteArtists, List<Comment> comments,List<Review> takenReviews,List<Review> givenReviews) {
         return User.builder()
                 .phoneNumber(tattooArtistAccReqDto.getPhoneNumber())
                 .workingDaysList(tattooArtistAccReqDto.getWorkDays())
@@ -88,10 +115,12 @@ public class User {
                 .favouriteArtists(favouriteArtists == null ? new ArrayList<>() : favouriteArtists)
                 .comments(comments == null ? new ArrayList<>() : comments)
                 .favoriteTattooWorks(favoriteTattooWorks == null ? new ArrayList<>() : favoriteTattooWorks)
+                .givenReviews(givenReviews == null ? new ArrayList<>() : givenReviews)
+                .takenReviews(takenReviews == null ? new ArrayList<>() : takenReviews)
                 .build();
     }
 
-    public static User fromUserUpdateRequestDto(UserUpdateRequestDto userUpdateRequestDto, Address address, List<TattooWork> favoriteTattooWorks, List<TattooWork> tattooWorks, List<User> favouriteArtists, List<Comment> comments) {
+    public static User fromUserUpdateRequestDto(UserUpdateRequestDto userUpdateRequestDto, Address address, List<TattooWork> favoriteTattooWorks, List<TattooWork> tattooWorks, List<User> favouriteArtists, List<Comment> comments,List<Review> takenReviews,List<Review> givenReviews) {
         return User.builder()
                 .avatarUrl(userUpdateRequestDto.getAvatarUrl() == null ? "defaultUrl" : userUpdateRequestDto.getAvatarUrl())
                 .phoneNumber(userUpdateRequestDto.getPhoneNumber())
@@ -104,6 +133,8 @@ public class User {
                 .favouriteArtists(favouriteArtists == null ? new ArrayList<>() : favouriteArtists)
                 .comments(comments == null ? new ArrayList<>() : comments)
                 .favoriteTattooWorks(favoriteTattooWorks == null ? new ArrayList<>() : favoriteTattooWorks)
+                .givenReviews(givenReviews == null ? new ArrayList<>() : givenReviews)
+                .takenReviews(takenReviews == null ? new ArrayList<>() : takenReviews)
                 .build();
     }
 
