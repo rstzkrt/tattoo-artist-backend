@@ -1,5 +1,8 @@
 package com.example.tattooartistbackend.comment;
 
+import com.example.tattooartistbackend.exceptions.CommentNotFoundException;
+import com.example.tattooartistbackend.exceptions.TattooWorkCommentExistsException;
+import com.example.tattooartistbackend.exceptions.TattooWorkNotFoundException;
 import com.example.tattooartistbackend.exceptions.UserNotFoundException;
 import com.example.tattooartistbackend.generated.models.CommentPatchRequestDto;
 import com.example.tattooartistbackend.generated.models.CommentRequestDto;
@@ -28,10 +31,10 @@ public class CommentService {
     private final TattooWorkRepository tattooWorkRepository;
 
     public CommentResponseDto createComment(UUID tattooWorkId, CommentRequestDto commentRequestDto) {
-        var tattooWork = tattooWorkRepository.findById(tattooWorkId).orElseThrow();
-        var client = userRepository.findById(commentRequestDto.getPostedBy()).orElseThrow();
+        var tattooWork = tattooWorkRepository.findById(tattooWorkId).orElseThrow(TattooWorkNotFoundException::new);
+        var client = userRepository.findById(commentRequestDto.getPostedBy()).orElseThrow(UserNotFoundException::new);
         if (tattooWork.getComment() != null) {
-            throw new RuntimeException("The post already has a comment!");
+            throw new TattooWorkCommentExistsException();
         }
         return getCreateCommentResponse(commentRequestDto, tattooWork, client);
     }
@@ -51,14 +54,14 @@ public class CommentService {
         if (commentRepository.existsById(commentId)) {
             setDeleteComment(commentId);
         } else {
-            throw new UserNotFoundException();
+            throw new CommentNotFoundException();
         }
     }
 
     private void setDeleteComment(UUID commentId) {
-        var comment = commentRepository.findById(commentId).orElseThrow();
-        var tattooWork = tattooWorkRepository.findById(comment.getTattooWork().getId()).orElseThrow();
-        var client = userRepository.findById(comment.getPostedBy().getId()).orElseThrow();
+        var comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
+        var tattooWork = tattooWorkRepository.findById(comment.getTattooWork().getId()).orElseThrow(TattooWorkNotFoundException::new);
+        var client = userRepository.findById(comment.getPostedBy().getId()).orElseThrow(UserNotFoundException::new);
         var comments = client.getComments();
         comments.remove(comment);
         client.setComments(comments);
@@ -92,9 +95,9 @@ public class CommentService {
     }
 
     public CommentResponseDto editComment(UUID commentId, CommentPatchRequestDto commentPatchRequestDto) {
-        var comment = commentRepository.findById(commentId).orElseThrow();
-        var tattooWork = tattooWorkRepository.findById(comment.getTattooWork().getId()).orElseThrow();
-        var client = userRepository.findById(comment.getPostedBy().getId()).orElseThrow();
+        var comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
+        var tattooWork = tattooWorkRepository.findById(comment.getTattooWork().getId()).orElseThrow(TattooWorkNotFoundException::new);
+        var client = userRepository.findById(comment.getPostedBy().getId()).orElseThrow(UserNotFoundException::new);
 
         setEditComment(commentPatchRequestDto, comment, tattooWork, client);
         return Comment.toResponseDto(comment);
@@ -115,7 +118,7 @@ public class CommentService {
     }
 
     public CommentResponseDto getCommentById(UUID commentId) {
-        return Comment.toResponseDto(commentRepository.findById(commentId).orElseThrow());
+        return Comment.toResponseDto(commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new));
     }
 
     public List<CommentResponseDto> getCommentsByTattooWorkId(UUID tattooWorkId) {

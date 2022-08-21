@@ -1,5 +1,9 @@
 package com.example.tattooartistbackend.tattooWork;
 
+import com.example.tattooartistbackend.exceptions.TattooWorkNotFoundException;
+import com.example.tattooartistbackend.exceptions.UserArtistPageNotFoundException;
+
+import com.example.tattooartistbackend.exceptions.UserNotFoundException;
 import com.example.tattooartistbackend.generated.models.Currency;
 import com.example.tattooartistbackend.generated.models.TattooWorkPatchRequestDto;
 import com.example.tattooartistbackend.generated.models.TattooWorkPostRequestDto;
@@ -15,7 +19,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.webjars.NotFoundException;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -33,11 +36,11 @@ public class TattooWorkService {
     private static final String API_KEY = "uTZMvFz8kI2uot9EcqXKz5NHnZpET9UX"; //daily 250 req
 
     public TattooWorksResponseDto createTattooWork(TattooWorkPostRequestDto tattooWorkPostRequestDto) {
-        var client = userRepository.findById(tattooWorkPostRequestDto.getClientId()).orElseThrow();
-        var madeBy = userRepository.findById(tattooWorkPostRequestDto.getMadeById()).orElseThrow();
+        var client = userRepository.findById(tattooWorkPostRequestDto.getClientId()).orElseThrow(UserNotFoundException::new);
+        var madeBy = userRepository.findById(tattooWorkPostRequestDto.getMadeById()).orElseThrow(UserNotFoundException::new);
         if (!client.isHasArtistPage()) {
             try {
-                throw new Exception("user doesnt have artist page to post tattoo work");
+                throw new UserArtistPageNotFoundException();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -65,7 +68,7 @@ public class TattooWorkService {
         if (tattooWorkRepository.existsById(id)) {
             tattooWorkRepository.deleteById(id);
         } else {
-            throw new NotFoundException("TattooWorkNotFound");
+            throw new TattooWorkNotFoundException();
         }
     }
 
@@ -74,11 +77,10 @@ public class TattooWorkService {
                 .stream()
                 .map(TattooWork::toTattooWorksResponseDto)
                 .collect(Collectors.toList());
-
     }
 
     public TattooWorksResponseDto patchTattooWork(UUID id, TattooWorkPatchRequestDto tattooWorkPatchRequestDto) {
-        var tattooWork = tattooWorkRepository.findById(id).orElseThrow();
+        var tattooWork = tattooWorkRepository.findById(id).orElseThrow(TattooWorkNotFoundException::new);
         tattooWork.setDescription(tattooWorkPatchRequestDto.getDescription());
         tattooWork.setPrice(tattooWorkPatchRequestDto.getPrice());
         tattooWork.setCurrency(tattooWorkPatchRequestDto.getCurrency());
@@ -91,7 +93,7 @@ public class TattooWorkService {
     }
 
     public TattooWorksResponseDto getTattooWorkById(UUID id) {
-        var tattooWork = tattooWorkRepository.findById(id).orElseThrow();
+        var tattooWork = tattooWorkRepository.findById(id).orElseThrow(TattooWorkNotFoundException::new);
         return TattooWork.toTattooWorksResponseDto(tattooWork);
     }
 }

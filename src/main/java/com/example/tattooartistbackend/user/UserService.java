@@ -3,7 +3,7 @@ package com.example.tattooartistbackend.user;
 
 import com.example.tattooartistbackend.address.Address;
 import com.example.tattooartistbackend.address.AddressRepository;
-import com.example.tattooartistbackend.exceptions.UserNotFoundException;
+import com.example.tattooartistbackend.exceptions.*;
 import com.example.tattooartistbackend.generated.models.ClientReqDto;
 import com.example.tattooartistbackend.generated.models.TattooArtistAccReqDto;
 import com.example.tattooartistbackend.generated.models.TattooArtistPriceInterval;
@@ -105,7 +105,7 @@ public class UserService {
 
     public void unfavoriteTattooWork(UUID userId, UUID postId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        TattooWork tattooWork = tattooWorkRepository.findById(postId).orElseThrow();
+        TattooWork tattooWork = tattooWorkRepository.findById(postId).orElseThrow(TattooWorkNotFoundException::new);
 
         List<TattooWork> favoriteTattooWorks = user.getFavoriteTattooWorks();
         favoriteTattooWorks.remove(tattooWork);
@@ -115,7 +115,7 @@ public class UserService {
 
     public UserResponseDto favoriteTattooWork(UUID userId, UUID postId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        TattooWork tattooWork = tattooWorkRepository.findById(postId).orElseThrow();
+        TattooWork tattooWork = tattooWorkRepository.findById(postId).orElseThrow(TattooWorkNotFoundException::new);
         List<TattooWork> favoriteTattooWorks = user.getFavoriteTattooWorks();
 
         if (favoriteTattooWorks.contains(tattooWork)) {
@@ -131,11 +131,7 @@ public class UserService {
         return userRepository.findById(id)
                 .map(user -> {
                     if (LocalDate.now().getYear() - user.getDateOfBirth().getYear() < 18) {
-                        try {
-                            throw new RuntimeException("UNDER AGE!");
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
+                        throw new UnderAgeException();
                     }
                     var givenReviews = reviewRepository.findAllByPostedBy_Id(user.getId());
                     var takenReviews = reviewRepository.findAllByReceiver_Id(user.getId());
@@ -174,9 +170,9 @@ public class UserService {
 
     private Address getAddress(User user, String city, String state, String country, String postalCode, String street, String otherInformation) {
         if (!user.isHasArtistPage()) {
-            return null;
+            throw new UserArtistPageNotFoundException();
         }
-        Address address = addressRepository.findById(user.getBusinessAddress().getId()).orElseThrow();
+        Address address = addressRepository.findById(user.getBusinessAddress().getId()).orElseThrow(AddressNotFoundException::new);
         address.setCity(city);
         address.setState(state);
         address.setCountry(country);
@@ -192,8 +188,8 @@ public class UserService {
     }
 
     public void like(UUID userId, UUID postId) {
-        var user = userRepository.findById(userId).orElseThrow();
-        var tattooWork = tattooWorkRepository.findById(postId).orElseThrow();
+        var user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        var tattooWork = tattooWorkRepository.findById(postId).orElseThrow(TattooWorkNotFoundException::new);
 
         if (!tattooWork.getLikerIds().contains(userId)) {
             if (tattooWork.getDislikerIds().contains(userId)) {
@@ -207,13 +203,13 @@ public class UserService {
             tattooWork.setLikerIds(tattooWorkLikerIds);
             tattooWorkRepository.save(tattooWork);
         } else {
-            throw new RuntimeException("Already voted");
+            throw new AlreadyDislikedException();
         }
     }
 
     public void dislike(UUID userId, UUID postId) {
-        var user = userRepository.findById(userId).orElseThrow();
-        var tattooWork = tattooWorkRepository.findById(postId).orElseThrow();
+        var user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        var tattooWork = tattooWorkRepository.findById(postId).orElseThrow(TattooWorkNotFoundException::new);
         if (!tattooWork.getDislikerIds().contains(userId)) {
             if (tattooWork.getLikerIds().contains(userId)) {
                 var tattooWorkLikerIds = tattooWork.getLikerIds();
@@ -226,14 +222,14 @@ public class UserService {
             tattooWork.setDislikerIds(tattooWorkDislikerIds);
             tattooWorkRepository.save(tattooWork);
         } else {
-            throw new RuntimeException("Already voted");
+            throw new AlreadyDislikedException();
         }
     }
 
     public TattooArtistPriceInterval userPriceInterval(UUID id) {
         userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-        var tattooWorkMAX = tattooWorkRepository.findTopByMadeBy_IdOrderByConvertedPriceValueDesc(id);
-        var tattooWorkMIN = tattooWorkRepository.findTopByMadeBy_IdOrderByConvertedPriceValueAsc(id);
+        var tattooWorkMAX = tattooWorkRepository.findTopByMadeBy_IdOrderByConvertedPriceValueDesc(id).orElseThrow(TattooWorkNotFoundException::new);
+        var tattooWorkMIN = tattooWorkRepository.findTopByMadeBy_IdOrderByConvertedPriceValueAsc(id).orElseThrow(TattooWorkNotFoundException::new);
         return createTattooArtistPriceInterval(tattooWorkMAX, tattooWorkMIN);
     }
 
