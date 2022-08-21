@@ -85,6 +85,24 @@
 			<artifactId>springfox-core</artifactId>
 			<version>3.0.0</version>
 		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.13.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.module</groupId>
+			<artifactId>jackson-module-parameter-names</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jdk8</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -117,8 +135,8 @@
 						<configuration>
 							<inputSpec>${project.basedir}/src/main/resources/openapi/user-contract.yaml</inputSpec>
 							<generatorName>spring</generatorName>
-							<modelPackage>com.example.tattooartistbackend.user.models</modelPackage>
-							<apiPackage>com.example.tattooartistbackend.user.apis</apiPackage>
+							<modelPackage>com.example.tattooartistbackend.generated.models</modelPackage>
+							<apiPackage>com.example.tattooartistbackend.generated.apis</apiPackage>
 							<output>${project.build.directory}/generated-sources</output>
 							<skipValidateSpec>true</skipValidateSpec>
 							<supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
@@ -137,8 +155,8 @@
 						<configuration>
 							<inputSpec>${project.basedir}/src/main/resources/openapi/item-contract.yaml</inputSpec>
 							<generatorName>spring</generatorName>
-							<modelPackage>com.example.tattooartistbackend.item.models</modelPackage>
-							<apiPackage>com.example.tattooartistbackend.item.apis</apiPackage>
+							<modelPackage>com.example.tattooartistbackend.generated.models</modelPackage>
+							<apiPackage>com.example.tattooartistbackend.generated.apis</apiPackage>
 							<output>${project.build.directory}/generated-sources</output>
 							<skipValidateSpec>true</skipValidateSpec>
 							<supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
@@ -157,8 +175,8 @@
 						<configuration>
 							<inputSpec>${project.basedir}/src/main/resources/openapi/comment-contract.yaml</inputSpec>
 							<generatorName>spring</generatorName>
-							<modelPackage>com.example.tattooartistbackend.comment.models</modelPackage>
-							<apiPackage>com.example.tattooartistbackend.comment.apis</apiPackage>
+							<modelPackage>com.example.tattooartistbackend.generated.models</modelPackage>
+							<apiPackage>com.example.tattooartistbackend.generated.apis</apiPackage>
 							<output>${project.build.directory}/generated-sources</output>
 							<skipValidateSpec>true</skipValidateSpec>
 							<supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
@@ -177,8 +195,8 @@
 						<configuration>
 							<inputSpec>${project.basedir}/src/main/resources/openapi/tattoo-work-contract.yaml</inputSpec>
 							<generatorName>spring</generatorName>
-							<modelPackage>com.example.tattooartistbackend.tattooWork.models</modelPackage>
-							<apiPackage>com.example.tattooartistbackend.tattooWork.apis</apiPackage>
+							<modelPackage>com.example.tattooartistbackend.generated.models</modelPackage>
+							<apiPackage>com.example.tattooartistbackend.generated.apis</apiPackage>
 							<output>${project.build.directory}/generated-sources</output>
 							<skipValidateSpec>true</skipValidateSpec>
 							<supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
