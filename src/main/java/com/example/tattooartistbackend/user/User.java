@@ -2,19 +2,36 @@ package com.example.tattooartistbackend.user;
 
 import com.example.tattooartistbackend.address.Address;
 import com.example.tattooartistbackend.comment.Comment;
+import com.example.tattooartistbackend.generated.models.ClientReqDto;
+import com.example.tattooartistbackend.generated.models.TattooArtistAccReqDto;
+import com.example.tattooartistbackend.generated.models.UserResponseDto;
+import com.example.tattooartistbackend.generated.models.UserUpdateRequestDto;
+import com.example.tattooartistbackend.generated.models.WorkingDays;
+import com.example.tattooartistbackend.review.Review;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
-import com.example.tattooartistbackend.user.models.*;
-import com.example.tattooartistbackend.user.models.Currency;
-import lombok.*;
-import net.minidev.json.annotate.JsonIgnore;
-import org.hibernate.query.criteria.internal.ValueHandlerFactory;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import static javax.persistence.GenerationType.AUTO;
 
@@ -23,7 +40,6 @@ import static javax.persistence.GenerationType.AUTO;
 @Getter
 @Setter
 @Builder
-@ToString
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class User {
@@ -60,6 +76,13 @@ public class User {
 
     @OneToMany(mappedBy = "postedBy", fetch = FetchType.LAZY,cascade = CascadeType.REMOVE)
     private List<Comment> comments;
+
+    @OneToMany(mappedBy="postedBy",fetch = FetchType.LAZY,cascade = CascadeType.REMOVE)
+    private List<Review> givenReviews;
+
+    @OneToMany(mappedBy="receiver",fetch = FetchType.LAZY,cascade = CascadeType.REMOVE)
+    private List<Review> takenReviews;
+
     public static User fromClientRequestDto(ClientReqDto clientReqDto) {
         return User.builder()
                 .id(null)
@@ -77,37 +100,41 @@ public class User {
                 .favouriteArtists(new ArrayList<>())
                 .comments(new ArrayList<>())
                 .favoriteTattooWorks(new ArrayList<>())
+                .givenReviews(new ArrayList<>())
+                .takenReviews(new ArrayList<>())
                 .build();
     }
 
-    public static User fromTattooArtistAccReqDto(TattooArtistAccReqDto tattooArtistAccReqDto, Address address, List<TattooWork> favoriteTattooWorks, List<TattooWork> tattooWorks, List<User> favouriteArtists, List<Comment> comments) {
+    public static User fromTattooArtistAccReqDto(TattooArtistAccReqDto tattooArtistAccReqDto, Address address, List<TattooWork> favoriteTattooWorks, List<TattooWork> tattooWorks, List<User> favouriteArtists, List<Comment> comments,List<Review> takenReviews,List<Review> givenReviews) {
         return User.builder()
                 .phoneNumber(tattooArtistAccReqDto.getPhoneNumber())
                 .workingDaysList(tattooArtistAccReqDto.getWorkDays())
                 .hasArtistPage(true)
                 .businessAddress(address)
-//                .averageRating(0.0)
                 .tattooWorks(tattooWorks == null ? new ArrayList<>() : tattooWorks)
                 .favouriteArtists(favouriteArtists == null ? new ArrayList<>() : favouriteArtists)
                 .comments(comments == null ? new ArrayList<>() : comments)
                 .favoriteTattooWorks(favoriteTattooWorks == null ? new ArrayList<>() : favoriteTattooWorks)
+                .givenReviews(givenReviews == null ? new ArrayList<>() : givenReviews)
+                .takenReviews(takenReviews == null ? new ArrayList<>() : takenReviews)
                 .build();
     }
 
-    public static User fromUserUpdateRequestDto(UserUpdateRequestDto userUpdateRequestDto, Address address, List<TattooWork> favoriteTattooWorks, List<TattooWork> tattooWorks, List<User> favouriteArtists, List<Comment> comments) {
+    public static User fromUserUpdateRequestDto(UserUpdateRequestDto userUpdateRequestDto, Address address, List<TattooWork> favoriteTattooWorks, List<TattooWork> tattooWorks, List<User> favouriteArtists, List<Comment> comments,List<Review> takenReviews,List<Review> givenReviews) {
         return User.builder()
                 .avatarUrl(userUpdateRequestDto.getAvatarUrl() == null ? "defaultUrl" : userUpdateRequestDto.getAvatarUrl())
                 .phoneNumber(userUpdateRequestDto.getPhoneNumber())
                 .firstName(userUpdateRequestDto.getFirstName())
                 .lastName(userUpdateRequestDto.getLastName())
                 .email(userUpdateRequestDto.getEmail())
-//                .averageRating(BigDecimal.valueOf(0.0))
                 .workingDaysList(userUpdateRequestDto.getWorkDays())
                 .businessAddress(address)
                 .tattooWorks(tattooWorks == null ? new ArrayList<>() : tattooWorks)
                 .favouriteArtists(favouriteArtists == null ? new ArrayList<>() : favouriteArtists)
                 .comments(comments == null ? new ArrayList<>() : comments)
                 .favoriteTattooWorks(favoriteTattooWorks == null ? new ArrayList<>() : favoriteTattooWorks)
+                .givenReviews(givenReviews == null ? new ArrayList<>() : givenReviews)
+                .takenReviews(takenReviews == null ? new ArrayList<>() : takenReviews)
                 .build();
     }
 
@@ -185,36 +212,25 @@ public class User {
                             .toList()
             );
         }
-
-        if (userResponseDto.getMaxTattooWorkPriceCurrency() != null) {
-            userResponseDto.setMaxTattooWorkPriceCurrency(userResponseDto.getMaxTattooWorkPriceCurrency());
-        } else {
-            userResponseDto.setMaxTattooWorkPriceCurrency(Currency.EUR);
-        }
-
-        if (userResponseDto.getMinTattooWorkPriceCurrency() != null) {
-            userResponseDto.setMinTattooWorkPriceCurrency(userResponseDto.getMaxTattooWorkPriceCurrency());
-        } else {
-            userResponseDto.setMinTattooWorkPriceCurrency(Currency.EUR);
-        }
-
         if (userResponseDto.getAverageRating() != null) {
             userResponseDto.setAverageRating(userResponseDto.getAverageRating());
         } else {
             userResponseDto.setAverageRating(BigDecimal.valueOf(0));
         }
-
-        if (userResponseDto.getMinTattooWorkPrice() != null) {
-            userResponseDto.setMinTattooWorkPrice(userResponseDto.getMinTattooWorkPrice());
-        } else {
-            userResponseDto.setMinTattooWorkPrice(BigDecimal.valueOf(0));
-        }
-
-        if (userResponseDto.getMaxTattooWorkPrice() != null) {
-            userResponseDto.setMaxTattooWorkPrice(userResponseDto.getMaxTattooWorkPrice());
-        } else {
-            userResponseDto.setMaxTattooWorkPrice(BigDecimal.valueOf(0));
-        }
         return userResponseDto;
+    }
+
+    public String toString() {
+        return "User(id=" + this.getId() +
+                ", uid=" + this.getUid() +
+                ", firstName=" + this.getFirstName() +
+                ", lastName=" + this.getLastName() +
+                ", email=" + this.getEmail() +
+                ", phoneNumber=" + this.getPhoneNumber() +
+                ", avatarUrl=" + this.getAvatarUrl() +
+                ", dateOfBirth=" + this.getDateOfBirth() +
+                ", hasArtistPage=" + this.isHasArtistPage() +
+                ", averageRating=" + this.getAverageRating() +
+                ", workingDaysList=" + this.getWorkingDaysList();
     }
 }

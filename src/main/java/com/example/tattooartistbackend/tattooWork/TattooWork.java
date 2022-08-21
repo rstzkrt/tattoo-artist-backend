@@ -1,12 +1,16 @@
 package com.example.tattooartistbackend.tattooWork;
 
 import com.example.tattooartistbackend.comment.Comment;
-import com.example.tattooartistbackend.tattooWork.models.Currency;
-import com.example.tattooartistbackend.tattooWork.models.TattooWorkPatchRequestDto;
-import com.example.tattooartistbackend.tattooWork.models.TattooWorkPostRequestDto;
-import com.example.tattooartistbackend.tattooWork.models.TattooWorksResponseDto;
+import com.example.tattooartistbackend.generated.models.Currency;
+import com.example.tattooartistbackend.generated.models.TattooWorkPostRequestDto;
+import com.example.tattooartistbackend.generated.models.TattooWorksResponseDto;
 import com.example.tattooartistbackend.user.User;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import net.minidev.json.annotate.JsonIgnore;
 
 import javax.persistence.CascadeType;
@@ -19,6 +23,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -39,8 +44,9 @@ public class TattooWork {
     @GeneratedValue(strategy = AUTO)
     private UUID id;
     @ManyToOne
+    @ToString.Exclude
     private User madeBy;
-    @NotBlank
+    @NotNull
     private BigDecimal price;
     @ManyToOne
     private User client;
@@ -52,17 +58,20 @@ public class TattooWork {
     private List<String> photos;
     @NotBlank
     private String description;
+
+    @ToString.Exclude
     @OneToOne(cascade = CascadeType.REMOVE)
-    private Comment comment;// will be posted under tattoo-work by the person who had the tattoo but like and dislike will be able to given by anybody else
+    private Comment comment;
 
+    private BigDecimal convertedPriceValue;
     @ElementCollection
     @JsonIgnore
-    private List<UUID> dislikerIds;//
+    private List<UUID> dislikerIds;
     @ElementCollection
     @JsonIgnore
-    private List<UUID> likerIds;//
+    private List<UUID> likerIds;
 
-    public static TattooWork fromTattooWorkPostRequest(TattooWorkPostRequestDto tattooWorkPostRequestDto, User client, User madeBy) {
+    public static TattooWork fromTattooWorkPostRequest(TattooWorkPostRequestDto tattooWorkPostRequestDto, User client, User madeBy,BigDecimal convertedPriceValue) {
         return TattooWork.builder()
                 .client(client)
                 .comment(null)
@@ -74,6 +83,7 @@ public class TattooWork {
                 .madeBy(madeBy)
                 .photos(tattooWorkPostRequestDto.getPhotos())
                 .price(tattooWorkPostRequestDto.getPrice())
+                .convertedPriceValue(convertedPriceValue)
                 .build();
     }
 

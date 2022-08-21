@@ -120,7 +120,7 @@
 								"method": "PUT",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:8080/users/{user_id}/tattoo-works/{post_id}/likes",
+									"raw": "http://localhost:8080/users/5d0638ed-7394-4ce9-8397-2f22b9700a3e/tattoo-works/bbe4ab40-5443-43b3-8063-921accf21b6f/likes",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -128,9 +128,9 @@
 									"port": "8080",
 									"path": [
 										"users",
-										"{user_id}",
+										"5d0638ed-7394-4ce9-8397-2f22b9700a3e",
 										"tattoo-works",
-										"{post_id}",
+										"bbe4ab40-5443-43b3-8063-921accf21b6f",
 										"likes"
 									]
 								}
@@ -143,7 +143,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:8080/users/{user_id}/tattoo-works/{post_id}/likes",
+									"raw": "http://localhost:8080/users/5d0638ed-7394-4ce9-8397-2f22b9700a3e/tattoo-works/bbe4ab40-5443-43b3-8063-921accf21b6f/likes",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -151,10 +151,36 @@
 									"port": "8080",
 									"path": [
 										"users",
-										"{user_id}",
+										"5d0638ed-7394-4ce9-8397-2f22b9700a3e",
 										"tattoo-works",
-										"{post_id}",
+										"bbe4ab40-5443-43b3-8063-921accf21b6f",
 										"likes"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "priceinterval",
+					"item": [
+						{
+							"name": "get prica inteval",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/users/71c9344e-1e4a-4fa4-8175-c2e2d121022b/price-interval",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"users",
+										"71c9344e-1e4a-4fa4-8175-c2e2d121022b",
+										"price-interval"
 									]
 								}
 							},
@@ -169,7 +195,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"res\",\r\n    \"lastName\": \"lastname\",\r\n    \"avatarUrl\": \"defaultUrl\",\r\n    \"birthDate\":\"1999-03-03\",\r\n    \"email\": \"email\"\r\n}",
+							"raw": "{\r\n    \"firstName\": \"res\",\r\n    \"lastName\": \"lastname\",\r\n    \"avatarUrl\": \"defaultUrl\",\r\n    \"birthDate\":\"1999-03-03\",\r\n    \"email\": \"email@emaol.com\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -205,7 +231,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/users/5d0638ed-7394-4ce9-8397-2f22b9700a3e",
+							"raw": "http://localhost:8080/users/fbbc2723-c0dc-4cdb-b806-31acc7b6f34b",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -213,7 +239,7 @@
 							"port": "8080",
 							"path": [
 								"users",
-								"5d0638ed-7394-4ce9-8397-2f22b9700a3e"
+								"fbbc2723-c0dc-4cdb-b806-31acc7b6f34b"
 							]
 						}
 					},
@@ -244,7 +270,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/users/c4f61f24-4caa-4e52-bfa3-1c0c30d1a25e",
+							"raw": "http://localhost:8080/users/5d0638ed-7394-4ce9-8397-2f22b9700a3e",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -252,7 +278,7 @@
 							"port": "8080",
 							"path": [
 								"users",
-								"c4f61f24-4caa-4e52-bfa3-1c0c30d1a25e"
+								"5d0638ed-7394-4ce9-8397-2f22b9700a3e"
 							]
 						}
 					},
@@ -264,7 +290,7 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/users/a3f7f26e-6d4c-4837-9f94-c96ccce80721",
+							"raw": "http://localhost:8080/users/71c9344e-1e4a-4fa4-8175-c2e2d121022b",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -272,7 +298,7 @@
 							"port": "8080",
 							"path": [
 								"users",
-								"a3f7f26e-6d4c-4837-9f94-c96ccce80721"
+								"71c9344e-1e4a-4fa4-8175-c2e2d121022b"
 							]
 						}
 					},
@@ -285,7 +311,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"res676767\",\r\n    \"lastName\": \"lastname76\",\r\n    \"avatarUrl\": \"defaultUrl\",\r\n    \"birthDate\": \"1999-03-03\",\r\n    \"email\": \"email\",\r\n    \"hasArtistPage\": true,\r\n    \"workDays\": [\r\n        \"FRIDAY\"\r\n    ],\r\n    \"phoneNumber\": \"123123123\",\r\n    \"street\": \"mokotow\",\r\n    \"city\": \"wawa\",\r\n    \"country\": \"pl\",\r\n    \"state\": \"mazow\",\r\n    \"postalCode\": \"123\",\r\n    \"otherInformation\": \"TattoSalo4n\"\r\n}",
+							"raw": "{\r\n    \"firstName\": \"res676767\",\r\n    \"lastName\": \"lastname76\",\r\n    \"avatarUrl\": \"defaultUrl\",\r\n    \"birthDate\": \"1999-03-03\",\r\n    \"email\": \"email@asd.com\",\r\n    \"hasArtistPage\": true,\r\n    \"workDays\": [\r\n        \"FRIDAY\"\r\n    ],\r\n    \"phoneNumber\": \"123123123\",\r\n    \"street\": \"mokotow\",\r\n    \"city\": \"wawa\",\r\n    \"country\": \"pl\",\r\n    \"state\": \"mazow\",\r\n    \"postalCode\": \"123\",\r\n    \"otherInformation\": \"TattoSalo4n\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -293,7 +319,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/users/5d0638ed-7394-4ce9-8397-2f22b9700a3e",
+							"raw": "http://localhost:8080/users/fbbc2723-c0dc-4cdb-b806-31acc7b6f34b",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -301,7 +327,7 @@
 							"port": "8080",
 							"path": [
 								"users",
-								"5d0638ed-7394-4ce9-8397-2f22b9700a3e"
+								"fbbc2723-c0dc-4cdb-b806-31acc7b6f34b"
 							]
 						}
 					},
@@ -319,7 +345,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"madeById\": \"5d0638ed-7394-4ce9-8397-2f22b9700a3e\",\r\n    \"description\": \"14\",\r\n    \"clientId\": \"5d0638ed-7394-4ce9-8397-2f22b9700a3e\"\r\n}",
+							"raw": "{\r\n    \"madeById\": \"fbbc2723-c0dc-4cdb-b806-31acc7b6f34b\",\r\n    \"description\": \"14\",\r\n    \"clientId\": \"fbbc2723-c0dc-4cdb-b806-31acc7b6f34b\",\r\n    \"price\":1,\r\n    \"message\":\"asd\",\r\n    \"coverPhoto\":\"asd\"\r\n    \r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -365,7 +391,7 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/tattoo-works/8a1d318f-0d81-4543-a886-61577dcb609d",
+							"raw": "http://localhost:8080/tattoo-works/80cd8ee6-7c59-42a1-a18a-211b057ce4a6",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -373,7 +399,7 @@
 							"port": "8080",
 							"path": [
 								"tattoo-works",
-								"8a1d318f-0d81-4543-a886-61577dcb609d"
+								"80cd8ee6-7c59-42a1-a18a-211b057ce4a6"
 							]
 						}
 					},
@@ -406,7 +432,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n        \"description\": \"14\",\r\n        \"price\": 123,\r\n        \"currency\": \"EUR\",\r\n        \"coverPhoto\": \"asdasd\",\r\n        \"photos\": []\r\n}",
+							"raw": "{\r\n        \"description\": \"14\",\r\n        \"price\": 1,\r\n        \"currency\": \"EUR\",\r\n        \"coverPhoto\": \"asdasd\",\r\n        \"photos\": []\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -414,7 +440,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/tattoo-works/80cd8ee6-7c59-42a1-a18a-211b057ce4a6",
+							"raw": "http://localhost:8080/tattoo-works/600134dd-9d0f-4561-b564-4c7496854c4f",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -422,7 +448,7 @@
 							"port": "8080",
 							"path": [
 								"tattoo-works",
-								"80cd8ee6-7c59-42a1-a18a-211b057ce4a6"
+								"600134dd-9d0f-4561-b564-4c7496854c4f"
 							]
 						}
 					},
@@ -446,10 +472,10 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"postedBy\":\"c9c67d52-8cf5-4301-9c43-30c75856ab2b\",\r\n    \"message\":\"msg\",\r\n    \"rate\":123\r\n}"
+							"raw": "{\r\n    \"postedBy\":\"fbbc2723-c0dc-4cdb-b806-31acc7b6f34b\",\r\n    \"message\":\"msg\",\r\n    \"rate\":1\r\n}"
 						},
 						"url": {
-							"raw": "http://localhost:8080/comments/tattooworks/96463776-6050-4f62-af39-991dcd017b75",
+							"raw": "http://localhost:8080/comments/tattooworks/48a5600f-488c-4a35-aaa9-dc403d29252e",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -458,7 +484,7 @@
 							"path": [
 								"comments",
 								"tattooworks",
-								"96463776-6050-4f62-af39-991dcd017b75"
+								"48a5600f-488c-4a35-aaa9-dc403d29252e"
 							]
 						}
 					},
@@ -470,7 +496,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/comments/6c6984ab-d93d-4d49-b1af-9e5337e22c7c",
+							"raw": "http://localhost:8080/comments/5d0638ed-7394-4ce9-8397-2f22b9700a3e",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -478,7 +504,7 @@
 							"port": "8080",
 							"path": [
 								"comments",
-								"6c6984ab-d93d-4d49-b1af-9e5337e22c7c"
+								"5d0638ed-7394-4ce9-8397-2f22b9700a3e"
 							]
 						}
 					},
@@ -488,7 +514,20 @@
 					"name": "get all comments by tatto work id",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/comments/tattooworks/bbe4ab40-5443-43b3-8063-921accf21b6f",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"comments",
+								"tattooworks",
+								"bbe4ab40-5443-43b3-8063-921accf21b6f"
+							]
+						}
 					},
 					"response": []
 				},
@@ -499,7 +538,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \r\n}",
+							"raw": "{\r\n    \"rate\":3,\r\n    \"message\":\"amazing\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -507,7 +546,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/comments/715535de-0704-476a-a523-745ad623a9ac",
+							"raw": "http://localhost:8080/comments/ea0a6027-0805-49f0-9b0c-0cc8ec7bb411",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -515,7 +554,7 @@
 							"port": "8080",
 							"path": [
 								"comments",
-								"715535de-0704-476a-a523-745ad623a9ac"
+								"ea0a6027-0805-49f0-9b0c-0cc8ec7bb411"
 							]
 						}
 					},
@@ -527,7 +566,7 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/comments/715535de-0704-476a-a523-745ad623a9ac",
+							"raw": "http://localhost:8080/comments/352cf76f-a847-4b90-9205-888a38684ad2",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -535,7 +574,7 @@
 							"port": "8080",
 							"path": [
 								"comments",
-								"715535de-0704-476a-a523-745ad623a9ac"
+								"352cf76f-a847-4b90-9205-888a38684ad2"
 							]
 						}
 					},

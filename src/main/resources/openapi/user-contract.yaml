@@ -342,7 +342,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
+  /users/{id}/price-interval:
+    get:
+      operationId: userPriceInterval
+      description: price interval
+      parameters:
+        - in: path
+          name: id
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TattooArtistPriceInterval'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
 
@@ -444,14 +468,6 @@ components:
             $ref: '#/components/schemas/WorkingDays'
         averageRating:
           type: number
-        minTattooWorkPrice:
-          type: number
-        minTattooWorkPriceCurrency:
-          $ref: './tattoo-work-contract.yaml/#/components/schemas/Currency'
-        maxTattooWorkPrice:
-          type: number
-        maxTattooWorkPriceCurrency:
-          $ref: './tattoo-work-contract.yaml/#/components/schemas/Currency'
         phoneNumber:
           type: string
         street:
@@ -486,6 +502,18 @@ components:
           items:
             type: string
             format: uuid
+
+    TattooArtistPriceInterval:
+      type: object
+      properties:
+        maxTattooWorkPrice:
+          type: number
+        minTattooWorkPrice:
+          type: number
+        minTattooWorkPriceCurrency:
+          $ref: './tattoo-work-contract.yaml/#/components/schemas/Currency'
+        maxTattooWorkPriceCurrency:
+          $ref: './tattoo-work-contract.yaml/#/components/schemas/Currency'
 
     WorkingDays:
       enum:

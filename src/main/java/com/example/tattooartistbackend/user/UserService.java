@@ -3,15 +3,15 @@ package com.example.tattooartistbackend.user;
 
 import com.example.tattooartistbackend.address.Address;
 import com.example.tattooartistbackend.address.AddressRepository;
-
-import com.example.tattooartistbackend.comment.CommentRepository;
 import com.example.tattooartistbackend.exceptions.UserNotFoundException;
+import com.example.tattooartistbackend.generated.models.ClientReqDto;
+import com.example.tattooartistbackend.generated.models.TattooArtistAccReqDto;
+import com.example.tattooartistbackend.generated.models.TattooArtistPriceInterval;
+import com.example.tattooartistbackend.generated.models.UserResponseDto;
+import com.example.tattooartistbackend.generated.models.UserUpdateRequestDto;
+import com.example.tattooartistbackend.review.ReviewRepository;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
 import com.example.tattooartistbackend.tattooWork.TattooWorkRepository;
-import com.example.tattooartistbackend.user.models.ClientReqDto;
-import com.example.tattooartistbackend.user.models.TattooArtistAccReqDto;
-import com.example.tattooartistbackend.user.models.UserResponseDto;
-import com.example.tattooartistbackend.user.models.UserUpdateRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,8 +30,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
     private final TattooWorkRepository tattooWorkRepository;
-
-    private final CommentRepository commentRepository;
+    private final ReviewRepository reviewRepository;
 
     public UserResponseDto createUser(ClientReqDto clientReqDto) {
         //assign uid
@@ -54,12 +53,18 @@ public class UserService {
     public Optional<UserResponseDto> updateUser(UUID id, UserUpdateRequestDto userUpdateRequestDto) {
         return Optional.ofNullable(userRepository.findById(id)
                 .map(user -> {
-                    Address address = updateReqToAddress(user, userUpdateRequestDto.getCity(), userUpdateRequestDto.getState(), userUpdateRequestDto.getCountry(), userUpdateRequestDto.getPostalCode(), userUpdateRequestDto.getStreet(), userUpdateRequestDto.getOtherInformation());
-                    User userToUpdate = User.fromUserUpdateRequestDto(userUpdateRequestDto, address, user.getTattooWorks(), user.getTattooWorks(), user.getFavouriteArtists(), user.getComments());
+                    var givenReviews = reviewRepository.findAllByPostedBy_Id(user.getId());
+                    var takenReviews = reviewRepository.findAllByReceiver_Id(user.getId());
+
+                    Address address = updateReqToAddress(user, userUpdateRequestDto.getCity(), userUpdateRequestDto.getState(),
+                            userUpdateRequestDto.getCountry(), userUpdateRequestDto.getPostalCode(), userUpdateRequestDto.getStreet(), userUpdateRequestDto.getOtherInformation());
+                    User userToUpdate = User.fromUserUpdateRequestDto(userUpdateRequestDto, address, user.getTattooWorks(),
+                            user.getTattooWorks(), user.getFavouriteArtists(), user.getComments(), takenReviews, givenReviews);
                     userToUpdate.setId(user.getId());
                     userToUpdate.setUid(user.getUid());
                     userToUpdate.setHasArtistPage(user.isHasArtistPage());
                     userToUpdate.setDateOfBirth(user.getDateOfBirth());
+                    userToUpdate.setAverageRating(user.getAverageRating());
                     return userRepository.save(userToUpdate);
                 })
                 .map(User::toUserResponseDto)
@@ -79,9 +84,9 @@ public class UserService {
         User artist = userRepository.findById(artistId).orElseThrow(UserNotFoundException::new);
 
         List<User> favouriteArtists = user.getFavouriteArtists();
-        if(favouriteArtists.contains(artist)) {
+        if (favouriteArtists.contains(artist)) {
             return user.toUserResponseDto();
-        }else {
+        } else {
             favouriteArtists.add(artist);
             user.setFavouriteArtists(favouriteArtists);
             return userRepository.save(user).toUserResponseDto();
@@ -90,7 +95,7 @@ public class UserService {
 
     public void unfavoriteTattooArtist(UUID userId, UUID artistId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        User artist =userRepository.findById(artistId).orElseThrow(UserNotFoundException::new);
+        User artist = userRepository.findById(artistId).orElseThrow(UserNotFoundException::new);
 
         List<User> favouriteArtists = user.getFavouriteArtists();
         favouriteArtists.remove(artist);
@@ -113,9 +118,9 @@ public class UserService {
         TattooWork tattooWork = tattooWorkRepository.findById(postId).orElseThrow();
         List<TattooWork> favoriteTattooWorks = user.getFavoriteTattooWorks();
 
-        if(favoriteTattooWorks.contains(tattooWork)) {
+        if (favoriteTattooWorks.contains(tattooWork)) {
             return user.toUserResponseDto();
-        }else {
+        } else {
             favoriteTattooWorks.add(tattooWork);
             user.setFavoriteTattooWorks(favoriteTattooWorks);
             return userRepository.save(user).toUserResponseDto();
@@ -132,6 +137,9 @@ public class UserService {
                             throw new RuntimeException(e);
                         }
                     }
+                    var givenReviews = reviewRepository.findAllByPostedBy_Id(user.getId());
+                    var takenReviews = reviewRepository.findAllByReceiver_Id(user.getId());
+
                     Address address = Address.builder()
                             .otherInformation(tattooArtistAccReqDto.getOtherInformation())
                             .street(tattooArtistAccReqDto.getStreet())
@@ -140,10 +148,17 @@ public class UserService {
                             .postalCode(tattooArtistAccReqDto.getPostalCode())
                             .state(tattooArtistAccReqDto.getState())
                             .build();
-
                     addressRepository.save(address);
-                    User userToUpdate = User.fromTattooArtistAccReqDto(tattooArtistAccReqDto, address, user.getTattooWorks(), user.getTattooWorks(), user.getFavouriteArtists(), user.getComments());
-
+                    User userToUpdate =
+                            User.fromTattooArtistAccReqDto(
+                                    tattooArtistAccReqDto,
+                                    address,
+                                    user.getTattooWorks(),
+                                    user.getTattooWorks(),
+                                    user.getFavouriteArtists(),
+                                    user.getComments(),
+                                    takenReviews,
+                                    givenReviews);
                     userToUpdate.setId(user.getId());
                     userToUpdate.setUid(user.getUid());
                     userToUpdate.setEmail(user.getEmail());
@@ -151,8 +166,6 @@ public class UserService {
                     userToUpdate.setLastName(user.getLastName());
                     userToUpdate.setDateOfBirth(user.getDateOfBirth());
                     userToUpdate.setAvatarUrl(user.getAvatarUrl());
-
-                    System.out.println(user.toString());
                     return userRepository.save(userToUpdate);
                 })
                 .map(User::toUserResponseDto)
@@ -160,7 +173,7 @@ public class UserService {
     }
 
     private Address getAddress(User user, String city, String state, String country, String postalCode, String street, String otherInformation) {
-        if(!user.isHasArtistPage()){
+        if (!user.isHasArtistPage()) {
             return null;
         }
         Address address = addressRepository.findById(user.getBusinessAddress().getId()).orElseThrow();
@@ -178,18 +191,18 @@ public class UserService {
         return getAddress(user, city, state, country, postalCode, street, otherInformation);
     }
 
-    public void like(UUID userId, UUID postId){
-        var user= userRepository.findById(userId).orElseThrow();
-        var tattooWork= tattooWorkRepository.findById(postId).orElseThrow();
+    public void like(UUID userId, UUID postId) {
+        var user = userRepository.findById(userId).orElseThrow();
+        var tattooWork = tattooWorkRepository.findById(postId).orElseThrow();
 
-        if (!tattooWork.getLikerIds().contains(userId)){
-            if(tattooWork.getDislikerIds().contains(userId)){
-                var tattooWorkDislikerIds=tattooWork.getDislikerIds();
+        if (!tattooWork.getLikerIds().contains(userId)) {
+            if (tattooWork.getDislikerIds().contains(userId)) {
+                var tattooWorkDislikerIds = tattooWork.getDislikerIds();
                 tattooWorkDislikerIds.remove(userId);
                 tattooWork.setDislikerIds(tattooWorkDislikerIds);
                 tattooWorkRepository.save(tattooWork);
             }
-            var tattooWorkLikerIds=tattooWork.getLikerIds();
+            var tattooWorkLikerIds = tattooWork.getLikerIds();
             tattooWorkLikerIds.add(userId);
             tattooWork.setLikerIds(tattooWorkLikerIds);
             tattooWorkRepository.save(tattooWork);
@@ -198,23 +211,38 @@ public class UserService {
         }
     }
 
-    public void dislike(UUID userId, UUID postId){
-        var user= userRepository.findById(userId).orElseThrow();
-        var tattooWork= tattooWorkRepository.findById(postId).orElseThrow();
-        if (!tattooWork.getDislikerIds().contains(userId)){
-            if(tattooWork.getLikerIds().contains(userId)){
-                var tattooWorkLikerIds=tattooWork.getLikerIds();
+    public void dislike(UUID userId, UUID postId) {
+        var user = userRepository.findById(userId).orElseThrow();
+        var tattooWork = tattooWorkRepository.findById(postId).orElseThrow();
+        if (!tattooWork.getDislikerIds().contains(userId)) {
+            if (tattooWork.getLikerIds().contains(userId)) {
+                var tattooWorkLikerIds = tattooWork.getLikerIds();
                 tattooWorkLikerIds.remove(userId);
                 tattooWork.setLikerIds(tattooWorkLikerIds);
                 tattooWorkRepository.save(tattooWork);
             }
-            var tattooWorkDislikerIds=tattooWork.getDislikerIds();
+            var tattooWorkDislikerIds = tattooWork.getDislikerIds();
             tattooWorkDislikerIds.add(userId);
             tattooWork.setDislikerIds(tattooWorkDislikerIds);
             tattooWorkRepository.save(tattooWork);
-        }else {
+        } else {
             throw new RuntimeException("Already voted");
         }
     }
 
+    public TattooArtistPriceInterval userPriceInterval(UUID id) {
+        userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        var tattooWorkMAX = tattooWorkRepository.findTopByMadeBy_IdOrderByConvertedPriceValueDesc(id);
+        var tattooWorkMIN = tattooWorkRepository.findTopByMadeBy_IdOrderByConvertedPriceValueAsc(id);
+        return createTattooArtistPriceInterval(tattooWorkMAX, tattooWorkMIN);
+    }
+
+    public TattooArtistPriceInterval createTattooArtistPriceInterval(TattooWork tattooWorkWithMaxPrice, TattooWork tattooWorkWithMinPrice) {
+        TattooArtistPriceInterval tattooArtistPriceInterval = new TattooArtistPriceInterval();
+        tattooArtistPriceInterval.setMaxTattooWorkPrice(tattooWorkWithMaxPrice.getPrice());
+        tattooArtistPriceInterval.setMinTattooWorkPrice(tattooWorkWithMinPrice.getPrice());
+        tattooArtistPriceInterval.setMaxTattooWorkPriceCurrency(tattooWorkWithMaxPrice.getCurrency());
+        tattooArtistPriceInterval.setMinTattooWorkPriceCurrency(tattooWorkWithMinPrice.getCurrency());
+        return tattooArtistPriceInterval;
+    }
 }

@@ -1,9 +1,9 @@
 package com.example.tattooartistbackend.tattooWork;
 
-import com.example.tattooartistbackend.tattooWork.apis.TattooWorksApi;
-import com.example.tattooartistbackend.tattooWork.models.TattooWorkPatchRequestDto;
-import com.example.tattooartistbackend.tattooWork.models.TattooWorkPostRequestDto;
-import com.example.tattooartistbackend.tattooWork.models.TattooWorksResponseDto;
+import com.example.tattooartistbackend.generated.apis.TattooWorksApi;
+import com.example.tattooartistbackend.generated.models.TattooWorkPatchRequestDto;
+import com.example.tattooartistbackend.generated.models.TattooWorkPostRequestDto;
+import com.example.tattooartistbackend.generated.models.TattooWorksResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

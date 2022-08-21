@@ -1,9 +1,9 @@
 package com.example.tattooartistbackend.comment;
 
-import com.example.tattooartistbackend.comment.apis.CommentsApi;
-import com.example.tattooartistbackend.comment.models.CommentPatchRequestDto;
-import com.example.tattooartistbackend.comment.models.CommentRequestDto;
-import com.example.tattooartistbackend.comment.models.CommentResponseDto;
+import com.example.tattooartistbackend.generated.apis.CommentsApi;
+import com.example.tattooartistbackend.generated.models.CommentPatchRequestDto;
+import com.example.tattooartistbackend.generated.models.CommentRequestDto;
+import com.example.tattooartistbackend.generated.models.CommentResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ public class CommentController implements CommentsApi {
     private final CommentService commentService;
 
     @Override
-    public ResponseEntity<CommentResponseDto> createComment(UUID tattooWorkId,CommentRequestDto commentRequestDto) {
+    public ResponseEntity<CommentResponseDto> createComment(UUID tattooWorkId, CommentRequestDto commentRequestDto) {
         return new ResponseEntity<>(commentService.createComment(tattooWorkId,commentRequestDto), HttpStatus.CREATED);
     }
 
