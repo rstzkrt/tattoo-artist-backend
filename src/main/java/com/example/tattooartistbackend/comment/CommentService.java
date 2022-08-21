@@ -1,9 +1,9 @@
 package com.example.tattooartistbackend.comment;
 
-import com.example.tattooartistbackend.comment.models.CommentPatchRequestDto;
-import com.example.tattooartistbackend.comment.models.CommentRequestDto;
-import com.example.tattooartistbackend.comment.models.CommentResponseDto;
 import com.example.tattooartistbackend.exceptions.UserNotFoundException;
+import com.example.tattooartistbackend.generated.models.CommentPatchRequestDto;
+import com.example.tattooartistbackend.generated.models.CommentRequestDto;
+import com.example.tattooartistbackend.generated.models.CommentResponseDto;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
 import com.example.tattooartistbackend.tattooWork.TattooWorkRepository;
 import com.example.tattooartistbackend.user.User;

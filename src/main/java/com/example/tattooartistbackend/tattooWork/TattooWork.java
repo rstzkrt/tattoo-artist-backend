@@ -1,11 +1,16 @@
 package com.example.tattooartistbackend.tattooWork;
 
 import com.example.tattooartistbackend.comment.Comment;
-import com.example.tattooartistbackend.tattooWork.models.Currency;
-import com.example.tattooartistbackend.tattooWork.models.TattooWorkPostRequestDto;
-import com.example.tattooartistbackend.tattooWork.models.TattooWorksResponseDto;
+import com.example.tattooartistbackend.generated.models.Currency;
+import com.example.tattooartistbackend.generated.models.TattooWorkPostRequestDto;
+import com.example.tattooartistbackend.generated.models.TattooWorksResponseDto;
 import com.example.tattooartistbackend.user.User;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import net.minidev.json.annotate.JsonIgnore;
 
 import javax.persistence.CascadeType;
@@ -58,6 +63,7 @@ public class TattooWork {
     @OneToOne(cascade = CascadeType.REMOVE)
     private Comment comment;
 
+    private BigDecimal convertedPriceValue;
     @ElementCollection
     @JsonIgnore
     private List<UUID> dislikerIds;
@@ -65,7 +71,7 @@ public class TattooWork {
     @JsonIgnore
     private List<UUID> likerIds;
 
-    public static TattooWork fromTattooWorkPostRequest(TattooWorkPostRequestDto tattooWorkPostRequestDto, User client, User madeBy) {
+    public static TattooWork fromTattooWorkPostRequest(TattooWorkPostRequestDto tattooWorkPostRequestDto, User client, User madeBy,BigDecimal convertedPriceValue) {
         return TattooWork.builder()
                 .client(client)
                 .comment(null)
@@ -77,6 +83,7 @@ public class TattooWork {
                 .madeBy(madeBy)
                 .photos(tattooWorkPostRequestDto.getPhotos())
                 .price(tattooWorkPostRequestDto.getPrice())
+                .convertedPriceValue(convertedPriceValue)
                 .build();
     }
 

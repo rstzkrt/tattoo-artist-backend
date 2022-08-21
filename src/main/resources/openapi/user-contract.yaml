@@ -468,14 +468,6 @@ components:
             $ref: '#/components/schemas/WorkingDays'
         averageRating:
           type: number
-        minTattooWorkPrice:
-          type: number
-        minTattooWorkPriceCurrency:
-          $ref: './tattoo-work-contract.yaml/#/components/schemas/Currency'
-        maxTattooWorkPrice:
-          type: number
-        maxTattooWorkPriceCurrency:
-          $ref: './tattoo-work-contract.yaml/#/components/schemas/Currency'
         phoneNumber:
           type: string
         street:
@@ -514,10 +506,14 @@ components:
     TattooArtistPriceInterval:
       type: object
       properties:
-        maxPrice:
+        maxTattooWorkPrice:
           type: number
-        minPrice:
+        minTattooWorkPrice:
           type: number
+        minTattooWorkPriceCurrency:
+          $ref: './tattoo-work-contract.yaml/#/components/schemas/Currency'
+        maxTattooWorkPriceCurrency:
+          $ref: './tattoo-work-contract.yaml/#/components/schemas/Currency'
 
     WorkingDays:
       enum:

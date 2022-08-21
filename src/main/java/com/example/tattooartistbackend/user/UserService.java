@@ -3,12 +3,14 @@ package com.example.tattooartistbackend.user;
 
 import com.example.tattooartistbackend.address.Address;
 import com.example.tattooartistbackend.address.AddressRepository;
-
-import com.example.tattooartistbackend.comment.CommentRepository;
 import com.example.tattooartistbackend.exceptions.UserNotFoundException;
+import com.example.tattooartistbackend.generated.models.ClientReqDto;
+import com.example.tattooartistbackend.generated.models.TattooArtistAccReqDto;
+import com.example.tattooartistbackend.generated.models.TattooArtistPriceInterval;
+import com.example.tattooartistbackend.generated.models.UserResponseDto;
+import com.example.tattooartistbackend.generated.models.UserUpdateRequestDto;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
 import com.example.tattooartistbackend.tattooWork.TattooWorkRepository;
-import com.example.tattooartistbackend.user.models.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,8 +29,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
     private final TattooWorkRepository tattooWorkRepository;
-
-    private final CommentRepository commentRepository;
 
     public UserResponseDto createUser(ClientReqDto clientReqDto) {
         //assign uid
@@ -218,15 +218,17 @@ public class UserService {
 
     public TattooArtistPriceInterval userPriceInterval(UUID id) {
         userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-        var tattooWorkMAX= tattooWorkRepository.findTopByMadeBy_IdOrderByPriceDesc(id);
-        var tattooWorkMIN= tattooWorkRepository.findTopByMadeBy_IdOrderByPriceAsc(id);
+        var tattooWorkMAX= tattooWorkRepository.findTopByMadeBy_IdOrderByConvertedPriceValueDesc(id);
+        var tattooWorkMIN= tattooWorkRepository.findTopByMadeBy_IdOrderByConvertedPriceValueAsc(id);
         return createTattooArtistPriceInterval(tattooWorkMAX,tattooWorkMIN);
     }
 
     public TattooArtistPriceInterval createTattooArtistPriceInterval(TattooWork tattooWorkWithMaxPrice, TattooWork tattooWorkWithMinPrice){
         TattooArtistPriceInterval tattooArtistPriceInterval= new TattooArtistPriceInterval();
-        tattooArtistPriceInterval.setMaxPrice(tattooWorkWithMaxPrice.getPrice());
-        tattooArtistPriceInterval.setMinPrice(tattooWorkWithMinPrice.getPrice());
+        tattooArtistPriceInterval.setMaxTattooWorkPrice(tattooWorkWithMaxPrice.getPrice());
+        tattooArtistPriceInterval.setMinTattooWorkPrice(tattooWorkWithMinPrice.getPrice());
+        tattooArtistPriceInterval.setMaxTattooWorkPriceCurrency(tattooWorkWithMaxPrice.getCurrency());
+        tattooArtistPriceInterval.setMinTattooWorkPriceCurrency(tattooWorkWithMinPrice.getCurrency());
         return tattooArtistPriceInterval;
     }
 }

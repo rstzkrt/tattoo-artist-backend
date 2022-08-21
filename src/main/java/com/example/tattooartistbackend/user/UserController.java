@@ -1,8 +1,8 @@
 package com.example.tattooartistbackend.user;
 
 import com.example.tattooartistbackend.exceptions.UserNotFoundException;
-import com.example.tattooartistbackend.user.apis.UsersApi;
-import com.example.tattooartistbackend.user.models.*;
+import com.example.tattooartistbackend.generated.apis.UsersApi;
+import com.example.tattooartistbackend.generated.models.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

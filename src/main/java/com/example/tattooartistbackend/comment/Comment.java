@@ -1,7 +1,8 @@
 package com.example.tattooartistbackend.comment;
 
-import com.example.tattooartistbackend.comment.models.CommentRequestDto;
-import com.example.tattooartistbackend.comment.models.CommentResponseDto;
+
+import com.example.tattooartistbackend.generated.models.CommentRequestDto;
+import com.example.tattooartistbackend.generated.models.CommentResponseDto;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
 import com.example.tattooartistbackend.user.User;
 import lombok.*;

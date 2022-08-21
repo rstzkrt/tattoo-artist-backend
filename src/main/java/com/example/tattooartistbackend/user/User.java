@@ -2,8 +2,8 @@ package com.example.tattooartistbackend.user;
 
 import com.example.tattooartistbackend.address.Address;
 import com.example.tattooartistbackend.comment.Comment;
+import com.example.tattooartistbackend.generated.models.*;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
-import com.example.tattooartistbackend.user.models.*;
 import lombok.*;
 
 import javax.persistence.*;
@@ -181,35 +181,10 @@ public class User {
                             .toList()
             );
         }
-
-        if (userResponseDto.getMaxTattooWorkPriceCurrency() != null) {
-            userResponseDto.setMaxTattooWorkPriceCurrency(userResponseDto.getMaxTattooWorkPriceCurrency());
-        } else {
-            userResponseDto.setMaxTattooWorkPriceCurrency(Currency.EUR);
-        }
-
-        if (userResponseDto.getMinTattooWorkPriceCurrency() != null) {
-            userResponseDto.setMinTattooWorkPriceCurrency(userResponseDto.getMaxTattooWorkPriceCurrency());
-        } else {
-            userResponseDto.setMinTattooWorkPriceCurrency(Currency.EUR);
-        }
-
         if (userResponseDto.getAverageRating() != null) {
             userResponseDto.setAverageRating(userResponseDto.getAverageRating());
         } else {
             userResponseDto.setAverageRating(BigDecimal.valueOf(0));
-        }
-
-        if (userResponseDto.getMinTattooWorkPrice() != null) {
-            userResponseDto.setMinTattooWorkPrice(userResponseDto.getMinTattooWorkPrice());
-        } else {
-            userResponseDto.setMinTattooWorkPrice(BigDecimal.valueOf(0));
-        }
-
-        if (userResponseDto.getMaxTattooWorkPrice() != null) {
-            userResponseDto.setMaxTattooWorkPrice(userResponseDto.getMaxTattooWorkPrice());
-        } else {
-            userResponseDto.setMaxTattooWorkPrice(BigDecimal.valueOf(0));
         }
         return userResponseDto;
     }
