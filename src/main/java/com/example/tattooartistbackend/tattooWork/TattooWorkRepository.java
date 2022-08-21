@@ -11,9 +11,9 @@ import java.util.List;
 @Repository
 public interface TattooWorkRepository extends JpaRepository<TattooWork, UUID> {
 
-    TattooWork findTopByMadeBy_IdOrderByPriceDesc(UUID madeBy);
+    TattooWork findTopByMadeBy_IdOrderByConvertedPriceValueDesc(UUID madeBy);
 
-    TattooWork findTopByMadeBy_IdOrderByPriceAsc(UUID madeBy);
+    TattooWork findTopByMadeBy_IdOrderByConvertedPriceValueAsc(UUID madeBy);
 
     @Query("SELECT t from TattooWork t WHERE (:country is null or t.madeBy.businessAddress.country = :country) AND (:price is null or t.price = :price)")
     List<TattooWork> findAllFilter(String country, BigDecimal price);
