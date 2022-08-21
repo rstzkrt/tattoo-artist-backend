@@ -148,12 +148,12 @@
 					</execution>
 
 					<execution>
-						<id>item</id>
+						<id>review</id>
 						<goals>
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>${project.basedir}/src/main/resources/openapi/item-contract.yaml</inputSpec>
+							<inputSpec>${project.basedir}/src/main/resources/openapi/review-contract.yaml</inputSpec>
 							<generatorName>spring</generatorName>
 							<modelPackage>com.example.tattooartistbackend.generated.models</modelPackage>
 							<apiPackage>com.example.tattooartistbackend.generated.apis</apiPackage>

@@ -1,18 +1,17 @@
 openapi: 3.0.3
 info:
-  title: comment-contract
-  description: comment-openapi-contract
+  title: item-contract
+  description: item
   version: 1.0.0
 paths:
-
-  /comments/{comment_id}:
+  /reviews/{id}:
     get:
-      operationId: getCommentById
-      description: get comment by id
+      operationId: getReviewsById
+      description: get revie
       parameters:
         - in: path
-          name: comment_id
-          description: comment id
+          name: id
+          description: reviewId
           required: true
           schema:
             type: string
@@ -23,7 +22,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CommentResponseDto'
+                $ref: '#/components/schemas/ReviewResponseDto'
         default:
           description: error payload
           content:
@@ -32,12 +31,12 @@ paths:
                 $ref: './user-contract.yaml/#/components/schemas/ErrorResponse'
 
     delete:
-      operationId: deleteCommentById
-      description: delete comment by id
+      operationId: deleteReviewById
+      description: delete review
       parameters:
         - in: path
-          name: comment_id
-          description: comment id
+          name: id
+          description: reviewId
           required: true
           schema:
             type: string
@@ -53,18 +52,17 @@ paths:
                 $ref: './user-contract.yaml/#/components/schemas/ErrorResponse'
 
     patch:
-      operationId: editComment
-      description: edit comment
+      operationId: reviewPatchUpdate
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CommentPatchRequestDto'
+              $ref: '#/components/schemas/ReviewPatchRequestDto'
       parameters:
         - in: path
-          name: comment_id
-          description: comment id
+          name: id
+          description: reviewId
           required: true
           schema:
             type: string
@@ -75,7 +73,40 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CommentResponseDto'
+                $ref: '#/components/schemas/ReviewResponseDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+               $ref: './user-contract.yaml/#/components/schemas/ErrorResponse'
+
+
+  /reviews/users/{receiver_id}:
+    post:
+      operationId: createReview
+      description: post review for tattooArtist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewPostRequestDto'
+      parameters:
+        - in: path
+          name: receiver_id
+          description: receiverId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                 $ref: '#/components/schemas/ReviewResponseDto'
         default:
           description: error payload
           content:
@@ -83,14 +114,13 @@ paths:
               schema:
                 $ref: './user-contract.yaml/#/components/schemas/ErrorResponse'
 
-  /comments/tattooworks/{tattooWork_id}:
     get:
-      operationId: getCommentsByTattooWorkId
-      description: get comments
+      operationId: getAllReviewByUserId
+      description: get all
       parameters:
         - in: path
-          name: tattooWork_id
-          description: tattooWork id
+          name: receiver_id
+          description: receiverId
           required: true
           schema:
             type: string
@@ -103,37 +133,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CommentResponseDto'
-        default:
-          description: error payload
-          content:
-            application/json:
-              schema:
-                $ref: './user-contract.yaml/#/components/schemas/ErrorResponse'
-    post:
-      operationId: createComment
-      description: create comment
-      parameters:
-        - in: path
-          name: tattooWork_id
-          description: tattooWork id
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CommentRequestDto'
-      responses:
-        201:
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CommentResponseDto'
+                  $ref: '#/components/schemas/ReviewResponseDto'
         default:
           description: error payload
           content:
@@ -143,39 +143,44 @@ paths:
 
 components:
   schemas:
-    CommentPatchRequestDto:
+    ReviewPatchRequestDto:
       type: object
       properties:
-        rate:
-          type: number
         message:
           type: string
-    CommentRequestDto:
+        reviewType:
+          $ref: "#/components/schemas/ReviewType"
+
+    ReviewPostRequestDto:
       type: object
       properties:
+        message:
+          type: string
         postedBy:
           type: string
           format: uuid
-        message:
-          type: string
-        rate:
-          type: number
-    CommentResponseDto:
+        reviewType:
+          $ref: "#/components/schemas/ReviewType"
+
+    ReviewResponseDto:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        postDate:
+        message:
           type: string
-          format: date
         postedBy:
           type: string
           format: uuid
-        message:
-          type: string
-        workId:
+        receiver:
           type: string
           format: uuid
-        rate:
-          type: number
+        reviewType:
+          $ref: "#/components/schemas/ReviewType"
+
+    ReviewType:
+      enum:
+        - POSITIVE
+        - NEGATIVE
+        - NEUTRAL
