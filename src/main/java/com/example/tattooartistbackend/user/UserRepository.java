@@ -3,6 +3,8 @@ package com.example.tattooartistbackend.user;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 import java.util.UUID;
 import java.util.List;
 
@@ -13,4 +15,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             "AND (:lastName is null or u.lastName = :lastName)")
     List<User> findAllUsers(String firstName,String lastName);
 
+    Optional<User> findByUid(String uid);
 }

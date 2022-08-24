@@ -36,7 +36,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
 # every user will be created as client first ,so we pass client request dto to request body
     post:
       operationId: createUser
@@ -86,18 +85,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
+  /users/me:
+    get:
+      operationId: getAuthenticatedUser
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     delete:
       operationId: deleteUser
       description: get user
-      parameters:
-        - in: path
-          name: id
-          description: user id
-          required: true
-          schema:
-            type: string
-            format: uuid
       responses:
         200:
           description: no content
@@ -117,14 +123,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UserUpdateRequestDto'
-      parameters:
-        - in: path
-          name: id
-          description: user id
-          required: true
-          schema:
-            type: string
-            format: uuid
       responses:
         200:
           description: OK
@@ -147,14 +145,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/TattooArtistAccReqDto'
-      parameters:
-        - in: path
-          name: id
-          description: user id
-          required: true
-          schema:
-            type: string
-            format: uuid
       responses:
         200:
           description: OK
@@ -169,17 +159,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /users/{user_id}/tattoo-works/{post_id}/favorites:
+  /users/me/tattoo-works/{post_id}/favorites:
     put:
       operationId: favoriteTattooWork
       parameters:
-        - in: path
-          name: user_id
-          description: user id
-          required: true
-          schema:
-            type: string
-            format: uuid
         - in: path
           name: post_id
           description: tattooWork post id
@@ -205,13 +188,6 @@ paths:
       operationId: unfavoriteTattooWork
       parameters:
         - in: path
-          name: user_id
-          description: user id
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - in: path
           name: post_id
           description: tattooWork post id
           required: true
@@ -228,17 +204,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /users/{user_id}/tattoo-artists/{artist_id}/favorites:
+  /users/me/tattoo-artists/{artist_id}/favorites:
     put:
       operationId: favoriteTattooArtist
       parameters:
-        - in: path
-          name: user_id
-          description: user id
-          required: true
-          schema:
-            type: string
-            format: uuid
         - in: path
           name: artist_id
           description: artist id
@@ -264,13 +233,6 @@ paths:
       operationId: unfavoriteTattooArtist
       parameters:
         - in: path
-          name: user_id
-          description: user id
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - in: path
           name: artist_id
           description: artist id
           required: true
@@ -287,18 +249,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /users/{user_id}/tattoo-works/{post_id}/likes:
+  /users/me/tattoo-works/{post_id}/likes:
     put:
       operationId: likeTattooWork
       description: like
       parameters:
-        - in: path
-          name: user_id
-          description: user id
-          required: true
-          schema:
-            type: string
-            format: uuid
         - in: path
           name: post_id
           description: post_id
@@ -319,13 +274,6 @@ paths:
       operationId: dislikeTattooWork
       description: dislike
       parameters:
-        - in: path
-          name: user_id
-          description: user id
-          required: true
-          schema:
-            type: string
-            format: uuid
         - in: path
           name: post_id
           description: artist id
@@ -382,8 +330,6 @@ components:
           format: date
         avatarUrl:
           type: string
-        email:
-          type: string
         phoneNumber:
           type: string
         workDays:
@@ -406,6 +352,8 @@ components:
     ClientReqDto:
       type: object
       properties:
+        uid:
+          type: string
         firstName:
           type: string
         lastName:

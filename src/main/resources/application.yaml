@@ -12,3 +12,41 @@ spring:
 logging:
   level:
     root: info
+
+security:
+  firebase-props:
+    databaseUrl: https://tattoo-artist.firebaseapp.com
+  allow-credentials: true
+  allowed-origins:
+    - http://localhost:8080
+  allowed-methods:
+    - GET
+    - POST
+    - PUT
+    - PATCH
+    - DELETE
+    - OPTIONS
+  allowed-headers:
+    - Authorization
+    - Origin
+    - Content-Type
+    - Accept
+    - Accept-Encoding
+    - Accept-Language
+    - Access-Control-Allow-Origin
+    - Access-Control-Allow-Headers
+    - Access-Control-Request-Method
+    - X-Requested-With
+    - X-Auth-Token
+    - X-Xsrf-Token
+    - Cache-Control
+    - Id-Token
+  exposed-headers:
+    - X-Xsrf-Token
+  valid-application-roles:
+    - ROLE_ADMIN
+    - ROLE_SUPER
+    - ROLE_MODERATOR
+    - ROLE_USER
+  super-admins:
+    - ozkurtresat@gmail.com

@@ -4,9 +4,17 @@ import com.example.tattooartistbackend.generated.models.ReviewPostRequestDto;
 import com.example.tattooartistbackend.generated.models.ReviewResponseDto;
 import com.example.tattooartistbackend.generated.models.ReviewType;
 import com.example.tattooartistbackend.user.User;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import java.util.UUID;
 
 @Entity

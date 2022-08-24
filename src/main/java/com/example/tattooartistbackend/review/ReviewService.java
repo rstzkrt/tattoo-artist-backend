@@ -1,11 +1,13 @@
 package com.example.tattooartistbackend.review;
 
 import com.example.tattooartistbackend.exceptions.CreateReviewNotAllowdException;
+import com.example.tattooartistbackend.exceptions.NotOwnerOfEntityException;
 import com.example.tattooartistbackend.exceptions.ReviewNotFoundException;
 import com.example.tattooartistbackend.exceptions.UserNotFoundException;
 import com.example.tattooartistbackend.generated.models.ReviewPatchRequestDto;
 import com.example.tattooartistbackend.generated.models.ReviewPostRequestDto;
 import com.example.tattooartistbackend.generated.models.ReviewResponseDto;
+import com.example.tattooartistbackend.security.SecurityService;
 import com.example.tattooartistbackend.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,8 +20,9 @@ import java.util.stream.Collectors;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final UserRepository userRepository;
 
+    private final UserRepository userRepository;
+    private final SecurityService securityService;
     public ReviewResponseDto createReview(UUID receiverId, ReviewPostRequestDto reviewPostRequestDto) {
         var receiver = userRepository.findById(receiverId).orElseThrow(UserNotFoundException::new);
         var postedBy = userRepository.findById(reviewPostRequestDto.getPostedBy()).orElseThrow(UserNotFoundException::new);
@@ -43,10 +46,13 @@ public class ReviewService {
     }
 
     public void deleteReviewById(UUID id) {
-        if (reviewRepository.existsById(id)) {
+        var authenticatedUser= securityService.getUser();
+        var review= reviewRepository.findById(id).orElseThrow(ReviewNotFoundException::new);
+        if (authenticatedUser.getId()==review.getPostedBy().getId()) {
             reviewRepository.deleteById(id);
+            //back references
         } else {
-            throw new ReviewNotFoundException();
+            throw new NotOwnerOfEntityException("only the owner can delete the review!");
         }
     }
 
@@ -63,9 +69,15 @@ public class ReviewService {
     }
 
     public ReviewResponseDto reviewPatchUpdate(UUID id, ReviewPatchRequestDto reviewPatchRequestDto) {
+        var authenticatedUser= securityService.getUser();
         var review = reviewRepository.findById(id).orElseThrow(ReviewNotFoundException::new);
-        review.setReviewType(reviewPatchRequestDto.getReviewType());
-        review.setMessage(reviewPatchRequestDto.getMessage());
-        return reviewRepository.save(review).toReviewResponseDto();
+        if (authenticatedUser.getId()==review.getPostedBy().getId()) {
+            review.setReviewType(reviewPatchRequestDto.getReviewType());
+            review.setMessage(reviewPatchRequestDto.getMessage());
+            return reviewRepository.save(review).toReviewResponseDto();
+        } else {
+            throw new NotOwnerOfEntityException("only the owner can edit the review!");
+        }
+
     }
 }
