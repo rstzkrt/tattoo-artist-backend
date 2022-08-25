@@ -15,21 +15,24 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 
 @Configuration
 @RequiredArgsConstructor
 public class FirebaseConfig {
     private final SecurityProperties secProps;
-
+    private static final String FIREBASE_CONFIG_FILE_PATH="src/main/resources/firebase/firebase_config.json";
     @Primary
     @Bean
     public FirebaseApp getFirebaseApp() throws IOException {
         FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.getApplicationDefault())
+                .setCredentials(GoogleCredentials.fromStream(new FileInputStream("src/main/resources/firebase/firebase_config.json")))
+//                .setCredentials(GoogleCredentials.getApplicationDefault())
                 .setDatabaseUrl(
                         secProps.getFirebaseProps().getDatabaseUrl()
-                ).build();
+                )
+                .build();
         if (FirebaseApp.getApps().isEmpty()) {
             FirebaseApp.initializeApp(options);
         }
@@ -50,7 +53,9 @@ public class FirebaseConfig {
     @Bean
     public Firestore getDatabase() throws IOException {
         FirestoreOptions firestoreOptions = FirestoreOptions.newBuilder()
-                .setCredentials(GoogleCredentials.getApplicationDefault()).build();
+                .setCredentials(GoogleCredentials.fromStream(new FileInputStream("src/main/resources/firebase/firebase_config.json")))
+//                .setCredentials(GoogleCredentials.getApplicationDefault())
+                .build();
         return firestoreOptions.getService();
     }
 
