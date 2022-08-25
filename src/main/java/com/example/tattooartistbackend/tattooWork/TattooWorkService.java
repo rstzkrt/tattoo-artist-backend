@@ -1,13 +1,12 @@
 package com.example.tattooartistbackend.tattooWork;
 
-import com.example.tattooartistbackend.exceptions.TattooWorkNotFoundException;
-import com.example.tattooartistbackend.exceptions.UserArtistPageNotFoundException;
+import com.example.tattooartistbackend.exceptions.*;
 
-import com.example.tattooartistbackend.exceptions.UserNotFoundException;
 import com.example.tattooartistbackend.generated.models.Currency;
 import com.example.tattooartistbackend.generated.models.TattooWorkPatchRequestDto;
 import com.example.tattooartistbackend.generated.models.TattooWorkPostRequestDto;
 import com.example.tattooartistbackend.generated.models.TattooWorksResponseDto;
+import com.example.tattooartistbackend.security.SecurityService;
 import com.example.tattooartistbackend.user.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -34,6 +33,7 @@ public class TattooWorkService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
     private static final String API_KEY = "uTZMvFz8kI2uot9EcqXKz5NHnZpET9UX"; //daily 250 req
+    private final SecurityService securityService;
 
     public TattooWorksResponseDto createTattooWork(TattooWorkPostRequestDto tattooWorkPostRequestDto) {
         var client = userRepository.findById(tattooWorkPostRequestDto.getClientId()).orElseThrow(UserNotFoundException::new);
@@ -65,10 +65,13 @@ public class TattooWorkService {
     }
 
     public void deleteTattooWork(UUID id) {
-        if (tattooWorkRepository.existsById(id)) {
+        var authenticatedUser = securityService.getUser();
+        var tattooWork= tattooWorkRepository.findById(id).orElseThrow(ReviewNotFoundException::new);
+        if (authenticatedUser.getId()==tattooWork.getMadeBy().getId()) {
             tattooWorkRepository.deleteById(id);
+            //back references
         } else {
-            throw new TattooWorkNotFoundException();
+            throw new NotOwnerOfEntityException("only the owner can delete the tattooWork!");
         }
     }
 
@@ -81,15 +84,21 @@ public class TattooWorkService {
 
     public TattooWorksResponseDto patchTattooWork(UUID id, TattooWorkPatchRequestDto tattooWorkPatchRequestDto) {
         var tattooWork = tattooWorkRepository.findById(id).orElseThrow(TattooWorkNotFoundException::new);
-        tattooWork.setDescription(tattooWorkPatchRequestDto.getDescription());
-        tattooWork.setPrice(tattooWorkPatchRequestDto.getPrice());
-        tattooWork.setCurrency(tattooWorkPatchRequestDto.getCurrency());
-        tattooWork.setPhotos(tattooWorkPatchRequestDto.getPhotos());
-        tattooWork.setCoverPhoto(tattooWorkPatchRequestDto.getCoverPhoto());
-        var convertedPrice = getConvertedPrice(tattooWork.getCurrency(), tattooWork.getPrice());
-        tattooWork.setConvertedPriceValue(convertedPrice);
-        tattooWorkRepository.save(tattooWork);
-        return TattooWork.toTattooWorksResponseDto(tattooWork);
+        var authenticatedUser= securityService.getUser();
+        if (authenticatedUser.getId()==tattooWork.getMadeBy().getId()) {
+            tattooWork.setDescription(tattooWorkPatchRequestDto.getDescription());
+            tattooWork.setPrice(tattooWorkPatchRequestDto.getPrice());
+            tattooWork.setCurrency(tattooWorkPatchRequestDto.getCurrency());
+            tattooWork.setPhotos(tattooWorkPatchRequestDto.getPhotos());
+            tattooWork.setCoverPhoto(tattooWorkPatchRequestDto.getCoverPhoto());
+            var convertedPrice = getConvertedPrice(tattooWork.getCurrency(), tattooWork.getPrice());
+            tattooWork.setConvertedPriceValue(convertedPrice);
+            tattooWorkRepository.save(tattooWork);
+            return TattooWork.toTattooWorksResponseDto(tattooWork);
+        } else {
+            throw new NotOwnerOfEntityException("only the owner can edit the tattooWork!");
+        }
+
     }
 
     public TattooWorksResponseDto getTattooWorkById(UUID id) {

@@ -12,6 +12,6 @@ public class ObjectMapperConfig {
     public ObjectMapper objectMapper(){
         ObjectMapper objectMapper=new ObjectMapper();
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        return objectMapper;
+        return objectMapper.findAndRegisterModules();
     }
 }

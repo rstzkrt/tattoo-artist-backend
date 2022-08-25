@@ -14,6 +14,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.checkerframework.common.aliasing.qual.Unique;
 
 import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
@@ -47,12 +48,15 @@ public class User {
     @Id
     @GeneratedValue(strategy = AUTO)
     private UUID id;
+    @NotBlank
+    @Unique
     private String uid;
     @NotBlank(message = "firstName cannot be null!")
     private String firstName;
     @NotBlank(message = "firstName cannot be null!")
     private String lastName;
     @Email
+    @Unique
     private String email;
     private String phoneNumber;
     private String avatarUrl;
@@ -86,6 +90,7 @@ public class User {
     public static User fromClientRequestDto(ClientReqDto clientReqDto) {
         return User.builder()
                 .id(null)
+                .uid(clientReqDto.getUid())
                 .avatarUrl(clientReqDto.getAvatarUrl() == null ? "defaultUrl" : clientReqDto.getAvatarUrl())
                 .phoneNumber(null)
                 .dateOfBirth(clientReqDto.getBirthDate())
@@ -95,7 +100,6 @@ public class User {
                 .workingDaysList(null)
                 .hasArtistPage(false)
                 .businessAddress(null)
-                .uid(null)
                 .tattooWorks(new ArrayList<>())
                 .favouriteArtists(new ArrayList<>())
                 .comments(new ArrayList<>())
@@ -126,7 +130,6 @@ public class User {
                 .phoneNumber(userUpdateRequestDto.getPhoneNumber())
                 .firstName(userUpdateRequestDto.getFirstName())
                 .lastName(userUpdateRequestDto.getLastName())
-                .email(userUpdateRequestDto.getEmail())
                 .workingDaysList(userUpdateRequestDto.getWorkDays())
                 .businessAddress(address)
                 .tattooWorks(tattooWorks == null ? new ArrayList<>() : tattooWorks)

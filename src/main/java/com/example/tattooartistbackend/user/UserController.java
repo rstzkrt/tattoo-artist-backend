@@ -2,7 +2,11 @@ package com.example.tattooartistbackend.user;
 
 import com.example.tattooartistbackend.exceptions.UserNotFoundException;
 import com.example.tattooartistbackend.generated.apis.UsersApi;
-import com.example.tattooartistbackend.generated.models.*;
+import com.example.tattooartistbackend.generated.models.ClientReqDto;
+import com.example.tattooartistbackend.generated.models.TattooArtistAccReqDto;
+import com.example.tattooartistbackend.generated.models.TattooArtistPriceInterval;
+import com.example.tattooartistbackend.generated.models.UserResponseDto;
+import com.example.tattooartistbackend.generated.models.UserUpdateRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +22,8 @@ public class UserController implements UsersApi {
     private final UserService userService;
 
     @Override
-    public ResponseEntity<UserResponseDto> createArtistAccount(UUID id, TattooArtistAccReqDto tattooArtistAccReqDto) {
-        return ResponseEntity.ok(userService.createArtistAccount(id, tattooArtistAccReqDto));
+    public ResponseEntity<UserResponseDto> createArtistAccount(TattooArtistAccReqDto tattooArtistAccReqDto) {
+        return ResponseEntity.ok(userService.createArtistAccount(tattooArtistAccReqDto));
     }
 
     @Override
@@ -28,79 +32,61 @@ public class UserController implements UsersApi {
     }
 
     @Override
-    public ResponseEntity<Void> deleteUser(UUID id) {
-        userService.deleteUser(id);
+    public ResponseEntity<Void> deleteUser() {
+        userService.deleteUser();
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    /**
-     * DELETE /users/{user_id}/tattoo-works/{post_id}/like
-     * dislike
-     *
-     * @param userId user id (required)
-     * @param postId artist id (required)
-     * @return no content (status code 200)
-     * or error payload (status code 200)
-     */
     @Override
-    public ResponseEntity<Void> dislikeTattooWork(UUID userId, UUID postId) {
-        userService.dislike(userId,postId);
+    public ResponseEntity<Void> dislikeTattooWork(UUID postId) {
+        userService.dislike(postId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<UserResponseDto> favoriteTattooArtist(UUID userId, UUID artistId) {
-        return  ResponseEntity.ok(userService.favoriteTattooArtist(userId, artistId));
+    public ResponseEntity<UserResponseDto> favoriteTattooArtist(UUID artistId) {
+        return ResponseEntity.ok(userService.favoriteTattooArtist(artistId));
     }
 
     @Override
-    public ResponseEntity<UserResponseDto> favoriteTattooWork(UUID userId, UUID postId) {
-        return  ResponseEntity.ok(userService.favoriteTattooWork(userId, postId));
+    public ResponseEntity<UserResponseDto> favoriteTattooWork(UUID postId) {
+        return ResponseEntity.ok(userService.favoriteTattooWork(postId));
     }
 
     @Override
     public ResponseEntity<List<UserResponseDto>> getAllUsers(String firstName, String lastName) {
-        return new ResponseEntity<>(userService.findAllUsers(firstName,lastName), HttpStatus.OK);
+        return new ResponseEntity<>(userService.findAllUsers(firstName, lastName), HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<UserResponseDto> getUserById(UUID id) {
         return userService.findUserById(id)
-                .map(userDto -> new ResponseEntity<>(userDto,HttpStatus.OK))
+                .map(userDto -> new ResponseEntity<>(userDto, HttpStatus.OK))
                 .orElseThrow(UserNotFoundException::new);
     }
 
-    /**
-     * POST /users/{user_id}/tattoo-works/{post_id}/like
-     * like
-     *
-     * @param userId user id (required)
-     * @param postId post_id (required)
-     * @return no content (status code 200)
-     * or error payload (status code 200)
-     */
     @Override
-    public ResponseEntity<Void> likeTattooWork(UUID userId, UUID postId) {
-        userService.like(userId,postId);
+    public ResponseEntity<Void> likeTattooWork(UUID postId) {
+        userService.like(postId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<Void> unfavoriteTattooArtist(UUID userId, UUID artistId) {
-        userService.unfavoriteTattooArtist(userId, artistId);
+    public ResponseEntity<Void> unfavoriteTattooArtist(UUID artistId) {
+        userService.unfavoriteTattooArtist(artistId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Override
-    public ResponseEntity<Void> unfavoriteTattooWork(UUID userId, UUID postId) {
-        userService.unfavoriteTattooWork(userId, postId);
+    public ResponseEntity<Void> unfavoriteTattooWork(UUID postId) {
+        userService.unfavoriteTattooWork(postId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Override
-    public ResponseEntity<UserResponseDto> updateUser(UUID id, UserUpdateRequestDto userUpdateRequestDto) {
-        return userService.updateUser(id,userUpdateRequestDto)
-                .map(userDto1 -> new ResponseEntity<>(userDto1,HttpStatus.CREATED))
+    public ResponseEntity<UserResponseDto> updateUser(UserUpdateRequestDto userUpdateRequestDto) {
+        return userService.updateUser(userUpdateRequestDto)
+                .map(userDto1 -> new ResponseEntity<>(userDto1, HttpStatus.CREATED))
                 .orElseThrow(UserNotFoundException::new);
     }
 

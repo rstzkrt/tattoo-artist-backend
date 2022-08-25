@@ -1,6 +1,7 @@
 package com.example.tattooartistbackend.exceptions;
 
 import com.example.tattooartistbackend.generated.models.ErrorResponse;
+import com.google.firebase.auth.FirebaseAuthException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +37,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             AlreadyDislikedException.class,
             UnderAgeException.class,
             CreateReviewNotAllowdException.class,
-            TattooWorkCommentExistsException.class
+            TattooWorkCommentExistsException.class,
+            NotOwnerOfEntityException.class
     })
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     public ResponseEntity<ErrorResponse> handle(RuntimeException exception, WebRequest webRequest) {
@@ -45,6 +47,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         errorResponse.setMessage(exception.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.METHOD_NOT_ALLOWED);
     }
+
     @Override
     @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
     public ResponseEntity<Object> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
@@ -53,4 +56,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         errorResponse.setMessage(ex.getMessage());
         return new ResponseEntity<>(errorResponse, status);
     }
+//    @ExceptionHandler({
+//            FirebaseAuthException.class,
+//    })
+//    public ResponseEntity<Object> firebaseExc(FirebaseAuthException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+//        ErrorResponse errorResponse = new ErrorResponse();
+//        errorResponse.setCode(status.value());
+//        errorResponse.setMessage(ex.getMessage());
+//        return new ResponseEntity<>(errorResponse, status);
+//    }
 }

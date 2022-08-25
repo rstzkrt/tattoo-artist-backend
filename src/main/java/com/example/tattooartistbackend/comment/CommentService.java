@@ -1,12 +1,10 @@
 package com.example.tattooartistbackend.comment;
 
-import com.example.tattooartistbackend.exceptions.CommentNotFoundException;
-import com.example.tattooartistbackend.exceptions.TattooWorkCommentExistsException;
-import com.example.tattooartistbackend.exceptions.TattooWorkNotFoundException;
-import com.example.tattooartistbackend.exceptions.UserNotFoundException;
+import com.example.tattooartistbackend.exceptions.*;
 import com.example.tattooartistbackend.generated.models.CommentPatchRequestDto;
 import com.example.tattooartistbackend.generated.models.CommentRequestDto;
 import com.example.tattooartistbackend.generated.models.CommentResponseDto;
+import com.example.tattooartistbackend.security.SecurityService;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
 import com.example.tattooartistbackend.tattooWork.TattooWorkRepository;
 import com.example.tattooartistbackend.user.User;
@@ -29,10 +27,14 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final TattooWorkRepository tattooWorkRepository;
+    private final SecurityService securityService;
 
     public CommentResponseDto createComment(UUID tattooWorkId, CommentRequestDto commentRequestDto) {
         var tattooWork = tattooWorkRepository.findById(tattooWorkId).orElseThrow(TattooWorkNotFoundException::new);
         var client = userRepository.findById(commentRequestDto.getPostedBy()).orElseThrow(UserNotFoundException::new);
+        if (tattooWork.getClient().getId() != client.getId()) {
+            throw new NotOwnerOfEntityException("only the client of the tattooWork can post a comment!");
+        }
         if (tattooWork.getComment() != null) {
             throw new TattooWorkCommentExistsException();
         }
@@ -51,10 +53,12 @@ public class CommentService {
     }
 
     public void deleteCommentById(UUID commentId) {
-        if (commentRepository.existsById(commentId)) {
+        var authenticatedUser = securityService.getUser();
+        var comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
+        if (authenticatedUser.getComments().contains(comment)) {
             setDeleteComment(commentId);
         } else {
-            throw new CommentNotFoundException();
+            throw new NotOwnerOfEntityException("only the owner can delete the comment!");
         }
     }
 
@@ -81,9 +85,7 @@ public class CommentService {
                         return tattooWork1.getComment().getRate();
                     }
                 }).toList();
-
         BigDecimal total = BigDecimal.valueOf(0);
-
         for (BigDecimal bigDecimal : s) {
             System.out.println(bigDecimal);
             if (bigDecimal != null) {
@@ -98,7 +100,12 @@ public class CommentService {
         var comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
         var tattooWork = tattooWorkRepository.findById(comment.getTattooWork().getId()).orElseThrow(TattooWorkNotFoundException::new);
         var client = userRepository.findById(comment.getPostedBy().getId()).orElseThrow(UserNotFoundException::new);
-
+        var authenticatedUser= securityService.getUser();
+        if (authenticatedUser.getComments().contains(comment)) {
+            setDeleteComment(commentId);
+        } else {
+            throw new NotOwnerOfEntityException("only the owner can edit the comment!");
+        }
         setEditComment(commentPatchRequestDto, comment, tattooWork, client);
         return Comment.toResponseDto(comment);
     }
