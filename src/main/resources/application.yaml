@@ -9,9 +9,12 @@ spring:
     hibernate:
       ddl-auto: update
     generate-ddl: true
+  liquibase:
+    enabled: false
 logging:
   level:
     root: info
+
 
 security:
   firebase-props:
@@ -19,6 +22,7 @@ security:
   allow-credentials: true
   allowed-origins:
     - http://localhost:8080
+    - http://localhost:4200
   allowed-methods:
     - GET
     - POST
