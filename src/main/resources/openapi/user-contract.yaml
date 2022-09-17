@@ -21,6 +21,16 @@ paths:
           required: false
           schema:
             type: string
+        - in: query
+          name: page
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: size
+          required: true
+          schema:
+            type: integer
       responses:
         200:
           description: OK
@@ -36,7 +46,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-# every user will be created as client first ,so we pass client request dto to request body
     post:
       operationId: createUser
       description: add user
@@ -71,7 +80,6 @@ paths:
           required: true
           schema:
             type: string
-            format: uuid
       responses:
         200:
           description: OK
@@ -79,6 +87,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponseDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      operationId: deleteUserById
+      description: delete user
+      parameters:
+        - in: path
+          name: id
+          description: user id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: no content
         default:
           description: error payload
           content:
@@ -103,7 +131,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
     delete:
       operationId: deleteUser
-      description: get user
+      description: delete user
       responses:
         200:
           description: no content
@@ -113,7 +141,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-
     put:
       operationId: updateUser
       description: update user
@@ -152,6 +179,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponseDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users/me/tattooworks:
+    get:
+      operationId: getTattooWorks
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TattooWorksResponseDto'
         default:
           description: error payload
           content:
@@ -301,7 +346,6 @@ paths:
           required: true
           schema:
             type: string
-            format: uuid
       responses:
         200:
           description: OK
@@ -315,6 +359,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+  /users/me/favorite-tattoo-works:
+    get:
+      operationId: getFavoriteTattooWorks
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TattooWorksResponseDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users/me/favorite-tattoo-artist:
+    get:
+      operationId: getFavoriteTattooArtists
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponseDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 components:
   schemas:
 
@@ -329,6 +410,8 @@ components:
           type: string
           format: date
         avatarUrl:
+          type: string
+        email:
           type: string
         phoneNumber:
           type: string
@@ -366,9 +449,43 @@ components:
         email:
           type: string
 
+    TattooWorksResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        description:
+          type: string
+        clientId:
+          type: string
+          format: uuid
+        price:
+          type: number
+        commentId:
+          type: string
+          format: uuid
+        currency:
+          $ref: '#/components/schemas/Currency'
+        dislike_number:
+          type: integer
+        like_number:
+          type: integer
+        coverPhoto:
+          type: string
+        photos:
+          type: array
+          items:
+            type: string
+        madeBy:
+          $ref: '#/components/schemas/MadeByInfo'
+
     TattooArtistAccReqDto:
       type: object
       properties:
+        dateOfBirth:
+          type: string
+          format: date
         phoneNumber:
           type: string
         workDays:

@@ -2,14 +2,11 @@ package com.example.tattooartistbackend.user;
 
 import com.example.tattooartistbackend.exceptions.UserNotFoundException;
 import com.example.tattooartistbackend.generated.apis.UsersApi;
-import com.example.tattooartistbackend.generated.models.ClientReqDto;
-import com.example.tattooartistbackend.generated.models.TattooArtistAccReqDto;
-import com.example.tattooartistbackend.generated.models.TattooArtistPriceInterval;
-import com.example.tattooartistbackend.generated.models.UserResponseDto;
-import com.example.tattooartistbackend.generated.models.UserUpdateRequestDto;
+import com.example.tattooartistbackend.generated.models.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -17,6 +14,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin
 public class UserController implements UsersApi {
 
     private final UserService userService;
@@ -29,6 +27,20 @@ public class UserController implements UsersApi {
     @Override
     public ResponseEntity<UserResponseDto> createUser(ClientReqDto clientReqDto) {
         return new ResponseEntity<>(userService.createUser(clientReqDto), HttpStatus.CREATED);
+    }
+
+    /**
+     * DELETE /users/{id}
+     * delete user
+     *
+     * @param id user id (required)
+     * @return no content (status code 200)
+     * or error payload (status code 200)
+     */
+    @Override
+    public ResponseEntity<Void> deleteUserById(UUID id) {
+         userService.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Override
@@ -53,13 +65,47 @@ public class UserController implements UsersApi {
         return ResponseEntity.ok(userService.favoriteTattooWork(postId));
     }
 
+    //pagination ekle
     @Override
-    public ResponseEntity<List<UserResponseDto>> getAllUsers(String firstName, String lastName) {
-        return new ResponseEntity<>(userService.findAllUsers(firstName, lastName), HttpStatus.OK);
+    public ResponseEntity<List<UserResponseDto>> getAllUsers(Integer page,Integer size,String firstName, String lastName) {
+        return new ResponseEntity<>(userService.findAllUsers(page,size,firstName, lastName), HttpStatus.OK);
+    }
+
+    /**
+     * GET /users/me/favorite-tattoo-works
+     *
+     * @return OK (status code 200)
+     * or error payload (status code 200)
+     */
+    @Override
+    public ResponseEntity<List<TattooWorksResponseDto>> getFavoriteTattooWorks() {
+        return new ResponseEntity<>(userService.getFavoriteTattooWorks(), HttpStatus.OK);
+    }
+
+    /**
+     * GET /users/me
+     *
+     * @return ok (status code 200)
+     * or error payload (status code 200)
+     */
+    @Override
+    public ResponseEntity<UserResponseDto> getAuthenticatedUser() {
+        return ResponseEntity.ok(userService.getAuthenticatedUser());
+    }
+
+    /**
+     * GET /users/me/tattooworks
+     *
+     * @return ok (status code 200)
+     * or error payload (status code 200)
+     */
+    @Override
+    public ResponseEntity<List<TattooWorksResponseDto>> getTattooWorks() {
+        return new ResponseEntity<>(userService.getTattooWorks(),HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<UserResponseDto> getUserById(UUID id) {
+    public ResponseEntity<UserResponseDto> getUserById(String id) {
         return userService.findUserById(id)
                 .map(userDto -> new ResponseEntity<>(userDto, HttpStatus.OK))
                 .orElseThrow(UserNotFoundException::new);
@@ -99,7 +145,18 @@ public class UserController implements UsersApi {
      * or error payload (status code 200)
      */
     @Override
-    public ResponseEntity<TattooArtistPriceInterval> userPriceInterval(UUID id) {
+    public ResponseEntity<TattooArtistPriceInterval> userPriceInterval(String id) {
         return ResponseEntity.ok(userService.userPriceInterval(id));
+    }
+
+    /**
+     * GET /users/me/favorite-tattoo-artist
+     *
+     * @return OK (status code 200)
+     * or error payload (status code 200)
+     */
+    @Override
+    public ResponseEntity<List<UserResponseDto>> getFavoriteTattooArtists() {
+        return ResponseEntity.ok(userService.getFavoriteTattooArtists());
     }
 }
