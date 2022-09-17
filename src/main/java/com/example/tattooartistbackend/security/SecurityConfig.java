@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -28,6 +29,7 @@ import java.util.Map;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, jsr250Enabled = true, prePostEnabled = true)
 @RequiredArgsConstructor
+@CrossOrigin
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final ObjectMapper objectMapper;
@@ -69,12 +71,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .httpBasic().disable().exceptionHandling()
                 .authenticationEntryPoint(restAuthenticationEntryPoint())
                 .and().authorizeRequests()
-//                .antMatchers(HttpMethod.GET, "/users/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/tattoo-works/**").hasAnyRole(String.valueOf(Role.ROLE_SUPER))
+                .antMatchers(HttpMethod.GET, "/users/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/tattoo-works/**").permitAll()
+//                .antMatchers(HttpMethod.POST, "/tattoo-works/**").hasAnyRole(String.valueOf(Role.ROLE_SUPER))
                 .antMatchers(HttpMethod.GET, "/comments/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/reviews/**").permitAll()
-                .anyRequest()
-                .authenticated()
+//                .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(tokenAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

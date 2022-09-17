@@ -27,8 +27,8 @@ public class RoleServiceImpl implements RoleService {
             UserRecord user = firebaseAuth.getUser(uid);
             Map<String, Object> claims = new HashMap<>(user.getCustomClaims());
 
-            if (securityProps.getValidApplicationRoles().contains(role)) {
-                if (!claims.containsKey(role)) {
+            if (securityProps.getValidApplicationRoles().contains(role.toString())) {
+                if (!claims.containsKey(role.toString())) {
                     claims.put(String.valueOf(role), true);
                 }
 

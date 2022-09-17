@@ -57,7 +57,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         try {
             if (ObjectUtils.isNotEmpty(token)) {
                 decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
-                logger.error("decoded token :  " + decodedToken.getUid());
+                logger.info("decoded token :  " + decodedToken.getUid());
             }
         } catch (FirebaseAuthException e) {
             logger.error("Firebase Exception:  "+e);
@@ -86,7 +86,7 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     private User firebaseTokenToUserDto(FirebaseToken decodedToken) {
         if (decodedToken != null) {
-            return userRepository.findByUid(decodedToken.getUid()).orElseThrow(UserNotFoundException::new);
+            return userRepository.findByUid(decodedToken.getUid()).orElse(null);
         }else {
             return null;
         }
