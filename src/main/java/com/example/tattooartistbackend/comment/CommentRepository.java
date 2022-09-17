@@ -8,5 +8,7 @@ import java.util.List;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, UUID> {
-    List<Comment> findAllByTattooWork_Id(UUID tattooWorkId);
+    Comment findByTattooWork_Id(UUID tattooWorkId);
+
+    boolean existsByPostedBy_Id(UUID uuid);
 }

@@ -39,7 +39,7 @@ public class CommentController implements CommentsApi {
     }
 
     @Override
-    public ResponseEntity<List<CommentResponseDto>> getCommentsByTattooWorkId(UUID tattooWorkId) {
+    public ResponseEntity<CommentResponseDto> getCommentByTattooWorkId(UUID tattooWorkId) {
         return new ResponseEntity<>(commentService.getCommentsByTattooWorkId(tattooWorkId), HttpStatus.OK);
     }
 }

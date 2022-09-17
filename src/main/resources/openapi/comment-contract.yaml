@@ -85,8 +85,8 @@ paths:
 
   /comments/tattooworks/{tattooWork_id}:
     get:
-      operationId: getCommentsByTattooWorkId
-      description: get comments
+      operationId: getCommentByTattooWorkId
+      description: get comment
       parameters:
         - in: path
           name: tattooWork_id
@@ -101,9 +101,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CommentResponseDto'
+                $ref: '#/components/schemas/CommentResponseDto'
         default:
           description: error payload
           content:
@@ -160,6 +158,7 @@ components:
           type: string
         rate:
           type: number
+
     CommentResponseDto:
       type: object
       properties:
@@ -170,8 +169,7 @@ components:
           type: string
           format: date
         postedBy:
-          type: string
-          format: uuid
+          $ref: './user-contract.yaml/#/components/schemas/UserResponseDto'
         message:
           type: string
         workId:
