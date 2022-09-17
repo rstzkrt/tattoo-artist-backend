@@ -12,16 +12,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import net.minidev.json.annotate.JsonIgnore;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-import javax.persistence.CascadeType;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
@@ -43,31 +37,41 @@ public class TattooWork {
     @Id
     @GeneratedValue(strategy = AUTO)
     private UUID id;
+
     @ManyToOne
     @ToString.Exclude
     private User madeBy;
+
+    //tattoo type
+    //postDate
+
     @NotNull
     private BigDecimal price;
+
     @ManyToOne
     private User client;
+
     @Enumerated(EnumType.STRING)
     private Currency currency;
     @NotBlank
     private String coverPhoto;
-    @ElementCollection
+
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> photos;
+
     @NotBlank
     private String description;
 
     @ToString.Exclude
     @OneToOne(cascade = CascadeType.REMOVE)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Comment comment;
 
     private BigDecimal convertedPriceValue;
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @JsonIgnore
     private List<UUID> dislikerIds;
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @JsonIgnore
     private List<UUID> likerIds;
 
@@ -95,11 +99,11 @@ public class TattooWork {
         res.setPrice(tattooWork.getPrice());
         res.setCoverPhoto(tattooWork.getCoverPhoto());
         res.setPhotos(tattooWork.getPhotos());
-        res.setClientId(tattooWork.getClient().getId());
+        res.setClientId(tattooWork.getClient()==null? null :tattooWork.getClient().getId());
         res.setCommentId(tattooWork.getComment()==null? null :tattooWork.getComment().getId());
         res.setDislikeNumber(tattooWork.dislikerIds.size());
         res.setLikeNumber(tattooWork.likerIds.size());
-        res.setMadeById(tattooWork.getMadeBy().getId());
+        res.setMadeBy(tattooWork.getMadeBy().toMadeByInfoDto());
         return res;
     }
 }

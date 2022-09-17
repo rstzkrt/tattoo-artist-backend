@@ -13,11 +13,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -37,15 +40,16 @@ public class TattooWorkService {
 
     public TattooWorksResponseDto createTattooWork(TattooWorkPostRequestDto tattooWorkPostRequestDto) {
         var client = userRepository.findById(tattooWorkPostRequestDto.getClientId()).orElseThrow(UserNotFoundException::new);
-        var madeBy = userRepository.findById(tattooWorkPostRequestDto.getMadeById()).orElseThrow(UserNotFoundException::new);
-        if (!client.isHasArtistPage()) {
+        var madeBy = securityService.getUser();
+        if (!madeBy.isHasArtistPage()) {
             try {
                 throw new UserArtistPageNotFoundException();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
-        var convertedPrice = getConvertedPrice(tattooWorkPostRequestDto.getCurrency(), tattooWorkPostRequestDto.getPrice());
+//        var convertedPrice = getConvertedPrice(tattooWorkPostRequestDto.getCurrency(), tattooWorkPostRequestDto.getPrice());
+        var convertedPrice = BigDecimal.valueOf(40);
         return TattooWork.toTattooWorksResponseDto(tattooWorkRepository.save(TattooWork.fromTattooWorkPostRequest(tattooWorkPostRequestDto, client, madeBy, convertedPrice)));
     }
 
@@ -66,39 +70,48 @@ public class TattooWorkService {
 
     public void deleteTattooWork(UUID id) {
         var authenticatedUser = securityService.getUser();
-        var tattooWork= tattooWorkRepository.findById(id).orElseThrow(ReviewNotFoundException::new);
-        if (authenticatedUser.getId()==tattooWork.getMadeBy().getId()) {
+        var tattooWork = tattooWorkRepository.findById(id).orElseThrow(ReviewNotFoundException::new);
+        System.out.println(authenticatedUser.getId());
+        System.out.println(tattooWork.getMadeBy().getId());
+        if (authenticatedUser.getId().equals(tattooWork.getMadeBy().getId())) {
             tattooWorkRepository.deleteById(id);
-            //back references
-        } else {
+        }else {
             throw new NotOwnerOfEntityException("only the owner can delete the tattooWork!");
         }
     }
 
-    public List<TattooWorksResponseDto> getAllTattooWorks(String country, BigDecimal price) {
-        return tattooWorkRepository.findAllFilter(country, price)
+    public List<TattooWorksResponseDto> getAllTattooWorks(Integer page, Integer size, BigDecimal price, String country) {
+        Pageable pageable = PageRequest.of(page, size);
+        return tattooWorkRepository.findAllByPriceGreaterThan(price, pageable)
+                .getContent()
                 .stream()
                 .map(TattooWork::toTattooWorksResponseDto)
                 .collect(Collectors.toList());
     }
 
+
     public TattooWorksResponseDto patchTattooWork(UUID id, TattooWorkPatchRequestDto tattooWorkPatchRequestDto) {
         var tattooWork = tattooWorkRepository.findById(id).orElseThrow(TattooWorkNotFoundException::new);
-        var authenticatedUser= securityService.getUser();
-        if (authenticatedUser.getId()==tattooWork.getMadeBy().getId()) {
-            tattooWork.setDescription(tattooWorkPatchRequestDto.getDescription());
-            tattooWork.setPrice(tattooWorkPatchRequestDto.getPrice());
-            tattooWork.setCurrency(tattooWorkPatchRequestDto.getCurrency());
-            tattooWork.setPhotos(tattooWorkPatchRequestDto.getPhotos());
-            tattooWork.setCoverPhoto(tattooWorkPatchRequestDto.getCoverPhoto());
-            var convertedPrice = getConvertedPrice(tattooWork.getCurrency(), tattooWork.getPrice());
-            tattooWork.setConvertedPriceValue(convertedPrice);
-            tattooWorkRepository.save(tattooWork);
-            return TattooWork.toTattooWorksResponseDto(tattooWork);
-        } else {
+        var authenticatedUser = securityService.getUser();
+
+        System.out.println(authenticatedUser.getId());
+        System.out.println(tattooWork.getMadeBy().getId());
+
+        if (authenticatedUser.getId().toString() == tattooWork.getMadeBy().getId().toString()) {
             throw new NotOwnerOfEntityException("only the owner can edit the tattooWork!");
         }
+        tattooWork.setDescription(tattooWorkPatchRequestDto.getDescription());
+        tattooWork.setPrice(tattooWorkPatchRequestDto.getPrice());
+        tattooWork.setCurrency(tattooWorkPatchRequestDto.getCurrency());
+        tattooWork.setPhotos(tattooWorkPatchRequestDto.getPhotos());
+        tattooWork.setCoverPhoto(tattooWorkPatchRequestDto.getCoverPhoto());
 
+//        var convertedPrice = getConvertedPrice(tattooWorkPostRequestDto.getCurrency(), tattooWorkPostRequestDto.getPrice());
+        var convertedPrice = BigDecimal.valueOf(40);
+        tattooWork.setConvertedPriceValue(convertedPrice);
+        tattooWorkRepository.save(tattooWork);
+
+        return TattooWork.toTattooWorksResponseDto(tattooWork);
     }
 
     public TattooWorksResponseDto getTattooWorkById(UUID id) {

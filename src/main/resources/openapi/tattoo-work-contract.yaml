@@ -17,10 +17,20 @@ paths:
             type: string
         - in: query
           name: price
-          description: country
-          required: false
+          description: price
+          required: true
           schema:
             type: number
+        - in: query
+          name: page
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: size
+          required: true
+          schema:
+            type: integer
       responses:
         200:
           description: OK
@@ -155,9 +165,6 @@ components:
         clientId:
           type: string
           format: uuid
-        madeById:
-          type: string
-          format: uuid
 
     TattooWorkPatchRequestDto:
       type: object
@@ -203,9 +210,53 @@ components:
           type: array
           items:
             type: string
-        madeById:
+        madeBy:
+          $ref: '#/components/schemas/MadeByInfo'
+
+    MadeByInfo:
+      type: object
+      properties:
+        id:
           type: string
           format: uuid
+        uid:
+          type: string
+          description: id for firebase auth
+        firstName:
+          type: string
+        lastName:
+          type: string
+        avatarUrl:
+          type: string
+        birthDate:
+          type: string
+          format: date
+        email:
+          type: string
+        hasArtistPage:
+          type: boolean
+        workDays:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkingDays'
+        averageRating:
+          type: number
+        phoneNumber:
+          type: string
+        street:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+        state:
+          type: string
+        postalCode:
+          type: string
+        otherInformation:
+          type: string
+
+
 
     Currency:
       enum:
