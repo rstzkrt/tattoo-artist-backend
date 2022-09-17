@@ -41,7 +41,7 @@ public class Review {
         reviewResponseDto.setMessage(message);
         reviewResponseDto.setId(id);
         reviewResponseDto.setReceiver(receiver.getId());
-        reviewResponseDto.setPostedBy(postedBy.getId());
+        reviewResponseDto.setPostedBy(postedBy.toUserResponseDto());
         return  reviewResponseDto;
     }
 

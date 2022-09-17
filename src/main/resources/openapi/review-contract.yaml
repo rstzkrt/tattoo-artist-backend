@@ -171,8 +171,7 @@ components:
         message:
           type: string
         postedBy:
-          type: string
-          format: uuid
+          $ref: "./user-contract.yaml/#/components/schemas/UserResponseDto"
         receiver:
           type: string
           format: uuid
