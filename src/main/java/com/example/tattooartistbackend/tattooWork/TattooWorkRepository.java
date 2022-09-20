@@ -1,6 +1,7 @@
 package com.example.tattooartistbackend.tattooWork;
 
 
+import com.example.tattooartistbackend.user.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,5 +32,6 @@ public interface TattooWorkRepository extends JpaRepository<TattooWork, UUID> {
     @Query("SELECT t from TattooWork t where t.madeBy.id = ?1")
     List<TattooWork> findAllByMadeBy_Id(UUID id);
 
-
+    boolean existsByLikerIdsContainsAndId(User user,UUID tattooWorkId);
+    boolean existsByDislikerIdsContainsAndId(User user,UUID tattooWorkId);
 }

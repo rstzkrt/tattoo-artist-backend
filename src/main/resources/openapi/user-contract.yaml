@@ -443,9 +443,6 @@ components:
           type: string
         avatarUrl:
           type: string
-        birthDate:
-          type: string
-          format: date
         email:
           type: string
 

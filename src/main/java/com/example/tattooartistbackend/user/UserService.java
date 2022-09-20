@@ -3,13 +3,13 @@ package com.example.tattooartistbackend.user;
 import com.example.tattooartistbackend.address.Address;
 import com.example.tattooartistbackend.address.AddressRepository;
 import com.example.tattooartistbackend.comment.CommentRepository;
-import com.example.tattooartistbackend.exceptions.AddressNotFoundException;
-import com.example.tattooartistbackend.exceptions.AlreadyDislikedException;
-import com.example.tattooartistbackend.exceptions.TattooWorkNotFoundException;
-import com.example.tattooartistbackend.exceptions.UnderAgeException;
-import com.example.tattooartistbackend.exceptions.UserArtistPageNotFoundException;
-import com.example.tattooartistbackend.exceptions.UserNotFoundException;
-import com.example.tattooartistbackend.generated.models.*;
+import com.example.tattooartistbackend.exceptions.*;
+import com.example.tattooartistbackend.generated.models.ClientReqDto;
+import com.example.tattooartistbackend.generated.models.TattooArtistAccReqDto;
+import com.example.tattooartistbackend.generated.models.TattooArtistPriceInterval;
+import com.example.tattooartistbackend.generated.models.TattooWorksResponseDto;
+import com.example.tattooartistbackend.generated.models.UserResponseDto;
+import com.example.tattooartistbackend.generated.models.UserUpdateRequestDto;
 import com.example.tattooartistbackend.review.Review;
 import com.example.tattooartistbackend.review.ReviewRepository;
 import com.example.tattooartistbackend.security.SecurityService;
@@ -46,9 +46,9 @@ public class UserService {
         return userRepository.save(User.fromClientRequestDto(clientReqDto)).toUserResponseDto();
     }
 
-    public List<UserResponseDto> findAllUsers(Integer page, Integer size,String firstName, String lastName) {
+    public List<UserResponseDto> findAllUsers(Integer page, Integer size, String firstName, String lastName) {
         Pageable pageable = PageRequest.of(page, size);
-        return userRepository.findAllCustom(firstName,lastName,pageable)
+        return userRepository.findAllCustom(firstName, lastName, pageable)
                 .getContent()
                 .stream()
                 .map(User::toUserResponseDto)
@@ -56,55 +56,66 @@ public class UserService {
     }
 
     public Optional<UserResponseDto> findUserById(String id) {
-         if(UUID_REGEX_PATTERN.matcher(id).matches()){
-             return Optional.of(userRepository.findById(UUID.fromString(id))
-                     .map(User::toUserResponseDto)
-                     .orElseThrow(UserNotFoundException::new));
-         }else {
-             return Optional.of(userRepository.findByUid(id)
-                     .map(User::toUserResponseDto)
-                     .orElseThrow(UserNotFoundException::new));
-         }
+        if (UUID_REGEX_PATTERN.matcher(id).matches()) {
+            return Optional.of(userRepository.findById(UUID.fromString(id))
+                    .map(User::toUserResponseDto)
+                    .orElseThrow(UserNotFoundException::new));
+        } else {
+            return Optional.of(userRepository.findByUid(id)
+                    .map(User::toUserResponseDto)
+                    .orElseThrow(UserNotFoundException::new));
+        }
     }
 
     public Optional<UserResponseDto> updateUser(UserUpdateRequestDto userUpdateRequestDto) {
         var authenticatedUser = securityService.getUser();
-        return Optional.ofNullable(userRepository.findById(authenticatedUser.getId())
-                .map(user -> {
-                    var givenReviews = reviewRepository.findAllByPostedBy_Id(user.getId());
-                    var takenReviews = reviewRepository.findAllByReceiver_Id(user.getId());
+//        if(authenticatedUser.isHasArtistPage()){
 
-                    Address address = updateReqToAddress(user, userUpdateRequestDto.getCity(), userUpdateRequestDto.getState(),
-                            userUpdateRequestDto.getCountry(), userUpdateRequestDto.getPostalCode(), userUpdateRequestDto.getStreet(), userUpdateRequestDto.getOtherInformation());
-                    User userToUpdate =
-                            User.fromUserUpdateRequestDto(userUpdateRequestDto,
-                                    address,
-                                    user.getFavoriteTattooWorks(),
-                                    user.getTattooWorks(),
-                                    user.getFavouriteArtists(),
-                                    user.getComments(),
-                                    takenReviews,
-                                    givenReviews);
-                    userToUpdate.setId(user.getId());
-                    userToUpdate.setUid(user.getUid());
-                    userToUpdate.setHasArtistPage(user.isHasArtistPage());
-                    userToUpdate.setDateOfBirth(user.getDateOfBirth());
-                    userToUpdate.setAverageRating(user.getAverageRating());
-                    return userRepository.save(userToUpdate);
-                })
-                .map(User::toUserResponseDto)
-                .orElseThrow(UserNotFoundException::new));
+            return Optional.ofNullable(userRepository.findById(authenticatedUser.getId())
+                    .map(user -> {
+                        var givenReviews = reviewRepository.findAllByPostedBy_Id(user.getId());
+                        var takenReviews = reviewRepository.findAllByReceiver_Id(user.getId());
+
+                        Address address = updateReqToAddress(user, userUpdateRequestDto.getCity(), userUpdateRequestDto.getState(),
+                                userUpdateRequestDto.getCountry(), userUpdateRequestDto.getPostalCode(), userUpdateRequestDto.getStreet(), userUpdateRequestDto.getOtherInformation());
+                        User userToUpdate =
+                                User.fromUserUpdateRequestDto(userUpdateRequestDto,
+                                        address,
+                                        user.getFavoriteTattooWorks(),
+                                        user.getTattooWorks(),
+                                        user.getFavouriteArtists(),
+                                        user.getComments(),
+                                        takenReviews,
+                                        givenReviews);
+                        userToUpdate.setId(user.getId());
+                        userToUpdate.setUid(user.getUid());
+                        userToUpdate.setHasArtistPage(user.isHasArtistPage());
+                        userToUpdate.setDateOfBirth(user.getDateOfBirth());
+                        userToUpdate.setAverageRating(user.getAverageRating());
+                        return userRepository.save(userToUpdate);
+                    })
+                    .map(User::toUserResponseDto)
+                    .orElseThrow(UserNotFoundException::new));
+//        }
+//        else{
+//            return null;
+//        }
+
     }
 
     public void deleteUser() {
         var authenticatedUser = securityService.getUser();
         var user = userRepository.findById(authenticatedUser.getId()).orElseThrow(UserNotFoundException::new);
+        user.setFavoriteTattooWorks(null);
+        user.setFavouriteArtists(null);
+        // like dislike
         commentRepository.deleteAll(user.getComments());
         tattooWorkRepository.deleteAll(user.getTattooWorks());
         reviewRepository.deleteAll(user.getTakenReviews());
-        var tattooWorkList= tattooWorkRepository.findAllByClient_Id(user.getId());
+        var tattooWorkList = tattooWorkRepository.findAllByClient_Id(user.getId());
         tattooWorkList.forEach(tattooWork -> {
             tattooWork.setClient(null);
+
             tattooWorkRepository.save(tattooWork);
         });
         userRepository.deleteById(user.getId());
@@ -166,7 +177,7 @@ public class UserService {
 
     public UserResponseDto createArtistAccount(TattooArtistAccReqDto tattooArtistAccReqDto) {
         var authenticatedUser = securityService.getUser();
-        if (authenticatedUser.isHasArtistPage()){
+        if (authenticatedUser.isHasArtistPage()) {
             throw new RuntimeException("Client already have an Artist Account");
         }
         return userRepository.findById(authenticatedUser.getId())
@@ -176,7 +187,7 @@ public class UserService {
                     }
                     var givenReviews = reviewRepository.findAllByPostedBy_Id(user.getId());
                     var takenReviews = reviewRepository.findAllByReceiver_Id(user.getId());
-                    Address address = getAddress(tattooArtistAccReqDto);
+                    Address address = updateAddress(tattooArtistAccReqDto);
                     User userToUpdate = getUserToUpdate(tattooArtistAccReqDto, user, givenReviews, takenReviews, address);
                     return userRepository.save(userToUpdate);
                 })
@@ -184,7 +195,7 @@ public class UserService {
                 .orElseThrow(UserNotFoundException::new);
     }
 
-    private Address getAddress(TattooArtistAccReqDto tattooArtistAccReqDto) {
+    private Address updateAddress(TattooArtistAccReqDto tattooArtistAccReqDto) {
         Address address = Address.builder()
                 .otherInformation(tattooArtistAccReqDto.getOtherInformation())
                 .street(tattooArtistAccReqDto.getStreet())
@@ -216,7 +227,7 @@ public class UserService {
         return userToUpdate;
     }
 
-    private Address getAddress(User user, String city, String state, String country, String postalCode, String street, String otherInformation) {
+    private Address updateAddress(User user, String city, String state, String country, String postalCode, String street, String otherInformation) {
         if (!user.isHasArtistPage()) {
             throw new UserArtistPageNotFoundException();
         }
@@ -232,43 +243,38 @@ public class UserService {
     }
 
     private Address updateReqToAddress(User user, String city, String state, String country, String postalCode, String street, String otherInformation) {
-        return getAddress(user, city, state, country, postalCode, street, otherInformation);
+        return updateAddress(user, city, state, country, postalCode, street, otherInformation);
     }
 
     public void like(UUID postId) {
         var authenticatedUser = securityService.getUser();
-//        var user = userRepository.findById(authenticatedUser.getId()).orElseThrow(UserNotFoundException::new);
         var tattooWork = tattooWorkRepository.findById(postId).orElseThrow(TattooWorkNotFoundException::new);
-
-        if (!tattooWork.getLikerIds().contains(authenticatedUser.getId())) {
-            if (tattooWork.getDislikerIds().contains(authenticatedUser.getId())) {
-                var tattooWorkDislikerIds = tattooWork.getDislikerIds();
-                tattooWorkDislikerIds.remove(authenticatedUser.getId());
+        if (!tattooWorkRepository.existsByLikerIdsContainsAndId(authenticatedUser,postId)) {
+            if (tattooWorkRepository.existsByDislikerIdsContainsAndId(authenticatedUser,postId)) {
+                var tattooWorkDislikerIds = new ArrayList<>(tattooWork.getDislikerIds());
+                tattooWorkDislikerIds.removeIf(user -> user.getId().equals(authenticatedUser.getId()));
                 tattooWork.setDislikerIds(tattooWorkDislikerIds);
-                tattooWorkRepository.save(tattooWork);
             }
             var tattooWorkLikerIds = tattooWork.getLikerIds();
-            tattooWorkLikerIds.add(authenticatedUser.getId());
+            tattooWorkLikerIds.add(authenticatedUser);
             tattooWork.setLikerIds(tattooWorkLikerIds);
             tattooWorkRepository.save(tattooWork);
         } else {
-            throw new AlreadyDislikedException();
+            throw new AlreadyLikedException();
         }
     }
 
     public void dislike(UUID postId) {
         var authenticatedUser = securityService.getUser();
-        var user = userRepository.findById(authenticatedUser.getId()).orElseThrow(UserNotFoundException::new);
         var tattooWork = tattooWorkRepository.findById(postId).orElseThrow(TattooWorkNotFoundException::new);
-        if (!tattooWork.getDislikerIds().contains(authenticatedUser.getId())) {
-            if (tattooWork.getLikerIds().contains(authenticatedUser.getId())) {
-                var tattooWorkLikerIds = tattooWork.getLikerIds();
-                tattooWorkLikerIds.remove(authenticatedUser.getId());
+        if (!tattooWorkRepository.existsByDislikerIdsContainsAndId(authenticatedUser,postId)) {
+            if (tattooWorkRepository.existsByLikerIdsContainsAndId(authenticatedUser,postId)) {
+                var tattooWorkLikerIds = new ArrayList<>(tattooWork.getLikerIds());
+                tattooWorkLikerIds.removeIf(user -> user.getId().equals(authenticatedUser.getId()));
                 tattooWork.setLikerIds(tattooWorkLikerIds);
-                tattooWorkRepository.save(tattooWork);
             }
             var tattooWorkDislikerIds = tattooWork.getDislikerIds();
-            tattooWorkDislikerIds.add(authenticatedUser.getId());
+            tattooWorkDislikerIds.add(authenticatedUser);
             tattooWork.setDislikerIds(tattooWorkDislikerIds);
             tattooWorkRepository.save(tattooWork);
         } else {
@@ -277,13 +283,13 @@ public class UserService {
     }
 
     public TattooArtistPriceInterval userPriceInterval(String id) {
-        UserResponseDto user =null;
-        if(UUID_REGEX_PATTERN.matcher(id).matches()){
-            user= userRepository.findById(UUID.fromString(id))
+        UserResponseDto user = null;
+        if (UUID_REGEX_PATTERN.matcher(id).matches()) {
+            user = userRepository.findById(UUID.fromString(id))
                     .map(User::toUserResponseDto)
                     .orElseThrow(UserNotFoundException::new);
-        }else {
-            user= userRepository.findByUid(id)
+        } else {
+            user = userRepository.findByUid(id)
                     .map(User::toUserResponseDto)
                     .orElseThrow(UserNotFoundException::new);
         }
@@ -293,9 +299,9 @@ public class UserService {
     }
 
     public TattooArtistPriceInterval createTattooArtistPriceInterval(TattooWork tattooWorkWithMaxPrice, TattooWork tattooWorkWithMinPrice) {
-        if(tattooWorkWithMaxPrice==null|| tattooWorkWithMinPrice==null){
-           return null;
-        }else {
+        if (tattooWorkWithMaxPrice == null || tattooWorkWithMinPrice == null) {
+            return null;
+        } else {
             TattooArtistPriceInterval tattooArtistPriceInterval = new TattooArtistPriceInterval();
             tattooArtistPriceInterval.setMaxTattooWorkPrice(tattooWorkWithMaxPrice.getPrice());
             tattooArtistPriceInterval.setMinTattooWorkPrice(tattooWorkWithMinPrice.getPrice());
@@ -304,12 +310,13 @@ public class UserService {
             return tattooArtistPriceInterval;
         }
     }
+
     public UserResponseDto getAuthenticatedUser() {
-        var user= securityService.getUser();
-        if (user==null){
+        var user = securityService.getUser();
+        if (user == null) {
             return null;
-        }else{
-        return user.toUserResponseDto();
+        } else {
+            return user.toUserResponseDto();
         }
     }
 
@@ -318,7 +325,7 @@ public class UserService {
         commentRepository.deleteAll(user.getComments());
         tattooWorkRepository.deleteAll(user.getTattooWorks());
         reviewRepository.deleteAll(user.getTakenReviews());
-        var tattooWorkList= tattooWorkRepository.findAllByClient_Id(id);
+        var tattooWorkList = tattooWorkRepository.findAllByClient_Id(id);
         tattooWorkList.forEach(tattooWork -> tattooWork.setClient(null));
         userRepository.deleteById(id);
     }
@@ -329,14 +336,14 @@ public class UserService {
 
     //TODO pagination
     public List<TattooWorksResponseDto> getFavoriteTattooWorks() {
-        var user=securityService.getUser();
-        var tattooWorkList= new ArrayList<>(user.getFavoriteTattooWorks());
+        var user = securityService.getUser();
+        var tattooWorkList = new ArrayList<>(user.getFavoriteTattooWorks());
         return tattooWorkList.stream().map(TattooWork::toTattooWorksResponseDto).toList();
     }
 
     public List<UserResponseDto> getFavoriteTattooArtists() {
-        var user=securityService.getUser();
-        var favoriteTattooArtistList= new ArrayList<>(user.getFavouriteArtists());
+        var user = securityService.getUser();
+        var favoriteTattooArtistList = new ArrayList<>(user.getFavouriteArtists());
         return favoriteTattooArtistList.stream().map(User::toUserResponseDto).toList();
     }
 }

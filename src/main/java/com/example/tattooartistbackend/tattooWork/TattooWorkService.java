@@ -1,7 +1,10 @@
 package com.example.tattooartistbackend.tattooWork;
 
-import com.example.tattooartistbackend.exceptions.*;
-
+import com.example.tattooartistbackend.exceptions.NotOwnerOfEntityException;
+import com.example.tattooartistbackend.exceptions.ReviewNotFoundException;
+import com.example.tattooartistbackend.exceptions.TattooWorkNotFoundException;
+import com.example.tattooartistbackend.exceptions.UserArtistPageNotFoundException;
+import com.example.tattooartistbackend.exceptions.UserNotFoundException;
 import com.example.tattooartistbackend.generated.models.Currency;
 import com.example.tattooartistbackend.generated.models.TattooWorkPatchRequestDto;
 import com.example.tattooartistbackend.generated.models.TattooWorkPostRequestDto;
@@ -35,7 +38,7 @@ public class TattooWorkService {
     private final UserRepository userRepository;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
-    private static final String API_KEY = "uTZMvFz8kI2uot9EcqXKz5NHnZpET9UX"; //daily 250 req
+    private static final String API_KEY = "uTZMvFz8kI2uot9EcqXKz5NHnZpET9UX"; //daily 100 req
     private final SecurityService securityService;
 
     public TattooWorksResponseDto createTattooWork(TattooWorkPostRequestDto tattooWorkPostRequestDto) {
@@ -71,11 +74,13 @@ public class TattooWorkService {
     public void deleteTattooWork(UUID id) {
         var authenticatedUser = securityService.getUser();
         var tattooWork = tattooWorkRepository.findById(id).orElseThrow(ReviewNotFoundException::new);
-        System.out.println(authenticatedUser.getId());
-        System.out.println(tattooWork.getMadeBy().getId());
         if (authenticatedUser.getId().equals(tattooWork.getMadeBy().getId())) {
+            tattooWork.setLikerIds(null);
+            tattooWork.setDislikerIds(null);
+            tattooWorkRepository.save(tattooWork);
+
             tattooWorkRepository.deleteById(id);
-        }else {
+        } else {
             throw new NotOwnerOfEntityException("only the owner can delete the tattooWork!");
         }
     }

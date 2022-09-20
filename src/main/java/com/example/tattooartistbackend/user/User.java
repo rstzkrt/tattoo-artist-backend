@@ -2,7 +2,12 @@ package com.example.tattooartistbackend.user;
 
 import com.example.tattooartistbackend.address.Address;
 import com.example.tattooartistbackend.comment.Comment;
-import com.example.tattooartistbackend.generated.models.*;
+import com.example.tattooartistbackend.generated.models.ClientReqDto;
+import com.example.tattooartistbackend.generated.models.MadeByInfo;
+import com.example.tattooartistbackend.generated.models.TattooArtistAccReqDto;
+import com.example.tattooartistbackend.generated.models.UserResponseDto;
+import com.example.tattooartistbackend.generated.models.UserUpdateRequestDto;
+import com.example.tattooartistbackend.generated.models.WorkingDays;
 import com.example.tattooartistbackend.review.Review;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
 import lombok.AllArgsConstructor;
@@ -14,7 +19,17 @@ import org.checkerframework.common.aliasing.qual.Unique;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
@@ -57,7 +72,8 @@ public class User {
     @ElementCollection(targetClass = WorkingDays.class,fetch = FetchType.EAGER)
     private List<WorkingDays> workingDaysList;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.REMOVE)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<User> favouriteArtists;
 
     @OneToMany(mappedBy = "madeBy",fetch = FetchType.EAGER,cascade = CascadeType.REMOVE)
@@ -66,6 +82,12 @@ public class User {
 
     @ManyToMany(fetch = FetchType.EAGER)
     private List<TattooWork> favoriteTattooWorks;
+
+    @ManyToMany(fetch = FetchType.EAGER,mappedBy = "likerIds")
+    private List<TattooWork> likedTattooWorks;
+
+    @ManyToMany(fetch = FetchType.EAGER,mappedBy = "dislikerIds")
+    private List<TattooWork> dislikedTattooWorks;
 
     @OneToMany(mappedBy = "postedBy",fetch = FetchType.EAGER,cascade = CascadeType.REMOVE)
     private List<Comment> comments;
@@ -80,9 +102,8 @@ public class User {
         return User.builder()
                 .id(null)
                 .uid(clientReqDto.getUid())
-                .avatarUrl(clientReqDto.getAvatarUrl() == null ? "defaultUrl" : clientReqDto.getAvatarUrl())
+                .avatarUrl(clientReqDto.getAvatarUrl() == null ? "https://www.gravatar.com/avatar/?d=mp" : clientReqDto.getAvatarUrl())
                 .phoneNumber(null)
-                .dateOfBirth(clientReqDto.getBirthDate())
                 .firstName(clientReqDto.getFirstName())
                 .lastName(clientReqDto.getLastName())
                 .email(clientReqDto.getEmail())
@@ -103,7 +124,7 @@ public class User {
                 .phoneNumber(tattooArtistAccReqDto.getPhoneNumber())
                 .workingDaysList(tattooArtistAccReqDto.getWorkDays())
                 .hasArtistPage(true)
-                .dateOfBirth(tattooArtistAccReqDto.getDateOfBirth())//
+                .dateOfBirth(tattooArtistAccReqDto.getDateOfBirth())
                 .businessAddress(address)
                 .tattooWorks(tattooWorks == null ? new ArrayList<>() : tattooWorks)
                 .favouriteArtists(favouriteArtists == null ? new ArrayList<>() : favouriteArtists)
@@ -116,13 +137,13 @@ public class User {
 
     public static User fromUserUpdateRequestDto(UserUpdateRequestDto userUpdateRequestDto, Address address, List<TattooWork> favoriteTattooWorks, List<TattooWork> tattooWorks, List<User> favouriteArtists, List<Comment> comments, List<Review> takenReviews, List<Review> givenReviews) {
         return User.builder()
-                .avatarUrl(userUpdateRequestDto.getAvatarUrl() == null ? "defaultUrl" : userUpdateRequestDto.getAvatarUrl())
+                .avatarUrl(userUpdateRequestDto.getAvatarUrl() == null ? "https://www.gravatar.com/avatar/?d=mp" : userUpdateRequestDto.getAvatarUrl())
                 .phoneNumber(userUpdateRequestDto.getPhoneNumber())
                 .firstName(userUpdateRequestDto.getFirstName())
                 .lastName(userUpdateRequestDto.getLastName())
                 .workingDaysList(userUpdateRequestDto.getWorkDays())
-                .businessAddress(address)
                 .email(userUpdateRequestDto.getEmail())//pattern check TODO
+                .businessAddress(address)
                 .tattooWorks(tattooWorks == null ? new ArrayList<>() : tattooWorks)
                 .favouriteArtists(favouriteArtists == null ? new ArrayList<>() : favouriteArtists)
                 .comments(comments == null ? new ArrayList<>() : comments)

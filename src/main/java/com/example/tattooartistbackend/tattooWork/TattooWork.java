@@ -68,12 +68,19 @@ public class TattooWork {
     private Comment comment;
 
     private BigDecimal convertedPriceValue;
-    @ElementCollection(fetch = FetchType.EAGER)
+
+    @ManyToMany(fetch = FetchType.EAGER ,cascade = CascadeType.REMOVE)
     @JsonIgnore
-    private List<UUID> dislikerIds;
-    @ElementCollection(fetch = FetchType.EAGER)
+//    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<User> dislikerIds;
+
+    @ManyToMany(mappedBy = "favoriteTattooWorks",cascade = CascadeType.REMOVE)
+    private List<User> favoriteUserList;
+
+    @ManyToMany(fetch = FetchType.EAGER ,cascade = CascadeType.REMOVE)
     @JsonIgnore
-    private List<UUID> likerIds;
+//    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<User> likerIds;
 
     public static TattooWork fromTattooWorkPostRequest(TattooWorkPostRequestDto tattooWorkPostRequestDto, User client, User madeBy,BigDecimal convertedPriceValue) {
         return TattooWork.builder()
@@ -101,8 +108,20 @@ public class TattooWork {
         res.setPhotos(tattooWork.getPhotos());
         res.setClientId(tattooWork.getClient()==null? null :tattooWork.getClient().getId());
         res.setCommentId(tattooWork.getComment()==null? null :tattooWork.getComment().getId());
-        res.setDislikeNumber(tattooWork.dislikerIds.size());
-        res.setLikeNumber(tattooWork.likerIds.size());
+        res.setDislikeNumber(tattooWork.getDislikerIds().size());
+        res.setLikeNumber(tattooWork.getLikerIds().size());
+
+        if (tattooWork.getDislikerIds()!= null){
+            res.setDisLikerIds(tattooWork.getDislikerIds().stream().map(User::getId).toList());
+        }else{
+            res.setDisLikerIds(new ArrayList<>());
+        }
+        if (tattooWork.getLikerIds()!= null){
+            res.setLikerIds(tattooWork.getLikerIds().stream().map(User::getId).toList());
+        }else{
+            res.setLikerIds(new ArrayList<>());
+        }
+
         res.setMadeBy(tattooWork.getMadeBy().toMadeByInfoDto());
         return res;
     }
