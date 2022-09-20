@@ -10,11 +10,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
@@ -30,7 +26,7 @@ public class Review {
     private UUID id;
     private ReviewType reviewType;
     private String message;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     private User postedBy ;
     @ManyToOne
     private User receiver;

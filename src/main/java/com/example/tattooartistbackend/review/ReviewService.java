@@ -26,36 +26,18 @@ public class ReviewService {
     public ReviewResponseDto createReview(UUID receiverId, ReviewPostRequestDto reviewPostRequestDto) {
         var receiver = userRepository.findById(receiverId).orElseThrow(UserNotFoundException::new);
         var postedBy = userRepository.findById(reviewPostRequestDto.getPostedBy()).orElseThrow(UserNotFoundException::new);
-
         if(receiver.getId()==postedBy.getId()){
             throw new CreateReviewNotAllowdException();
         }
-
         var review = reviewRepository.save(Review.fromReviewResponseDto(reviewPostRequestDto, postedBy, receiver));
-
-
-//        var takenReviews = receiver.getTakenReviews();
-//        takenReviews.add(review);
-//        receiver.setTakenReviews(takenReviews);
-//        userRepository.save(receiver);
-//
-//        var givenReviews = receiver.getGivenReviews();
-//        givenReviews.add(review);
-//        postedBy.setGivenReviews(givenReviews);
-//        userRepository.save(postedBy);
-
         return review.toReviewResponseDto();
     }
 
     public void deleteReviewById(UUID id) {
         var authenticatedUser= securityService.getUser();
         var review= reviewRepository.findById(id).orElseThrow(ReviewNotFoundException::new);
-        System.out.println(authenticatedUser.getId());
-        System.out.println(review.getPostedBy().getId());
-
         if (authenticatedUser.getId().equals(review.getPostedBy().getId())) {
             reviewRepository.deleteById(id);
-            //back references
         } else {
             throw new NotOwnerOfEntityException("only the owner can delete the review!");
         }
