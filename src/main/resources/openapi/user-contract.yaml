@@ -411,8 +411,8 @@ components:
           format: date
         avatarUrl:
           type: string
-        email:
-          type: string
+#        email:
+#          type: string
         phoneNumber:
           type: string
         workDays:

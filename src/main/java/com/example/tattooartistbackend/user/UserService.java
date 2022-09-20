@@ -69,8 +69,8 @@ public class UserService {
 
     public Optional<UserResponseDto> updateUser(UserUpdateRequestDto userUpdateRequestDto) {
         var authenticatedUser = securityService.getUser();
-//        if(authenticatedUser.isHasArtistPage()){
 
+        if (authenticatedUser.isHasArtistPage()) {
             return Optional.ofNullable(userRepository.findById(authenticatedUser.getId())
                     .map(user -> {
                         var givenReviews = reviewRepository.findAllByPostedBy_Id(user.getId());
@@ -88,6 +88,7 @@ public class UserService {
                                         takenReviews,
                                         givenReviews);
                         userToUpdate.setId(user.getId());
+                        userToUpdate.setEmail(user.getEmail());
                         userToUpdate.setUid(user.getUid());
                         userToUpdate.setHasArtistPage(user.isHasArtistPage());
                         userToUpdate.setDateOfBirth(user.getDateOfBirth());
@@ -96,10 +97,12 @@ public class UserService {
                     })
                     .map(User::toUserResponseDto)
                     .orElseThrow(UserNotFoundException::new));
-//        }
-//        else{
-//            return null;
-//        }
+        } else {
+            return Optional.ofNullable(userRepository.findById(authenticatedUser.getId())
+                    .map(user -> userRepository.save(user.fromBasicPatchRequest(userUpdateRequestDto)))
+                    .map(User::toUserResponseDto)
+                    .orElseThrow(UserNotFoundException::new));
+        }
 
     }
 
@@ -249,8 +252,8 @@ public class UserService {
     public void like(UUID postId) {
         var authenticatedUser = securityService.getUser();
         var tattooWork = tattooWorkRepository.findById(postId).orElseThrow(TattooWorkNotFoundException::new);
-        if (!tattooWorkRepository.existsByLikerIdsContainsAndId(authenticatedUser,postId)) {
-            if (tattooWorkRepository.existsByDislikerIdsContainsAndId(authenticatedUser,postId)) {
+        if (!tattooWorkRepository.existsByLikerIdsContainsAndId(authenticatedUser, postId)) {
+            if (tattooWorkRepository.existsByDislikerIdsContainsAndId(authenticatedUser, postId)) {
                 var tattooWorkDislikerIds = new ArrayList<>(tattooWork.getDislikerIds());
                 tattooWorkDislikerIds.removeIf(user -> user.getId().equals(authenticatedUser.getId()));
                 tattooWork.setDislikerIds(tattooWorkDislikerIds);
@@ -267,8 +270,8 @@ public class UserService {
     public void dislike(UUID postId) {
         var authenticatedUser = securityService.getUser();
         var tattooWork = tattooWorkRepository.findById(postId).orElseThrow(TattooWorkNotFoundException::new);
-        if (!tattooWorkRepository.existsByDislikerIdsContainsAndId(authenticatedUser,postId)) {
-            if (tattooWorkRepository.existsByLikerIdsContainsAndId(authenticatedUser,postId)) {
+        if (!tattooWorkRepository.existsByDislikerIdsContainsAndId(authenticatedUser, postId)) {
+            if (tattooWorkRepository.existsByLikerIdsContainsAndId(authenticatedUser, postId)) {
                 var tattooWorkLikerIds = new ArrayList<>(tattooWork.getLikerIds());
                 tattooWorkLikerIds.removeIf(user -> user.getId().equals(authenticatedUser.getId()));
                 tattooWork.setLikerIds(tattooWorkLikerIds);

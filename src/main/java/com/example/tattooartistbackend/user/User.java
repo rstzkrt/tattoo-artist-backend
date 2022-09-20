@@ -69,33 +69,33 @@ public class User {
     @OneToOne
     private Address businessAddress;
     @Enumerated
-    @ElementCollection(targetClass = WorkingDays.class,fetch = FetchType.EAGER)
+    @ElementCollection(targetClass = WorkingDays.class, fetch = FetchType.EAGER)
     private List<WorkingDays> workingDaysList;
 
-    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.REMOVE)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<User> favouriteArtists;
 
-    @OneToMany(mappedBy = "madeBy",fetch = FetchType.EAGER,cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "madeBy", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<TattooWork> tattooWorks;
 
     @ManyToMany(fetch = FetchType.EAGER)
     private List<TattooWork> favoriteTattooWorks;
 
-    @ManyToMany(fetch = FetchType.EAGER,mappedBy = "likerIds")
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "likerIds")
     private List<TattooWork> likedTattooWorks;
 
-    @ManyToMany(fetch = FetchType.EAGER,mappedBy = "dislikerIds")
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "dislikerIds")
     private List<TattooWork> dislikedTattooWorks;
 
-    @OneToMany(mappedBy = "postedBy",fetch = FetchType.EAGER,cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "postedBy", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private List<Comment> comments;
 
-    @OneToMany(mappedBy="postedBy",fetch = FetchType.EAGER,cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "postedBy", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private List<Review> givenReviews;
 
-    @OneToMany(mappedBy="receiver",fetch = FetchType.EAGER,cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "receiver", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private List<Review> takenReviews;
 
     public static User fromClientRequestDto(ClientReqDto clientReqDto) {
@@ -119,7 +119,8 @@ public class User {
                 .build();
     }
 
-    public static User fromTattooArtistAccReqDto(TattooArtistAccReqDto tattooArtistAccReqDto, Address address, List<TattooWork> favoriteTattooWorks, List<TattooWork> tattooWorks, List<User> favouriteArtists, List<Comment> comments,List<Review> takenReviews,List<Review> givenReviews) {
+    public static User fromTattooArtistAccReqDto(TattooArtistAccReqDto tattooArtistAccReqDto, Address address, List<TattooWork> favoriteTattooWorks, List<TattooWork> tattooWorks, List<User> favouriteArtists, List<Comment> comments, List<Review> takenReviews, List<Review> givenReviews) {
+        // TODO refactor ... dont create new instance..
         return User.builder()
                 .phoneNumber(tattooArtistAccReqDto.getPhoneNumber())
                 .workingDaysList(tattooArtistAccReqDto.getWorkDays())
@@ -142,7 +143,6 @@ public class User {
                 .firstName(userUpdateRequestDto.getFirstName())
                 .lastName(userUpdateRequestDto.getLastName())
                 .workingDaysList(userUpdateRequestDto.getWorkDays())
-                .email(userUpdateRequestDto.getEmail())//pattern check TODO
                 .businessAddress(address)
                 .tattooWorks(tattooWorks == null ? new ArrayList<>() : tattooWorks)
                 .favouriteArtists(favouriteArtists == null ? new ArrayList<>() : favouriteArtists)
@@ -151,6 +151,13 @@ public class User {
                 .givenReviews(givenReviews == null ? new ArrayList<>() : givenReviews)
                 .takenReviews(takenReviews == null ? new ArrayList<>() : takenReviews)
                 .build();
+    }
+
+    public User fromBasicPatchRequest(UserUpdateRequestDto updateRequestDto) {
+        this.setLastName(updateRequestDto.getLastName());
+        this.setFirstName(updateRequestDto.getFirstName());
+        this.setAvatarUrl(updateRequestDto.getAvatarUrl());
+        return this;
     }
 
     public MadeByInfo toMadeByInfoDto() {
@@ -165,9 +172,9 @@ public class User {
         madeByInfo.setBirthDate(dateOfBirth);
         madeByInfo.setHasArtistPage(hasArtistPage);
         madeByInfo.setWorkDays(workingDaysList);
-        if(averageRating!=null){
+        if (averageRating != null) {
             madeByInfo.setAverageRating(BigDecimal.valueOf(averageRating));
-        }else{
+        } else {
             madeByInfo.setAverageRating(BigDecimal.valueOf(0));
         }
         if (businessAddress != null) {
@@ -177,7 +184,7 @@ public class User {
             madeByInfo.setCountry(businessAddress.getCountry());
             madeByInfo.setPostalCode(businessAddress.getPostalCode());
             madeByInfo.setOtherInformation(businessAddress.getOtherInformation());
-        }else{
+        } else {
             madeByInfo.setStreet(null);
             madeByInfo.setState(null);
             madeByInfo.setCity(null);
@@ -200,9 +207,9 @@ public class User {
         userResponseDto.setBirthDate(dateOfBirth);
         userResponseDto.setHasArtistPage(hasArtistPage);
         userResponseDto.setWorkDays(workingDaysList);
-        if(averageRating!=null){
+        if (averageRating != null) {
             userResponseDto.setAverageRating(BigDecimal.valueOf(averageRating));
-        }else{
+        } else {
             userResponseDto.setAverageRating(BigDecimal.valueOf(0));
         }
         if (businessAddress != null) {
@@ -212,7 +219,7 @@ public class User {
             userResponseDto.setCountry(businessAddress.getCountry());
             userResponseDto.setPostalCode(businessAddress.getPostalCode());
             userResponseDto.setOtherInformation(businessAddress.getOtherInformation());
-        }else{
+        } else {
             userResponseDto.setStreet(null);
             userResponseDto.setState(null);
             userResponseDto.setCity(null);
