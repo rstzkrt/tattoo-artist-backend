@@ -26,7 +26,7 @@ public class Review {
     private UUID id;
     private ReviewType reviewType;
     private String message;
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     private User postedBy ;
     @ManyToOne
     private User receiver;
