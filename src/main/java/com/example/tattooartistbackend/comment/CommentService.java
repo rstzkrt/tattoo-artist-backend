@@ -120,27 +120,36 @@ public class CommentService {
         var tattooWork = tattooWorkRepository.findById(comment.getTattooWork().getId()).orElseThrow(TattooWorkNotFoundException::new);
         var client = userRepository.findById(comment.getPostedBy().getId()).orElseThrow(UserNotFoundException::new);
         var authenticatedUser= securityService.getUser();
-        if (authenticatedUser.getComments().contains(comment)) {
+
+        var tattooWorkOwner = userRepository.findById(tattooWork.getMadeBy().getId()).orElseThrow();
+
+        if (commentRepository.existsByPostedBy_Id(authenticatedUser.getId())) {
             setDeleteComment(commentId);
         } else {
             throw new NotOwnerOfEntityException("only the owner can edit the comment!");
         }
-        setEditComment(commentPatchRequestDto, comment, tattooWork, client);
+        setEditComment(commentPatchRequestDto, comment, tattooWork, client, tattooWorkOwner);
         return Comment.toResponseDto(comment);
     }
 
-    private void setEditComment(CommentPatchRequestDto commentPatchRequestDto, Comment comment, TattooWork tattooWork, User client) {
-        var comments = client.getComments();
-        comments.remove(comment);
+    private void setEditComment(CommentPatchRequestDto commentPatchRequestDto, Comment comment, TattooWork tattooWork, User client ,User tattooWorkOwner) {
+//        var comments = client.getComments();
+//        comments.remove(comment);
+
         comment.setRate(commentPatchRequestDto.getRate());
         comment.setMessage(commentPatchRequestDto.getMessage());
-        comments.add(comment);
-        commentRepository.save(comment);
-        client.setComments(comments);
+
+        //        comments.add(comment);
+
+       var c= commentRepository.save(comment);
+//        client.setComments(comments);
         userRepository.save(client);
-        tattooWork.setComment(comment);
+
+//        tattooWork.
+        tattooWork.setComment(c);
         tattooWorkRepository.save(tattooWork);
-        setAverageRating(client);
+
+        setAverageRating(tattooWorkOwner);
     }
 
     public CommentResponseDto getCommentById(UUID commentId) {
