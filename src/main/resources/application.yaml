@@ -11,10 +11,11 @@ spring:
     generate-ddl: true
   liquibase:
     enabled: false
+  elasticsearch:
+    uris: localhost:9200
 logging:
   level:
     root: info
-
 
 security:
   firebase-props:
