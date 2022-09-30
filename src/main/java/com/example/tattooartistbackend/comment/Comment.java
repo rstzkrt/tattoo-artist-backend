@@ -34,15 +34,17 @@ public class Comment {
     @Id
     @GeneratedValue(strategy = AUTO)
     private UUID id;
-    @ManyToOne
-    @ToString.Exclude
-    private User postedBy;
+
     @NotBlank
     private String message;
+
     private LocalDate postDate;
 
+    @ManyToOne
+    private User postedBy;
+
     @ToString.Exclude
-    @OneToOne//(cascade = CascadeType.REMOVE)
+    @OneToOne
     private TattooWork tattooWork;
 
     @Max(value = 5)

@@ -1,27 +1,25 @@
 package com.example.tattooartistbackend.user;
 
+import co.elastic.clients.json.JsonpDeserializable;
 import com.example.tattooartistbackend.address.Address;
 import com.example.tattooartistbackend.comment.Comment;
-import com.example.tattooartistbackend.generated.models.ClientReqDto;
-import com.example.tattooartistbackend.generated.models.MadeByInfo;
-import com.example.tattooartistbackend.generated.models.TattooArtistAccReqDto;
-import com.example.tattooartistbackend.generated.models.UserResponseDto;
-import com.example.tattooartistbackend.generated.models.UserUpdateRequestDto;
-import com.example.tattooartistbackend.generated.models.WorkingDays;
+import com.example.tattooartistbackend.generated.models.*;
 import com.example.tattooartistbackend.review.Review;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
+import com.example.tattooartistbackend.tattooWorkReport.TattooWorkReport;
+import com.example.tattooartistbackend.userReport.UserReport;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.checkerframework.common.aliasing.qual.Unique;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -48,7 +46,6 @@ import static javax.persistence.GenerationType.AUTO;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class User {
-
     @Id
     @GeneratedValue(strategy = AUTO)
     private UUID id;
@@ -65,19 +62,45 @@ public class User {
     private String avatarUrl;
     private LocalDate dateOfBirth;
     private boolean hasArtistPage;
+
+    @Enumerated(EnumType.STRING)
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<Language> languages;
     private Double averageRating;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+    private String careerDescription;
+
+    @OneToMany
+    private List<UserReport> benimBulundugumReportlar;// benim bulundugum reportlar
+
+    @OneToMany(cascade = CascadeType.REMOVE)
+    private List<UserReport> userReport;// benim report yaptiklarim
+
+    @OneToMany(cascade = CascadeType.REMOVE)
+    private List<TattooWorkReport> tattooWorkReports;// benim report yaptiklarim
+
+    @Enumerated(EnumType.STRING)
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<TattooStyle> tattooStyles;//
     @OneToOne
     private Address businessAddress;
     @Enumerated
     @ElementCollection(targetClass = WorkingDays.class, fetch = FetchType.EAGER)
     private List<WorkingDays> workingDaysList;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<User> favouriteArtists;
+    @OneToMany(mappedBy = "postedBy", fetch = FetchType.EAGER)
+    private List<Comment> comments;
 
-    @OneToMany(mappedBy = "madeBy", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @ManyToMany(fetch = FetchType.EAGER)
+    private List<User> favouriteArtists;// change to one to many people i favorite
+
+//    @OneToMany
+//    private List<User> usersWhoFavoriteMe;
+
+    @OneToMany(mappedBy = "madeBy", fetch = FetchType.EAGER)
     private List<TattooWork> tattooWorks;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -88,9 +111,6 @@ public class User {
 
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "dislikerIds")
     private List<TattooWork> dislikedTattooWorks;
-
-    @OneToMany(mappedBy = "postedBy", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-    private List<Comment> comments;
 
     @OneToMany(mappedBy = "postedBy", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private List<Review> givenReviews;
@@ -116,6 +136,12 @@ public class User {
                 .favoriteTattooWorks(new ArrayList<>())
                 .givenReviews(new ArrayList<>())
                 .takenReviews(new ArrayList<>())
+                .userReport(null)
+                .likedTattooWorks(new ArrayList<>())
+                .dislikedTattooWorks(new ArrayList<>())
+                .tattooStyles(new ArrayList<>())
+                .languages(new ArrayList<>())
+                .averageRating((double) 0)
                 .build();
     }
 
@@ -133,6 +159,13 @@ public class User {
                 .favoriteTattooWorks(favoriteTattooWorks == null ? new ArrayList<>() : favoriteTattooWorks)
                 .givenReviews(givenReviews == null ? new ArrayList<>() : givenReviews)
                 .takenReviews(takenReviews == null ? new ArrayList<>() : takenReviews)
+                .careerDescription(tattooArtistAccReqDto.getCareerDescription())
+                .gender(tattooArtistAccReqDto.getGender())
+                .tattooStyles(tattooArtistAccReqDto.getTattooStyles() == null ? new ArrayList<>() : tattooArtistAccReqDto.getTattooStyles())
+                .languages(tattooArtistAccReqDto.getLanguages() == null ? new ArrayList<>() : tattooArtistAccReqDto.getLanguages())
+//                .dislikedTattooWorks()
+//                .likedTattooWorks()
+//                .userReport()
                 .build();
     }
 
@@ -150,6 +183,14 @@ public class User {
                 .favoriteTattooWorks(favoriteTattooWorks == null ? new ArrayList<>() : favoriteTattooWorks)
                 .givenReviews(givenReviews == null ? new ArrayList<>() : givenReviews)
                 .takenReviews(takenReviews == null ? new ArrayList<>() : takenReviews)
+                .careerDescription(userUpdateRequestDto.getCareerDescription())
+                .gender(userUpdateRequestDto.getGender())
+                .tattooStyles(userUpdateRequestDto.getTattooStyles() == null ? new ArrayList<>() : userUpdateRequestDto.getTattooStyles())
+                .languages(userUpdateRequestDto.getLanguages() == null ? new ArrayList<>() : userUpdateRequestDto.getLanguages())
+
+//                .dislikedTattooWorks()
+//                .likedTattooWorks()
+//                .userReport()
                 .build();
     }
 
@@ -172,6 +213,7 @@ public class User {
         madeByInfo.setBirthDate(dateOfBirth);
         madeByInfo.setHasArtistPage(hasArtistPage);
         madeByInfo.setWorkDays(workingDaysList);
+        madeByInfo.setTattooStyles(tattooStyles==null? new ArrayList<>(): tattooStyles);
         if (averageRating != null) {
             madeByInfo.setAverageRating(BigDecimal.valueOf(averageRating));
         } else {
@@ -207,6 +249,11 @@ public class User {
         userResponseDto.setBirthDate(dateOfBirth);
         userResponseDto.setHasArtistPage(hasArtistPage);
         userResponseDto.setWorkDays(workingDaysList);
+        userResponseDto.setCareerDescription(careerDescription);
+        userResponseDto.setGender(gender);
+        userResponseDto.setTattooStyles(tattooStyles==null? new ArrayList<>(): tattooStyles);
+        userResponseDto.setLanguages(languages == null ? new ArrayList<>() : languages);
+
         if (averageRating != null) {
             userResponseDto.setAverageRating(BigDecimal.valueOf(averageRating));
         } else {
@@ -256,7 +303,7 @@ public class User {
                     tattooWorks.stream().map(TattooWork::getId).toList()
             );
         }
-        if (userResponseDto.getAverageRating() != null) {
+        if (this.getAverageRating() != null) {
             userResponseDto.setAverageRating(userResponseDto.getAverageRating());
         } else {
             userResponseDto.setAverageRating(BigDecimal.valueOf(0));

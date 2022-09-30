@@ -3,18 +3,28 @@ package com.example.tattooartistbackend.user;
 import com.example.tattooartistbackend.address.Address;
 import com.example.tattooartistbackend.address.AddressRepository;
 import com.example.tattooartistbackend.comment.CommentRepository;
-import com.example.tattooartistbackend.exceptions.*;
+import com.example.tattooartistbackend.exceptions.AddressNotFoundException;
+import com.example.tattooartistbackend.exceptions.AlreadyDislikedException;
+import com.example.tattooartistbackend.exceptions.AlreadyLikedException;
+import com.example.tattooartistbackend.exceptions.TattooWorkNotFoundException;
+import com.example.tattooartistbackend.exceptions.UnderAgeException;
+import com.example.tattooartistbackend.exceptions.UserArtistPageNotFoundException;
+import com.example.tattooartistbackend.exceptions.UserNotFoundException;
 import com.example.tattooartistbackend.generated.models.ClientReqDto;
 import com.example.tattooartistbackend.generated.models.TattooArtistAccReqDto;
 import com.example.tattooartistbackend.generated.models.TattooArtistPriceInterval;
 import com.example.tattooartistbackend.generated.models.TattooWorksResponseDto;
 import com.example.tattooartistbackend.generated.models.UserResponseDto;
+import com.example.tattooartistbackend.generated.models.UserResponseDtoPageable;
 import com.example.tattooartistbackend.generated.models.UserUpdateRequestDto;
 import com.example.tattooartistbackend.review.Review;
 import com.example.tattooartistbackend.review.ReviewRepository;
 import com.example.tattooartistbackend.security.SecurityService;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
 import com.example.tattooartistbackend.tattooWork.TattooWorkRepository;
+import com.example.tattooartistbackend.tattooWork.TattooWorkService;
+import com.example.tattooartistbackend.user.elasticsearch.UserDocument;
+import com.example.tattooartistbackend.user.elasticsearch.UserEsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -38,21 +48,35 @@ public class UserService {
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
     private final TattooWorkRepository tattooWorkRepository;
+    private  final TattooWorkService tattooWorkService;
     private final ReviewRepository reviewRepository;
     private final SecurityService securityService;
     private final CommentRepository commentRepository;
+    private final UserEsRepository userEsRepository;
 
     public UserResponseDto createUser(ClientReqDto clientReqDto) {
-        return userRepository.save(User.fromClientRequestDto(clientReqDto)).toUserResponseDto();
+        var user=userRepository.save(User.fromClientRequestDto(clientReqDto)).toUserResponseDto();
+        UserDocument userDocument=new UserDocument();
+        userDocument.setCity(user.getCity());
+        userDocument.setId(user.getId().toString());
+        userDocument.setFullName(user.getFirstName()+ " " +user.getLastName());
+        userDocument.setCountry(user.getCountry());
+        userDocument.setHasTattooArtistAcc(false);
+        userDocument.setAvatarUrl(user.getAvatarUrl());
+        userEsRepository.save(userDocument);
+        return user;
     }
 
-    public List<UserResponseDto> findAllUsers(Integer page, Integer size, String firstName, String lastName) {
+    public UserResponseDtoPageable findAllUsers(Integer page, Integer size, String firstName, String lastName) {
         Pageable pageable = PageRequest.of(page, size);
-        return userRepository.findAllCustom(firstName, lastName, pageable)
-                .getContent()
-                .stream()
-                .map(User::toUserResponseDto)
-                .collect(Collectors.toList());
+         var list= userRepository.findAllCustom(firstName, lastName, pageable)
+                 .getContent()
+                 .stream()
+                 .map(User::toUserResponseDto).toList();
+        UserResponseDtoPageable userResponseDtoPageable= new UserResponseDtoPageable();
+        userResponseDtoPageable.setTattooArtists(list);
+        userResponseDtoPageable.setTotalElements((int) userRepository.findAllCustom(firstName, lastName, pageable).getTotalElements());
+        return  userResponseDtoPageable;
     }
 
     public Optional<UserResponseDto> findUserById(String id) {
@@ -69,6 +93,8 @@ public class UserService {
 
     public Optional<UserResponseDto> updateUser(UserUpdateRequestDto userUpdateRequestDto) {
         var authenticatedUser = securityService.getUser();
+        var userDocument= userEsRepository.findById(authenticatedUser.getId().toString()).orElseThrow(()-> new RuntimeException("userDocument not found!"));
+
 
         if (authenticatedUser.isHasArtistPage()) {
             return Optional.ofNullable(userRepository.findById(authenticatedUser.getId())
@@ -93,7 +119,18 @@ public class UserService {
                         userToUpdate.setHasArtistPage(user.isHasArtistPage());
                         userToUpdate.setDateOfBirth(user.getDateOfBirth());
                         userToUpdate.setAverageRating(user.getAverageRating());
-                        return userRepository.save(userToUpdate);
+
+                        var updatedUser=userRepository.save(userToUpdate);
+
+                        userDocument.setCity(updatedUser.getBusinessAddress().getCity());
+                        userDocument.setId(updatedUser.getId().toString());
+                        userDocument.setFullName(updatedUser.getFirstName()+ " " +updatedUser.getLastName());
+                        userDocument.setCountry(updatedUser.getBusinessAddress().getCountry());
+                        userDocument.setHasTattooArtistAcc(true);
+                        userDocument.setAvatarUrl(updatedUser.getAvatarUrl());
+                        userEsRepository.save(userDocument);
+
+                        return updatedUser;
                     })
                     .map(User::toUserResponseDto)
                     .orElseThrow(UserNotFoundException::new));
@@ -109,20 +146,56 @@ public class UserService {
     public void deleteUser() {
         var authenticatedUser = securityService.getUser();
         var user = userRepository.findById(authenticatedUser.getId()).orElseThrow(UserNotFoundException::new);
+        //handle favorites
         user.setFavoriteTattooWorks(null);
         user.setFavouriteArtists(null);
-        // like dislike
-        commentRepository.deleteAll(user.getComments());
-        tattooWorkRepository.deleteAll(user.getTattooWorks());
-        reviewRepository.deleteAll(user.getTakenReviews());
+        user.setComments(null);
+        userRepository.save(user);
+
+        //handle people favorite me
+        List<User> toDOKendmiAra = userRepository.findAllByFavouriteArtistsIn(List.of(user));
+        for (User beniFavUser : toDOKendmiAra) {
+            var beniFavUserFavListi = beniFavUser.getFavouriteArtists();
+            beniFavUserFavListi.remove(user);
+            beniFavUser.setFavouriteArtists(beniFavUserFavListi);
+            userRepository.save(beniFavUser);
+        }
+
+        //handle own tatoo works
+        var listOfTattooWorks = user.getTattooWorks();
+        for (TattooWork listOfTattooWork : listOfTattooWorks) {
+            tattooWorkService.deleteTattooWork(listOfTattooWork.getId());
+        }
+
+        //handle tattoworks which we are client of
         var tattooWorkList = tattooWorkRepository.findAllByClient_Id(user.getId());
         tattooWorkList.forEach(tattooWork -> {
             tattooWork.setClient(null);
-
+            tattooWork.setComment(null);
             tattooWorkRepository.save(tattooWork);
         });
-        userRepository.deleteById(user.getId());
 
+        //handle tattoo dislikes
+        var dislikedTattooWorks=tattooWorkRepository.findByDislikerIdsIn(List.of(user));
+        dislikedTattooWorks.forEach(tattooWork -> {
+            tattooWork.getDislikerIds().removeIf(user1 -> user1.getId()==user.getId());
+            tattooWork.getLikerIds().removeIf(user1 -> user1.getId()==user.getId());
+        });
+
+        //handle tattoo likes
+        var likedTattooWorks=tattooWorkRepository.findByLikerIdsIn(List.of(user));
+        likedTattooWorks.forEach(tattooWork -> {
+            tattooWork.getDislikerIds().removeIf(user1 -> user1.getId()==user.getId());
+            tattooWork.getLikerIds().removeIf(user1 -> user1.getId()==user.getId());
+        });
+
+
+        //get comments by postedby id and delete
+        var comment =commentRepository.findByPostedBy_Id(user.getId());
+        commentRepository.deleteById(comment.getId());
+
+        userEsRepository.deleteById(user.getId().toString());
+        userRepository.deleteById(user.getId());
     }
 
     public UserResponseDto favoriteTattooArtist(UUID artistId) {
@@ -180,6 +253,7 @@ public class UserService {
 
     public UserResponseDto createArtistAccount(TattooArtistAccReqDto tattooArtistAccReqDto) {
         var authenticatedUser = securityService.getUser();
+        var userDocument= userEsRepository.findById(authenticatedUser.getId().toString()).orElseThrow(()-> new RuntimeException("userDocument not found!"));
         if (authenticatedUser.isHasArtistPage()) {
             throw new RuntimeException("Client already have an Artist Account");
         }
@@ -192,6 +266,13 @@ public class UserService {
                     var takenReviews = reviewRepository.findAllByReceiver_Id(user.getId());
                     Address address = updateAddress(tattooArtistAccReqDto);
                     User userToUpdate = getUserToUpdate(tattooArtistAccReqDto, user, givenReviews, takenReviews, address);
+
+                    userDocument.setCity(userToUpdate.getBusinessAddress().getCity());
+                    userDocument.setCountry(userToUpdate.getBusinessAddress().getCountry());
+                    userDocument.setHasTattooArtistAcc(true);
+                    userEsRepository.save(userDocument);
+                    System.out.println(userDocument);
+
                     return userRepository.save(userToUpdate);
                 })
                 .map(User::toUserResponseDto)

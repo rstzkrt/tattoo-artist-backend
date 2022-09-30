@@ -3,12 +3,14 @@ package com.example.tattooartistbackend.user;
 import com.example.tattooartistbackend.exceptions.UserNotFoundException;
 import com.example.tattooartistbackend.generated.apis.UsersApi;
 import com.example.tattooartistbackend.generated.models.*;
+import com.example.tattooartistbackend.user.elasticsearch.UserEsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,8 +18,25 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @CrossOrigin
 public class UserController implements UsersApi {
-
     private final UserService userService;
+    private final UserEsService userEsService;
+
+    /**
+     * GET /users/search
+     * search
+     *
+     * @param query          query keyword (required)
+     * @param isTattooArtist query keyword (optional)
+     * @param city           query keyword (optional)
+     * @param country        query keyword (optional)
+     * @return OK (status code 200)
+     * or error payload (status code 200)
+     */
+    @Override
+    public ResponseEntity<List<UserDocumentDto>> searchUsers(String query, String  country, String city, Boolean isTattooArtist, BigDecimal averageRating) {
+        var avgRating= averageRating==null? null:averageRating.doubleValue();
+        return ResponseEntity.ok(userEsService.getUserSearchResults(query, city, country, isTattooArtist, avgRating));
+    }
 
     @Override
     public ResponseEntity<UserResponseDto> createArtistAccount(TattooArtistAccReqDto tattooArtistAccReqDto) {
@@ -67,7 +86,7 @@ public class UserController implements UsersApi {
 
     //pagination ekle
     @Override
-    public ResponseEntity<List<UserResponseDto>> getAllUsers(Integer page,Integer size,String firstName, String lastName) {
+    public ResponseEntity<UserResponseDtoPageable> getAllUsers(Integer page,Integer size,String firstName, String lastName) {
         return new ResponseEntity<>(userService.findAllUsers(page,size,firstName, lastName), HttpStatus.OK);
     }
 
@@ -116,6 +135,7 @@ public class UserController implements UsersApi {
         userService.like(postId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
 
     @Override
     public ResponseEntity<Void> unfavoriteTattooArtist(UUID artistId) {

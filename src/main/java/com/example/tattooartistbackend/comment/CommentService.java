@@ -34,7 +34,7 @@ public class CommentService {
 
     public CommentResponseDto createComment(UUID tattooWorkId, CommentRequestDto commentRequestDto) {
         var tattooWork = tattooWorkRepository.findById(tattooWorkId).orElseThrow(TattooWorkNotFoundException::new);
-        var tattooWorkOwner = userRepository.findById(tattooWork.getMadeBy().getId()).orElseThrow();
+        var tattooWorkOwner = userRepository.findById(tattooWork.getMadeBy().getId()).orElseThrow(()-> new RuntimeException("tatoo work owner is null"));
         var client = userRepository.findById(commentRequestDto.getPostedBy()).orElseThrow(UserNotFoundException::new);
         if(tattooWork.getClient()==null){
             throw new RuntimeException("client account has deleted!");

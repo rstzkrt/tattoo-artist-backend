@@ -3,6 +3,7 @@ package com.example.tattooartistbackend.tattooWork;
 import com.example.tattooartistbackend.generated.apis.TattooWorksApi;
 import com.example.tattooartistbackend.generated.models.TattooWorkPatchRequestDto;
 import com.example.tattooartistbackend.generated.models.TattooWorkPostRequestDto;
+import com.example.tattooartistbackend.generated.models.TattooWorkResponsePageable;
 import com.example.tattooartistbackend.generated.models.TattooWorksResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -59,7 +60,7 @@ public class TattooWorkController implements TattooWorksApi {
      * or error payload (status code 200)
      */
     @Override
-    public ResponseEntity<List<TattooWorksResponseDto>> getAllTattooWorks(BigDecimal price,Integer page, Integer size,String country ) {
+    public ResponseEntity<TattooWorkResponsePageable> getAllTattooWorks(BigDecimal price, Integer page, Integer size, String country ) {
         return ResponseEntity.ok(tattooWorkService.getAllTattooWorks(page,size,price,country));
     }
 

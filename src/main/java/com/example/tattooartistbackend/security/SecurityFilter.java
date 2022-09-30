@@ -1,6 +1,5 @@
 package com.example.tattooartistbackend.security;
 
-import com.example.tattooartistbackend.exceptions.UserNotFoundException;
 import com.example.tattooartistbackend.security.config.Credentials;
 import com.example.tattooartistbackend.security.config.SecurityProperties;
 import com.example.tattooartistbackend.security.role.Role;
@@ -11,9 +10,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.log4j.Log4j2;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;

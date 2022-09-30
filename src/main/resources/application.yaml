@@ -13,6 +13,18 @@ spring:
     enabled: false
   elasticsearch:
     uris: localhost:9200
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: tt7373634@gmail.com
+    password: gykmqlbkpqfroffv
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+        debug: true
 logging:
   level:
     root: info
