@@ -12,16 +12,19 @@ import com.example.tattooartistbackend.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin
 public class CommentService {
 
     private final CommentRepository commentRepository;
@@ -31,31 +34,37 @@ public class CommentService {
 
     public CommentResponseDto createComment(UUID tattooWorkId, CommentRequestDto commentRequestDto) {
         var tattooWork = tattooWorkRepository.findById(tattooWorkId).orElseThrow(TattooWorkNotFoundException::new);
+        var tattooWorkOwner = userRepository.findById(tattooWork.getMadeBy().getId()).orElseThrow(()-> new RuntimeException("tatoo work owner is null"));
         var client = userRepository.findById(commentRequestDto.getPostedBy()).orElseThrow(UserNotFoundException::new);
+        if(tattooWork.getClient()==null){
+            throw new RuntimeException("client account has deleted!");
+        }
         if (tattooWork.getClient().getId() != client.getId()) {
             throw new NotOwnerOfEntityException("only the client of the tattooWork can post a comment!");
         }
         if (tattooWork.getComment() != null) {
             throw new TattooWorkCommentExistsException();
         }
-        return getCreateCommentResponse(commentRequestDto, tattooWork, client);
+        return getCreateCommentResponse(commentRequestDto, tattooWork, client,tattooWorkOwner);
     }
 
-    private CommentResponseDto getCreateCommentResponse(CommentRequestDto commentRequestDto, TattooWork tattooWork, User client) {
+    private CommentResponseDto getCreateCommentResponse(CommentRequestDto commentRequestDto, TattooWork tattooWork, User client, User tattooWorkOwner) {
         var comment = commentRepository.save(Comment.fromDto(commentRequestDto, client, tattooWork));
         tattooWork.setComment(comment);
         tattooWorkRepository.save(tattooWork);
-        var clientComments = client.getComments();
+
+        Set<Comment> clientComments = new HashSet<>(client.getComments());
         clientComments.add(comment);
-        client.setComments(clientComments);
-        setAverageRating(client);
+        client.setComments(clientComments.stream().toList());
+
+        setAverageRating(tattooWorkOwner);
         return Comment.toResponseDto(comment);
     }
 
     public void deleteCommentById(UUID commentId) {
         var authenticatedUser = securityService.getUser();
         var comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
-        if (authenticatedUser.getComments().contains(comment)) {
+        if (commentRepository.existsByPostedBy_Id(authenticatedUser.getId())) {
             setDeleteComment(commentId);
         } else {
             throw new NotOwnerOfEntityException("only the owner can delete the comment!");
@@ -65,18 +74,24 @@ public class CommentService {
     private void setDeleteComment(UUID commentId) {
         var comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
         var tattooWork = tattooWorkRepository.findById(comment.getTattooWork().getId()).orElseThrow(TattooWorkNotFoundException::new);
+        var tattooWorkOwner = userRepository.findById(tattooWork.getMadeBy().getId()).orElseThrow();
         var client = userRepository.findById(comment.getPostedBy().getId()).orElseThrow(UserNotFoundException::new);
+
         var comments = client.getComments();
         comments.remove(comment);
         client.setComments(comments);
+        userRepository.save(client);
+
         tattooWork.setComment(null);
         tattooWorkRepository.save(tattooWork);
         commentRepository.deleteById(commentId);
-        setAverageRating(client);
+
+        setAverageRating(tattooWorkOwner);
     }
 
-    private void setAverageRating(User client) {
-        var tattooWorks = client.getTattooWorks();
+    private void setAverageRating(User tattooWorkOwner) {
+        var tattooWorks = tattooWorkRepository.findAllByMadeBy_Id(tattooWorkOwner.getId());
+        System.out.println("tattoo work s="+tattooWorks.size());
         var s = tattooWorks.stream()
                 .map(tattooWork1 -> {
                     if (tattooWork1.getComment() == null) {
@@ -92,8 +107,12 @@ public class CommentService {
                 total = bigDecimal.add(total);
             }
         }
-        client.setAverageRating(total.divide(BigDecimal.valueOf(s.size()), 2, RoundingMode.HALF_EVEN).doubleValue());
-        userRepository.save(client);
+        if(s.stream().filter(Objects::nonNull).toList().size()==0){
+            tattooWorkOwner.setAverageRating(BigDecimal.valueOf(0, 2).doubleValue());
+        }else {
+            tattooWorkOwner.setAverageRating(total.divide(BigDecimal.valueOf(s.stream().filter(Objects::nonNull).toList().size()), 2, RoundingMode.HALF_EVEN).doubleValue());
+        }
+        userRepository.save(tattooWorkOwner);
     }
 
     public CommentResponseDto editComment(UUID commentId, CommentPatchRequestDto commentPatchRequestDto) {
@@ -101,37 +120,43 @@ public class CommentService {
         var tattooWork = tattooWorkRepository.findById(comment.getTattooWork().getId()).orElseThrow(TattooWorkNotFoundException::new);
         var client = userRepository.findById(comment.getPostedBy().getId()).orElseThrow(UserNotFoundException::new);
         var authenticatedUser= securityService.getUser();
-        if (authenticatedUser.getComments().contains(comment)) {
+
+        var tattooWorkOwner = userRepository.findById(tattooWork.getMadeBy().getId()).orElseThrow();
+
+        if (commentRepository.existsByPostedBy_Id(authenticatedUser.getId())) {
             setDeleteComment(commentId);
         } else {
             throw new NotOwnerOfEntityException("only the owner can edit the comment!");
         }
-        setEditComment(commentPatchRequestDto, comment, tattooWork, client);
+        setEditComment(commentPatchRequestDto, comment, tattooWork, client, tattooWorkOwner);
         return Comment.toResponseDto(comment);
     }
 
-    private void setEditComment(CommentPatchRequestDto commentPatchRequestDto, Comment comment, TattooWork tattooWork, User client) {
-        var comments = client.getComments();
-        comments.remove(comment);
+    private void setEditComment(CommentPatchRequestDto commentPatchRequestDto, Comment comment, TattooWork tattooWork, User client ,User tattooWorkOwner) {
+//        var comments = client.getComments();
+//        comments.remove(comment);
+
         comment.setRate(commentPatchRequestDto.getRate());
         comment.setMessage(commentPatchRequestDto.getMessage());
-        comments.add(comment);
-        commentRepository.save(comment);
-        client.setComments(comments);
+
+        //        comments.add(comment);
+
+       var c= commentRepository.save(comment);
+//        client.setComments(comments);
         userRepository.save(client);
-        tattooWork.setComment(comment);
+
+//        tattooWork.
+        tattooWork.setComment(c);
         tattooWorkRepository.save(tattooWork);
-        setAverageRating(client);
+
+        setAverageRating(tattooWorkOwner);
     }
 
     public CommentResponseDto getCommentById(UUID commentId) {
         return Comment.toResponseDto(commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new));
     }
 
-    public List<CommentResponseDto> getCommentsByTattooWorkId(UUID tattooWorkId) {
-        return commentRepository.findAllByTattooWork_Id(tattooWorkId)
-                .stream()
-                .map(Comment::toResponseDto)
-                .collect(Collectors.toList());
+    public CommentResponseDto getCommentsByTattooWorkId(UUID tattooWorkId) {
+        return Comment.toResponseDto(commentRepository.findByTattooWork_Id(tattooWorkId));
     }
 }

@@ -14,4 +14,9 @@ public class SecurityService {
         Object principal = securityContext.getAuthentication().getPrincipal();
         return principal instanceof User ? ((User) principal) : null;
     }
+    public void deleteUser() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Object principal = securityContext.getAuthentication().getPrincipal();
+    }
+
 }

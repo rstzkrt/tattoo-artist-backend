@@ -2,8 +2,10 @@ package com.example.tattooartistbackend.tattooWork;
 
 import com.example.tattooartistbackend.comment.Comment;
 import com.example.tattooartistbackend.generated.models.Currency;
+import com.example.tattooartistbackend.generated.models.TattooStyle;
 import com.example.tattooartistbackend.generated.models.TattooWorkPostRequestDto;
 import com.example.tattooartistbackend.generated.models.TattooWorksResponseDto;
+import com.example.tattooartistbackend.tattooWorkReport.TattooWorkReport;
 import com.example.tattooartistbackend.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,16 +14,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import net.minidev.json.annotate.JsonIgnore;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
-import javax.persistence.CascadeType;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
@@ -43,33 +39,55 @@ public class TattooWork {
     @Id
     @GeneratedValue(strategy = AUTO)
     private UUID id;
-    @ManyToOne
-    @ToString.Exclude
-    private User madeBy;
-    @NotNull
-    private BigDecimal price;
-    @ManyToOne
-    private User client;
-    @Enumerated(EnumType.STRING)
-    private Currency currency;
-    @NotBlank
-    private String coverPhoto;
-    @ElementCollection
-    private List<String> photos;
+
     @NotBlank
     private String description;
 
-    @ToString.Exclude
-    @OneToOne(cascade = CascadeType.REMOVE)
-    private Comment comment;
+    @NotNull
+    private BigDecimal price;
+
+    @Enumerated(EnumType.STRING)
+    private Currency currency;
+
+    @NotBlank
+    private String coverPhoto;
 
     private BigDecimal convertedPriceValue;
-    @ElementCollection
+
+    @Enumerated(EnumType.STRING)
+    private TattooStyle tattooStyle;
+
+    @ManyToOne
+    @ToString.Exclude
+    private User madeBy;
+
+    @ToString.Exclude
+    @ManyToOne
+    private User client;
+
+    @OneToMany
+    private List<TattooWorkReport> TakenReports;
+
+    @ToString.Exclude
+    @OneToOne(cascade = CascadeType.REMOVE)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Comment comment;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> photos;
+
+    @ManyToMany(fetch = FetchType.EAGER)
     @JsonIgnore
-    private List<UUID> dislikerIds;
-    @ElementCollection
+    private List<User> dislikerIds;
+
+    @ManyToMany(fetch = FetchType.EAGER)
     @JsonIgnore
-    private List<UUID> likerIds;
+    private List<User> likerIds;
+
+    @ManyToMany(mappedBy = "favoriteTattooWorks")
+    private List<User> favoriteUserList;
+
+
 
     public static TattooWork fromTattooWorkPostRequest(TattooWorkPostRequestDto tattooWorkPostRequestDto, User client, User madeBy,BigDecimal convertedPriceValue) {
         return TattooWork.builder()
@@ -84,6 +102,7 @@ public class TattooWork {
                 .photos(tattooWorkPostRequestDto.getPhotos())
                 .price(tattooWorkPostRequestDto.getPrice())
                 .convertedPriceValue(convertedPriceValue)
+                .tattooStyle(tattooWorkPostRequestDto.getTattooStyle())
                 .build();
     }
 
@@ -95,11 +114,22 @@ public class TattooWork {
         res.setPrice(tattooWork.getPrice());
         res.setCoverPhoto(tattooWork.getCoverPhoto());
         res.setPhotos(tattooWork.getPhotos());
-        res.setClientId(tattooWork.getClient().getId());
+        res.setClientId(tattooWork.getClient()==null? null :tattooWork.getClient().getId());
         res.setCommentId(tattooWork.getComment()==null? null :tattooWork.getComment().getId());
-        res.setDislikeNumber(tattooWork.dislikerIds.size());
-        res.setLikeNumber(tattooWork.likerIds.size());
-        res.setMadeById(tattooWork.getMadeBy().getId());
+        res.setDislikeNumber(tattooWork.getDislikerIds().size());
+        res.setLikeNumber(tattooWork.getLikerIds().size());
+        res.tattooStyle(tattooWork.getTattooStyle());
+        if (tattooWork.getDislikerIds()!= null){
+            res.setDisLikerIds(tattooWork.getDislikerIds().stream().map(User::getId).toList());
+        }else{
+            res.setDisLikerIds(new ArrayList<>());
+        }
+        if (tattooWork.getLikerIds()!= null){
+            res.setLikerIds(tattooWork.getLikerIds().stream().map(User::getId).toList());
+        }else{
+            res.setLikerIds(new ArrayList<>());
+        }
+        res.setMadeBy(tattooWork.getMadeBy().toMadeByInfoDto());
         return res;
     }
 }

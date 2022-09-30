@@ -10,11 +10,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
@@ -41,7 +37,7 @@ public class Review {
         reviewResponseDto.setMessage(message);
         reviewResponseDto.setId(id);
         reviewResponseDto.setReceiver(receiver.getId());
-        reviewResponseDto.setPostedBy(postedBy.getId());
+        reviewResponseDto.setPostedBy(postedBy.toUserResponseDto());
         return  reviewResponseDto;
     }
 

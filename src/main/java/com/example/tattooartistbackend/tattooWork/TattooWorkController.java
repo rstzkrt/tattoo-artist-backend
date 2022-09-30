@@ -3,18 +3,21 @@ package com.example.tattooartistbackend.tattooWork;
 import com.example.tattooartistbackend.generated.apis.TattooWorksApi;
 import com.example.tattooartistbackend.generated.models.TattooWorkPatchRequestDto;
 import com.example.tattooartistbackend.generated.models.TattooWorkPostRequestDto;
+import com.example.tattooartistbackend.generated.models.TattooWorkResponsePageable;
 import com.example.tattooartistbackend.generated.models.TattooWorksResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin
 public class TattooWorkController implements TattooWorksApi {
 
     private final TattooWorkService tattooWorkService;
@@ -49,14 +52,16 @@ public class TattooWorkController implements TattooWorksApi {
      * GET /tattoo-works
      * get all tattooWorks
      *
+     * @param price   price (required)
+     * @param page    (required)
+     * @param size    (required)
      * @param country country (optional)
-     * @param price   country (optional)
      * @return OK (status code 200)
      * or error payload (status code 200)
      */
     @Override
-    public ResponseEntity<List<TattooWorksResponseDto>> getAllTattooWorks(String country, BigDecimal price) {
-        return ResponseEntity.ok(tattooWorkService.getAllTattooWorks(country, price));
+    public ResponseEntity<TattooWorkResponsePageable> getAllTattooWorks(BigDecimal price, Integer page, Integer size, String country ) {
+        return ResponseEntity.ok(tattooWorkService.getAllTattooWorks(page,size,price,country));
     }
 
     /**

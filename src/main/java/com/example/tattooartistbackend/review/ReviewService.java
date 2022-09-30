@@ -26,31 +26,18 @@ public class ReviewService {
     public ReviewResponseDto createReview(UUID receiverId, ReviewPostRequestDto reviewPostRequestDto) {
         var receiver = userRepository.findById(receiverId).orElseThrow(UserNotFoundException::new);
         var postedBy = userRepository.findById(reviewPostRequestDto.getPostedBy()).orElseThrow(UserNotFoundException::new);
-        var review = reviewRepository.save(Review.fromReviewResponseDto(reviewPostRequestDto, postedBy, receiver));
-
         if(receiver.getId()==postedBy.getId()){
             throw new CreateReviewNotAllowdException();
         }
-
-        var takenReviews = receiver.getTakenReviews();
-        takenReviews.add(review);
-        receiver.setTakenReviews(takenReviews);
-        userRepository.save(receiver);
-
-        var givenReviews = receiver.getGivenReviews();
-        givenReviews.add(review);
-        postedBy.setGivenReviews(givenReviews);
-        userRepository.save(postedBy);
-
+        var review = reviewRepository.save(Review.fromReviewResponseDto(reviewPostRequestDto, postedBy, receiver));
         return review.toReviewResponseDto();
     }
 
     public void deleteReviewById(UUID id) {
         var authenticatedUser= securityService.getUser();
         var review= reviewRepository.findById(id).orElseThrow(ReviewNotFoundException::new);
-        if (authenticatedUser.getId()==review.getPostedBy().getId()) {
+        if (authenticatedUser.getId().equals(review.getPostedBy().getId())) {
             reviewRepository.deleteById(id);
-            //back references
         } else {
             throw new NotOwnerOfEntityException("only the owner can delete the review!");
         }
@@ -71,7 +58,7 @@ public class ReviewService {
     public ReviewResponseDto reviewPatchUpdate(UUID id, ReviewPatchRequestDto reviewPatchRequestDto) {
         var authenticatedUser= securityService.getUser();
         var review = reviewRepository.findById(id).orElseThrow(ReviewNotFoundException::new);
-        if (authenticatedUser.getId()==review.getPostedBy().getId()) {
+        if (authenticatedUser.getId().equals(review.getPostedBy().getId())) {
             review.setReviewType(reviewPatchRequestDto.getReviewType());
             review.setMessage(reviewPatchRequestDto.getMessage());
             return reviewRepository.save(review).toReviewResponseDto();

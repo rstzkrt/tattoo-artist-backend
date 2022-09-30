@@ -1,26 +1,14 @@
 openapi: 3.0.3
 info:
-  title: tattoo-work-contract
-  description: tattoo-work
+  title: Tattoo-Work Contract
+  description: Title
   version: 1.0.0
 paths:
-  /tattoo-works: #get all to show on the main page ,will be able to filtered
+  /tattoo-work-reports:
     get:
-      operationId: getAllTattooWorks
-      description: get all tattooWorks
+      operationId: getAllTattooWorkReports
+      description: get tattoo work reports
       parameters:
-        - in: query
-          name: country
-          description: country
-          required: false
-          schema:
-            type: string
-        - in: query
-          name: price
-          description: price
-          required: true
-          schema:
-            type: number
         - in: query
           name: page
           required: true
@@ -37,29 +25,28 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TattooWorkResponsePageable'
+                $ref: '#/components/schemas/TattooWorkReportResPageable'
         default:
           description: error payload
           content:
             application/json:
               schema:
-                $ref: './user-contract.yaml/#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
     post:
-      operationId: createTattooWork
-      description: create
+      operationId: createTattooWorkReport
+      description: create tattooWork Report
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TattooWorkPostRequestDto'
+              $ref: '#/components/schemas/TattooWorkReportPostReqDto'
       responses:
         201:
           description: Created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TattooWorksResponseDto'
+                $ref: '#/components/schemas/TattooWorkReportResDto'
         default:
           description: error payload
           content:
@@ -67,14 +54,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /tattoo-works/{id}:
+  /tattoo-work-reports/{id}:
     get:
-      operationId: getTattooWorkById
-      description: get tattoo work
+      operationId: getTattooWorkReportById
+      description: get tattoo work report by id
       parameters:
         - in: path
           name: id
-          description: tattoo-work id
           required: true
           schema:
             type: string
@@ -85,104 +71,111 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TattooWorksResponseDto'
+                $ref: '#/components/schemas/TattooWorkReportResDto'
         default:
           description: error payload
           content:
             application/json:
               schema:
-                $ref: './user-contract.yaml/#/components/schemas/ErrorResponse'
-    delete:
-      operationId: deleteTattooWork
-      description: delete
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      operationId: updateTattooWorkReport
+      description: update tattooWork report
       parameters:
         - in: path
           name: id
-          description: tattoo-work id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TattooWorkReportPatchReqDto'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TattooWorkReportResDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      operationId: removeTattooWorkReport
+      description: delete tattooWork report
+      parameters:
+        - in: path
+          name: id
           required: true
           schema:
             type: string
             format: uuid
       responses:
         204:
-          description: no content
+          description: No Content
         default:
           description: error payload
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    patch:
-      operationId: patchTattooWork
-      description: patch
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TattooWorkPatchRequestDto'
-      parameters:
-        - in: path
-          name: id
-          description: tattoo-work id
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TattooWorksResponseDto'
-        default:
-          description: error payload
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+
 components:
   schemas:
 
-    TattooWorkPostRequestDto:
+    TattooWorkReportPostReqDto:
       type: object
       properties:
         description:
           type: string
-        price:
-          type: number
-        tattooStyle:
-            $ref: '#/components/schemas/TattooStyle'
-        currency:
-          $ref: '#/components/schemas/Currency'
-        coverPhoto:
+        reportedTattooWorkId:
           type: string
-        photos:
-          type: array
-          items:
-            type: string
-        clientId:
+          format: uuid
+        reportOwnerId:
           type: string
           format: uuid
 
-    TattooWorkPatchRequestDto:
+    TattooWorkReportPatchReqDto:
       type: object
       properties:
         description:
           type: string
-        price:
-          type: number
-        tattooStyle:
-            $ref: '#/components/schemas/TattooStyle'
-        currency:
-          $ref: '#/components/schemas/Currency'
-        coverPhoto:
+
+    TattooWorkReportResDto:
+      type: object
+      properties:
+        id:
           type: string
-        photos:
+          format: uuid
+        description:
+          type: string
+        date:
+          type: string
+          format: date
+        reportOwner:
+          $ref: './user-contract.yaml/#/components/schemas/UserResponseDto'
+        reportedTattooWork:
+          $ref: '#/components/schemas/TattooWorksResponseDto'
+
+    TattooWorkReportResPageable:
+      type: object
+      properties:
+        totalPages:
+          type: integer
+        totalElements:
+          type: integer
+        tattooWorkReports:
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/TattooWorkReportResDto'
 
     TattooWorksResponseDto:
       type: object
@@ -226,15 +219,6 @@ components:
             format: uuid
         tattooStyle:
           $ref: '#/components/schemas/TattooStyle'
-
-    TattooWorkResponsePageable:
-      properties:
-        totalElements:
-          type: integer
-        tattooWorks:
-          type: array
-          items:
-            $ref: '#/components/schemas/TattooWorksResponseDto'
 
 
     MadeByInfo:
@@ -488,5 +472,3 @@ components:
         - ZWL
         - ZMW
         - SSP
-
-
