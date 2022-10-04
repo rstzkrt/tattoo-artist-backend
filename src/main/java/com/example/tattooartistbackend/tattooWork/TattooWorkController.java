@@ -5,6 +5,7 @@ import com.example.tattooartistbackend.generated.models.TattooWorkPatchRequestDt
 import com.example.tattooartistbackend.generated.models.TattooWorkPostRequestDto;
 import com.example.tattooartistbackend.generated.models.TattooWorkResponsePageable;
 import com.example.tattooartistbackend.generated.models.TattooWorksResponseDto;
+import com.example.tattooartistbackend.tattooWork.elasticsearch.TattooWorkEsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,8 @@ import java.util.UUID;
 public class TattooWorkController implements TattooWorksApi {
 
     private final TattooWorkService tattooWorkService;
+    private final TattooWorkEsService tattooWorkEsService;
+
     /**
      * POST /tattoo-works
      * create
@@ -89,5 +92,22 @@ public class TattooWorkController implements TattooWorksApi {
     @Override
     public ResponseEntity<TattooWorksResponseDto> patchTattooWork(UUID id, TattooWorkPatchRequestDto tattooWorkPatchRequestDto) {
         return new ResponseEntity<>(tattooWorkService.patchTattooWork(id,tattooWorkPatchRequestDto), HttpStatus.CREATED);
+    }
+
+    /**
+     * GET /tattoo-works/search
+     * search
+     *
+     * @param query    descrptn (optional)
+     * @param minPrice query keyword (optional)
+     * @param maxPrice query keyword (optional)
+     * @param currency query keyword (optional)
+     * @return OK (status code 200)
+     * or error payload (status code 200)
+     */
+    @Override
+    public ResponseEntity<List<TattooWorksResponseDto>> searchTattooWorks(String query, Integer minPrice, Integer maxPrice, String currency,String tattooStyle) {
+        return new ResponseEntity<>(tattooWorkEsService.getTattooWorkSearchResults(query, minPrice, maxPrice, currency,tattooStyle), HttpStatus.OK);
+
     }
 }

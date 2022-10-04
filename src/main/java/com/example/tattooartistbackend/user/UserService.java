@@ -58,7 +58,7 @@ public class UserService {
         var user=userRepository.save(User.fromClientRequestDto(clientReqDto)).toUserResponseDto();
         UserDocument userDocument=new UserDocument();
         userDocument.setCity(user.getCity());
-        userDocument.setId(user.getId().toString());
+        userDocument.setId(user.getId());
         userDocument.setFullName(user.getFirstName()+ " " +user.getLastName());
         userDocument.setCountry(user.getCountry());
         userDocument.setHasTattooArtistAcc(false);
@@ -93,7 +93,7 @@ public class UserService {
 
     public Optional<UserResponseDto> updateUser(UserUpdateRequestDto userUpdateRequestDto) {
         var authenticatedUser = securityService.getUser();
-        var userDocument= userEsRepository.findById(authenticatedUser.getId().toString()).orElseThrow(()-> new RuntimeException("userDocument not found!"));
+        var userDocument= userEsRepository.findById(authenticatedUser.getId()).orElseThrow(()-> new RuntimeException("userDocument not found!"));
 
 
         if (authenticatedUser.isHasArtistPage()) {
@@ -123,7 +123,7 @@ public class UserService {
                         var updatedUser=userRepository.save(userToUpdate);
 
                         userDocument.setCity(updatedUser.getBusinessAddress().getCity());
-                        userDocument.setId(updatedUser.getId().toString());
+                        userDocument.setId(updatedUser.getId());
                         userDocument.setFullName(updatedUser.getFirstName()+ " " +updatedUser.getLastName());
                         userDocument.setCountry(updatedUser.getBusinessAddress().getCountry());
                         userDocument.setHasTattooArtistAcc(true);
@@ -192,10 +192,12 @@ public class UserService {
 
         //get comments by postedby id and delete
         var comment =commentRepository.findByPostedBy_Id(user.getId());
-        commentRepository.deleteById(comment.getId());
+        if (comment!=null){
+            commentRepository.deleteById(comment.getId());
+        }
 
-        userEsRepository.deleteById(user.getId().toString());
         userRepository.deleteById(user.getId());
+        userEsRepository.deleteById(user.getId());
     }
 
     public UserResponseDto favoriteTattooArtist(UUID artistId) {
@@ -253,7 +255,7 @@ public class UserService {
 
     public UserResponseDto createArtistAccount(TattooArtistAccReqDto tattooArtistAccReqDto) {
         var authenticatedUser = securityService.getUser();
-        var userDocument= userEsRepository.findById(authenticatedUser.getId().toString()).orElseThrow(()-> new RuntimeException("userDocument not found!"));
+        var userDocument= userEsRepository.findById(authenticatedUser.getId()).orElseThrow(()-> new RuntimeException("userDocument not found!"));
         if (authenticatedUser.isHasArtistPage()) {
             throw new RuntimeException("Client already have an Artist Account");
         }
@@ -404,7 +406,7 @@ public class UserService {
         }
     }
 
-    public void deleteById(UUID id) {
+    public void deleteById(UUID id) {// TODO remove
         var user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
         commentRepository.deleteAll(user.getComments());
         tattooWorkRepository.deleteAll(user.getTattooWorks());
@@ -412,6 +414,7 @@ public class UserService {
         var tattooWorkList = tattooWorkRepository.findAllByClient_Id(id);
         tattooWorkList.forEach(tattooWork -> tattooWork.setClient(null));
         userRepository.deleteById(id);
+        userEsRepository.deleteById(id);
     }
 
     public List<TattooWorksResponseDto> getTattooWorks() {

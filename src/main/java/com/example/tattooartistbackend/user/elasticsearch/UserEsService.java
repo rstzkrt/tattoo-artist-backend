@@ -21,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -75,14 +76,18 @@ public class UserEsService {
         for (Iterator<JsonNode> it = itr; it.hasNext(); ) {
             JsonNode jsonNode1 = it.next().get("_source");
             var id = jsonNode1.get("id").asText();
-            var fullName = jsonNode1.get("fullName").asText();
-            var hasTattooArtistAcc = jsonNode1.get("hasTattooArtistAcc").asBoolean();
+            var fullName = jsonNode1.get("fullName")==null ?"empty":jsonNode1.get("fullName").asText();
+            Boolean hasTattooArtistAcc = null;
+            if (jsonNode1.get("hasTattooArtistAcc")!=null){
+                 hasTattooArtistAcc = jsonNode1.get("hasTattooArtistAcc").asBoolean();
+
+            }
             var avatarUrl = jsonNode1.get("avatarUrl")==null ?"empty":jsonNode1.get("avatarUrl").asText();
 
             var userDocument = UserDocument.builder()
-                    .id(id)
+                    .id(UUID.fromString(id))
                     .fullName(fullName)
-                    .hasTattooArtistAcc(hasTattooArtistAcc)
+                    .hasTattooArtistAcc(Boolean.TRUE.equals(hasTattooArtistAcc))
                     .avatarUrl(avatarUrl)
                     .build();
 

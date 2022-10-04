@@ -6,8 +6,10 @@ import org.springframework.data.elasticsearch.annotations.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.UUID;
+
 @Repository
-public interface UserEsRepository extends ElasticsearchRepository<UserDocument, String> {
+public interface UserEsRepository extends ElasticsearchRepository<UserDocument, UUID> {
 
 //    @Query("{\"multi_match\": {\"query\": \"?0\", \"fields\": [\"firstName\", \"lastName\"], \"fuzziness\": 2}}")
 //    Page<UserDocument> findByName(String name, Pageable pageable);

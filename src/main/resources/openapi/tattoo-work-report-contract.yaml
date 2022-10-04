@@ -219,6 +219,28 @@ components:
             format: uuid
         tattooStyle:
           $ref: '#/components/schemas/TattooStyle'
+        takenReports:
+          type: array
+          items:
+            $ref: '#/components/schemas/TattooWorkTakenReportDto'
+
+    TattooWorkTakenReportDto:
+      properties:
+        reportOwner:
+          type: string
+          format: uuid
+        reportedTattooWork:
+          type: string
+          format: uuid
+
+    TattooWorkResponsePageable:
+      properties:
+        totalElements:
+          type: integer
+        tattooWorks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TattooWorksResponseDto'
 
 
     MadeByInfo:

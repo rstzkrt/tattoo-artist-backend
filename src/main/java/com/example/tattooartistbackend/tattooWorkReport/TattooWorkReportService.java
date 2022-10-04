@@ -8,6 +8,7 @@ import com.example.tattooartistbackend.generated.models.TattooWorkReportPostReqD
 import com.example.tattooartistbackend.generated.models.TattooWorkReportResDto;
 import com.example.tattooartistbackend.generated.models.TattooWorkReportResPageable;
 import com.example.tattooartistbackend.security.SecurityService;
+import com.example.tattooartistbackend.security.role.RoleService;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
 import com.example.tattooartistbackend.tattooWork.TattooWorkRepository;
 import com.example.tattooartistbackend.tattooWork.TattooWorkService;
@@ -31,18 +32,25 @@ public class TattooWorkReportService {
     private final UserRepository userRepository;
     private final SecurityService securityService;
 
+    private final RoleService roleService;
+
     public TattooWorkReportResDto createTattooWorkReport(TattooWorkReportPostReqDto tattooWorkReportPostReqDto) {
-        var reportOwner=userRepository.findById(tattooWorkReportPostReqDto.getReportOwnerId()).orElseThrow(UserNotFoundException::new);
-        var reportedTattooWork= tattooWorkRepository.findById(tattooWorkReportPostReqDto.getReportedTattooWorkId()).orElseThrow(TattooWorkNotFoundException::new);
-        return TattooWorkReport.fromEntityToResponseDto(
-                tattooWorkReportRepository.save(
-                        TattooWorkReport.fromPostReqDtoToEntity(tattooWorkReportPostReqDto,reportedTattooWork,reportOwner)));
+        var reportOwner = userRepository.findById(tattooWorkReportPostReqDto.getReportOwnerId()).orElseThrow(UserNotFoundException::new);
+        var reportedTattooWork = tattooWorkRepository.findById(tattooWorkReportPostReqDto.getReportedTattooWorkId()).orElseThrow(TattooWorkNotFoundException::new);
+        var authenticatedUser = securityService.getUser();
+        if (!reportOwner.getId().equals(authenticatedUser.getId())) {
+            throw new NotOwnerOfEntityException("only authenticated user can create a report");
+        } else {
+            return TattooWorkReport.fromEntityToResponseDto(
+                    tattooWorkReportRepository.save(
+                            TattooWorkReport.fromPostReqDtoToEntity(tattooWorkReportPostReqDto, reportedTattooWork, reportOwner)));
+        }
     }
 
     public TattooWorkReportResPageable getAllTattooWorkReports(Integer page, Integer size) {
         Pageable pageable = PageRequest.of(page, size);
-        var workReportRepositoryAllPageable =tattooWorkReportRepository.getAllPageable(pageable);
-        var tattooWorkReportResPageable=new TattooWorkReportResPageable();
+        var workReportRepositoryAllPageable = tattooWorkReportRepository.getAllPageable(pageable);
+        var tattooWorkReportResPageable = new TattooWorkReportResPageable();
         tattooWorkReportResPageable.setTattooWorkReports(workReportRepositoryAllPageable.getContent().stream().map(TattooWorkReport::fromEntityToResponseDto).toList());
         tattooWorkReportResPageable.setTotalElements((int) workReportRepositoryAllPageable.getTotalElements());
         tattooWorkReportResPageable.setTotalPages(workReportRepositoryAllPageable.getTotalPages());
@@ -54,21 +62,21 @@ public class TattooWorkReportService {
     }
 
     public void removeTattooWorkReport(UUID id) {
-        var authenticatedUser=securityService.getUser();
-        var tattooWorkReport=tattooWorkReportRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-        if (!tattooWorkReport.getTattooWorkReportOwner().getId().equals(authenticatedUser.getId())){
+        var authenticatedUser = securityService.getUser();
+        var tattooWorkReport = tattooWorkReportRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        if (!tattooWorkReport.getTattooWorkReportOwner().getId().equals(authenticatedUser.getId()) && !roleService.isAdmin(authenticatedUser.getUid())) {
             throw new NotOwnerOfEntityException("only authenticated user can delete a report");
-        }else {
+        } else {
             tattooWorkReportRepository.deleteById(id);
         }
     }
 
     public TattooWorkReportResDto updateTattooWorkReport(UUID id, TattooWorkReportPatchReqDto tattooWorkReportPatchReqDto) {
-        var tattooWorkReport=tattooWorkReportRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-        var authenticatedUser=securityService.getUser();
-        if (!tattooWorkReport.getTattooWorkReportOwner().getId().equals(authenticatedUser.getId())){
+        var tattooWorkReport = tattooWorkReportRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        var authenticatedUser = securityService.getUser();
+        if (!tattooWorkReport.getTattooWorkReportOwner().getId().equals(authenticatedUser.getId())) {
             throw new NotOwnerOfEntityException("only authenticated user can update a report");
-        }else {
+        } else {
             tattooWorkReport.setDescription(tattooWorkReportPatchReqDto.getDescription());
             tattooWorkReport.setDate(LocalDate.now());
             return TattooWorkReport.fromEntityToResponseDto(tattooWorkReportRepository.save(tattooWorkReport));

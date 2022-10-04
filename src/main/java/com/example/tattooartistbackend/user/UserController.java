@@ -2,7 +2,14 @@ package com.example.tattooartistbackend.user;
 
 import com.example.tattooartistbackend.exceptions.UserNotFoundException;
 import com.example.tattooartistbackend.generated.apis.UsersApi;
-import com.example.tattooartistbackend.generated.models.*;
+import com.example.tattooartistbackend.generated.models.ClientReqDto;
+import com.example.tattooartistbackend.generated.models.TattooArtistAccReqDto;
+import com.example.tattooartistbackend.generated.models.TattooArtistPriceInterval;
+import com.example.tattooartistbackend.generated.models.TattooWorksResponseDto;
+import com.example.tattooartistbackend.generated.models.UserDocumentDto;
+import com.example.tattooartistbackend.generated.models.UserResponseDto;
+import com.example.tattooartistbackend.generated.models.UserResponseDtoPageable;
+import com.example.tattooartistbackend.generated.models.UserUpdateRequestDto;
 import com.example.tattooartistbackend.user.elasticsearch.UserEsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

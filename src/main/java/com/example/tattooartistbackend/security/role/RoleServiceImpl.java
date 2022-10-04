@@ -34,7 +34,7 @@ public class RoleServiceImpl implements RoleService {
 
                 firebaseAuth.setCustomUserClaims(uid, claims);
             } else {
-                throw new Exception("Not valid Application Role entered");
+                throw new Exception("Please provide a valid role");
             }
 
         } catch (FirebaseAuthException e) {
@@ -47,10 +47,25 @@ public class RoleServiceImpl implements RoleService {
         try {
             UserRecord user = firebaseAuth.getUser(uid);
             Map<String, Object> claims = new HashMap<>(user.getCustomClaims());
-            claims.remove(role);
+            claims.remove(role.toString());
             firebaseAuth.setCustomUserClaims(uid, claims);
         } catch (FirebaseAuthException e) {
-            log.error("Firebase Auth Error ", e);
+            log.error("Firebase Authentication Error ", e);
+        }
+    }
+
+    /**
+     * @param uid
+     * @return
+     */
+    @Override
+    public boolean isAdmin(String uid) {
+        try {
+            UserRecord user = firebaseAuth.getUser(uid);
+            user.getCustomClaims().forEach((s, o) -> System.out.println(s + " , " + o.toString()));
+            return user.getCustomClaims().containsKey(Role.ROLE_SUPER.toString());
+        } catch (FirebaseAuthException e) {
+            throw new RuntimeException(e);
         }
     }
 

@@ -73,13 +73,13 @@ public class User {
 
     private String careerDescription;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.REMOVE ,mappedBy = "reportedUser")
     private List<UserReport> benimBulundugumReportlar;// benim bulundugum reportlar
 
-    @OneToMany(cascade = CascadeType.REMOVE)
+    @OneToMany(cascade = CascadeType.REMOVE , mappedBy = "reportOwner" ,fetch = FetchType.EAGER)
     private List<UserReport> userReport;// benim report yaptiklarim
 
-    @OneToMany(cascade = CascadeType.REMOVE)
+    @OneToMany(cascade = CascadeType.REMOVE , mappedBy = "tattooWorkReportOwner",fetch = FetchType.EAGER)
     private List<TattooWorkReport> tattooWorkReports;// benim report yaptiklarim
 
     @Enumerated(EnumType.STRING)
@@ -253,6 +253,9 @@ public class User {
         userResponseDto.setGender(gender);
         userResponseDto.setTattooStyles(tattooStyles==null? new ArrayList<>(): tattooStyles);
         userResponseDto.setLanguages(languages == null ? new ArrayList<>() : languages);
+
+        userResponseDto.setTattooWorkReports(tattooWorkReports == null ? new ArrayList<>() : tattooWorkReports.stream().map(tattooWorkReport -> tattooWorkReport.getTattooWorkReportOwner().getId()).toList());
+        userResponseDto.setUserReports(userReport == null ? new ArrayList<>() : userReport.stream().map(userReport1 -> userReport1.getReportOwner().getId()).toList());
 
         if (averageRating != null) {
             userResponseDto.setAverageRating(BigDecimal.valueOf(averageRating));

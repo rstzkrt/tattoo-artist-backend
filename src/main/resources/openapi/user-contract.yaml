@@ -3,6 +3,8 @@ info:
   title: user-api-contract
   description: user-api-contract
   version: 1.0.0
+servers:
+  - url: /
 paths:
   /users:
     get:
@@ -66,6 +68,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+
   /users/search:
     get:
       operationId: searchUsers
@@ -504,6 +507,7 @@ components:
         email:
           type: string
 
+
     TattooWorksResponseDto:
       type: object
       properties:
@@ -536,6 +540,7 @@ components:
             type: string
         madeBy:
           $ref: '#/components/schemas/MadeByInfo'
+
 
     TattooArtistAccReqDto:
       type: object
@@ -649,6 +654,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Language'
+        tattooWorkReports:
+          type: array
+          items:
+            type: string
+            format: uuid
+        userReports:
+          type: array
+          items:
+            type: string
+            format: uuid
 
     TattooStyle:
       enum:
@@ -705,11 +720,11 @@ components:
       properties:
         id:
           type: string
+          format: uuid
         fullName:
           type: string
         avatarUrl:
           type: string
-
 
     ErrorResponse:
       type: object
@@ -718,7 +733,6 @@ components:
           type: integer
         message:
           type: string
-
 
     Language:
       enum:

@@ -1,10 +1,7 @@
 package com.example.tattooartistbackend.tattooWork;
 
 import com.example.tattooartistbackend.comment.Comment;
-import com.example.tattooartistbackend.generated.models.Currency;
-import com.example.tattooartistbackend.generated.models.TattooStyle;
-import com.example.tattooartistbackend.generated.models.TattooWorkPostRequestDto;
-import com.example.tattooartistbackend.generated.models.TattooWorksResponseDto;
+import com.example.tattooartistbackend.generated.models.*;
 import com.example.tattooartistbackend.tattooWorkReport.TattooWorkReport;
 import com.example.tattooartistbackend.user.User;
 import lombok.AllArgsConstructor;
@@ -24,6 +21,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static javax.persistence.GenerationType.AUTO;
 
@@ -65,8 +63,8 @@ public class TattooWork {
     @ManyToOne
     private User client;
 
-    @OneToMany
-    private List<TattooWorkReport> TakenReports;
+    @OneToMany(cascade = CascadeType.REMOVE,mappedBy = "reportedTattooWork")
+    private List<TattooWorkReport> takenReports;
 
     @ToString.Exclude
     @OneToOne(cascade = CascadeType.REMOVE)
@@ -119,6 +117,18 @@ public class TattooWork {
         res.setDislikeNumber(tattooWork.getDislikerIds().size());
         res.setLikeNumber(tattooWork.getLikerIds().size());
         res.tattooStyle(tattooWork.getTattooStyle());
+        if (tattooWork.getTakenReports()!= null){
+            res.setTakenReports(tattooWork.takenReports.stream().map(tattooWorkReport -> {
+                TattooWorkTakenReportDto reportResDto= new TattooWorkTakenReportDto();
+                    reportResDto.setReportedTattooWork(tattooWorkReport.getId());
+                    reportResDto.setReportOwner(tattooWorkReport.getTattooWorkReportOwner().getId());
+                    return reportResDto;
+                }).collect(Collectors.toList()));
+            res.setDisLikerIds(tattooWork.getDislikerIds().stream().map(User::getId).toList());
+        }else{
+            res.takenReports(new ArrayList<>());
+        }
+
         if (tattooWork.getDislikerIds()!= null){
             res.setDisLikerIds(tattooWork.getDislikerIds().stream().map(User::getId).toList());
         }else{

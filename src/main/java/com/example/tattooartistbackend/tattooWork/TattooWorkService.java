@@ -12,6 +12,9 @@ import com.example.tattooartistbackend.generated.models.TattooWorkPostRequestDto
 import com.example.tattooartistbackend.generated.models.TattooWorkResponsePageable;
 import com.example.tattooartistbackend.generated.models.TattooWorksResponseDto;
 import com.example.tattooartistbackend.security.SecurityService;
+import com.example.tattooartistbackend.security.role.RoleService;
+import com.example.tattooartistbackend.tattooWork.elasticsearch.TattooWorkDocument;
+import com.example.tattooartistbackend.tattooWork.elasticsearch.TattooWorkEsRepository;
 import com.example.tattooartistbackend.user.User;
 import com.example.tattooartistbackend.user.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -39,6 +42,8 @@ public class TattooWorkService {
     private final ObjectMapper objectMapper;
     private final SecurityService securityService;
     private final MailSenderService mailSenderService;
+    private final RoleService roleService;
+    private final TattooWorkEsRepository tattooWorkEsRepository;
 
     public TattooWorksResponseDto createTattooWork(TattooWorkPostRequestDto tattooWorkPostRequestDto) {
         try {
@@ -60,6 +65,7 @@ public class TattooWorkService {
                             "Link : http://localhost:4200/tattoo-work/"+tattooWork.getId()+'\n'
                             +"Thank you!";
             mailSenderService.sendSimpleMessage(client.getEmail(),informationMessage);
+            tattooWorkEsRepository.save(TattooWorkDocument.fromTattooWork(tattooWork));
             return TattooWork.toTattooWorksResponseDto(tattooWork);
         } catch (RuntimeException e) {
             throw new RuntimeException(e);
@@ -84,7 +90,9 @@ public class TattooWorkService {
     public void deleteTattooWork(UUID id) {
         var authenticatedUser = securityService.getUser();
         var tattooWork = tattooWorkRepository.findById(id).orElseThrow(ReviewNotFoundException::new);
-        if (authenticatedUser.getId().equals(tattooWork.getMadeBy().getId())) {
+        if (!authenticatedUser.getId().equals(tattooWork.getMadeBy().getId()) && !roleService.isAdmin(authenticatedUser.getUid())) {
+            throw new NotOwnerOfEntityException("only the owner can delete the tattooWork!");
+        } else {
             if (tattooWork.getFavoriteUserList() != null) {
                 var userDetails = tattooWork.getFavoriteUserList();
                 for (User user : userDetails) {
@@ -95,8 +103,8 @@ public class TattooWorkService {
                 }
             }
             tattooWorkRepository.deleteById(id);
-        } else {
-            throw new NotOwnerOfEntityException("only the owner can delete the tattooWork!");
+            tattooWorkEsRepository.deleteById(id);
+
         }
     }
 
@@ -130,8 +138,9 @@ public class TattooWorkService {
         tattooWork.setPhotos(tattooWorkPatchRequestDto.getPhotos());
         tattooWork.setCoverPhoto(tattooWorkPatchRequestDto.getCoverPhoto());
         var convertedPrice = getConvertedPrice(tattooWorkPatchRequestDto.getCurrency(), tattooWorkPatchRequestDto.getPrice());
-//        var convertedPrice = BigDecimal.valueOf(40);
         tattooWork.setConvertedPriceValue(convertedPrice);
+
+        tattooWorkEsRepository.save(TattooWorkDocument.fromTattooWork(tattooWork));
         tattooWorkRepository.save(tattooWork);
 
         return TattooWork.toTattooWorksResponseDto(tattooWork);

@@ -43,7 +43,7 @@ public class TattooWorkReport {
 
     public static TattooWorkReportResDto fromEntityToResponseDto(TattooWorkReport tattooWorkReport) {
         var tattooWorkReportResDto=new TattooWorkReportResDto();
-//        tattooWorkReportResDto.setReportedTattooWork(tattooWorkReport.getReportedTattooWork());
+        tattooWorkReportResDto.setReportedTattooWork(TattooWork.toTattooWorksResponseDto(tattooWorkReport.getReportedTattooWork()));
         tattooWorkReportResDto.setReportOwner(tattooWorkReport.getTattooWorkReportOwner().toUserResponseDto());
         tattooWorkReportResDto.setDescription(tattooWorkReport.getDescription());
         tattooWorkReportResDto.setDate(tattooWorkReport.getDate());

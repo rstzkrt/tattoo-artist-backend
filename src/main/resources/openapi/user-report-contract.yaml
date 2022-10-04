@@ -54,6 +54,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+
   /user-reports/{id}:
     get:
       operationId: getUserReportById

@@ -12,6 +12,8 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import java.util.UUID;
+
 @Document(indexName = "user")
 @Getter
 @Setter
@@ -23,7 +25,7 @@ public class UserDocument {
 
     @Id
     @Field(type = FieldType.Keyword)
-    private String id;
+    private UUID id;
 
     @Field(type = FieldType.Text)
     private String fullName;
@@ -42,6 +44,9 @@ public class UserDocument {
 
     @Field(type = FieldType.Double)
     private Double averageRating;
+
+//    @Field(type = FieldType.)
+//    private List<Language> languages;
 
     public static UserDocumentDto toDto(UserDocument userDocument){
         UserDocumentDto userDocumentDto= new UserDocumentDto();

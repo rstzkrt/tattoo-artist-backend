@@ -2,25 +2,28 @@ package com.example.tattooartistbackend.tattooWork.elasticsearch;
 
 import com.example.tattooartistbackend.generated.models.Currency;
 import com.example.tattooartistbackend.generated.models.MadeByInfo;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import com.example.tattooartistbackend.generated.models.TattooStyle;
+import com.example.tattooartistbackend.tattooWork.TattooWork;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Document(indexName = "tattoo")
 @Getter
 @Setter
+@Builder
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class TattooWorkDocument {
 
     @Id
     @Field(type = FieldType.Keyword)
-    private String id;
+    private UUID id;
 
     @Field(type = FieldType.Keyword)
     private Currency currency;
@@ -34,8 +37,16 @@ public class TattooWorkDocument {
     @Field(type = FieldType.Double)
     private BigDecimal price;
 
+    @Field(type = FieldType.Keyword)
+    private TattooStyle tattooStyle;
 
-    //tattoo type
-    //title
-
+    public static TattooWorkDocument fromTattooWork(TattooWork tattooWork){
+        return TattooWorkDocument.builder()
+                .id(tattooWork.getId())
+                .currency(tattooWork.getCurrency())
+                .description(tattooWork.getDescription())
+                .madeByInfo(tattooWork.getMadeBy().toMadeByInfoDto())
+                .price(tattooWork.getPrice())
+                .build();
+    }
 }
