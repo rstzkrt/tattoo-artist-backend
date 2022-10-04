@@ -37,7 +37,7 @@ public class TattooWorkEsService {
             boolQuery.must(matchPhrasePrefixQuery1);
         }
         if (ObjectUtils.isNotEmpty(currency)) {
-            var currencyFilterQuery = new TermQueryBuilder("currency", currency);
+            var currencyFilterQuery = new TermQueryBuilder("currency", currency.toLowerCase());
             boolQuery.filter(currencyFilterQuery);
         }
         if (ObjectUtils.isNotEmpty(minPrice)) {
@@ -49,7 +49,7 @@ public class TattooWorkEsService {
             boolQuery.filter(maxPriceRangeQueryBuilder);
         }
         if (ObjectUtils.isNotEmpty(tattooStyle)) {
-            var tattooStyleFilterQuery = new TermQueryBuilder("tattooStyle", tattooStyle);
+            var tattooStyleFilterQuery = new TermQueryBuilder("tattooStyle", tattooStyle.toLowerCase());
             boolQuery.filter(tattooStyleFilterQuery);
         }
         return boolQuery;

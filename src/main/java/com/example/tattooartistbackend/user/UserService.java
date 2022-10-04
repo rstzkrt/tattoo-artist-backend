@@ -10,13 +10,7 @@ import com.example.tattooartistbackend.exceptions.TattooWorkNotFoundException;
 import com.example.tattooartistbackend.exceptions.UnderAgeException;
 import com.example.tattooartistbackend.exceptions.UserArtistPageNotFoundException;
 import com.example.tattooartistbackend.exceptions.UserNotFoundException;
-import com.example.tattooartistbackend.generated.models.ClientReqDto;
-import com.example.tattooartistbackend.generated.models.TattooArtistAccReqDto;
-import com.example.tattooartistbackend.generated.models.TattooArtistPriceInterval;
-import com.example.tattooartistbackend.generated.models.TattooWorksResponseDto;
-import com.example.tattooartistbackend.generated.models.UserResponseDto;
-import com.example.tattooartistbackend.generated.models.UserResponseDtoPageable;
-import com.example.tattooartistbackend.generated.models.UserUpdateRequestDto;
+import com.example.tattooartistbackend.generated.models.*;
 import com.example.tattooartistbackend.review.Review;
 import com.example.tattooartistbackend.review.ReviewRepository;
 import com.example.tattooartistbackend.security.SecurityService;
@@ -128,6 +122,9 @@ public class UserService {
                         userDocument.setCountry(updatedUser.getBusinessAddress().getCountry());
                         userDocument.setHasTattooArtistAcc(true);
                         userDocument.setAvatarUrl(updatedUser.getAvatarUrl());
+                        userDocument.setLanguages(userToUpdate.getLanguages().stream().map(Language::getValue).toList());
+                        userDocument.setGender(userToUpdate.getGender());
+
                         userEsRepository.save(userDocument);
 
                         return updatedUser;
@@ -272,7 +269,10 @@ public class UserService {
                     userDocument.setCity(userToUpdate.getBusinessAddress().getCity());
                     userDocument.setCountry(userToUpdate.getBusinessAddress().getCountry());
                     userDocument.setHasTattooArtistAcc(true);
+                    userDocument.setLanguages(userToUpdate.getLanguages().stream().map(Language::getValue).toList());
+                    userDocument.setGender(userToUpdate.getGender());
                     userEsRepository.save(userDocument);
+
                     System.out.println(userDocument);
 
                     return userRepository.save(userToUpdate);

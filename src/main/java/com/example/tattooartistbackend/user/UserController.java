@@ -2,14 +2,7 @@ package com.example.tattooartistbackend.user;
 
 import com.example.tattooartistbackend.exceptions.UserNotFoundException;
 import com.example.tattooartistbackend.generated.apis.UsersApi;
-import com.example.tattooartistbackend.generated.models.ClientReqDto;
-import com.example.tattooartistbackend.generated.models.TattooArtistAccReqDto;
-import com.example.tattooartistbackend.generated.models.TattooArtistPriceInterval;
-import com.example.tattooartistbackend.generated.models.TattooWorksResponseDto;
-import com.example.tattooartistbackend.generated.models.UserDocumentDto;
-import com.example.tattooartistbackend.generated.models.UserResponseDto;
-import com.example.tattooartistbackend.generated.models.UserResponseDtoPageable;
-import com.example.tattooartistbackend.generated.models.UserUpdateRequestDto;
+import com.example.tattooartistbackend.generated.models.*;
 import com.example.tattooartistbackend.user.elasticsearch.UserEsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -40,9 +33,9 @@ public class UserController implements UsersApi {
      * or error payload (status code 200)
      */
     @Override
-    public ResponseEntity<List<UserDocumentDto>> searchUsers(String query, String  country, String city, Boolean isTattooArtist, BigDecimal averageRating) {
+    public ResponseEntity<List<UserDocumentDto>> searchUsers(String query, String city,String  country, Boolean isTattooArtist, BigDecimal averageRating,List<String> languages,Gender gender) {
         var avgRating= averageRating==null? null:averageRating.doubleValue();
-        return ResponseEntity.ok(userEsService.getUserSearchResults(query, city, country, isTattooArtist, avgRating));
+        return ResponseEntity.ok(userEsService.getUserSearchResults(query, city, country, isTattooArtist, avgRating,languages,gender));
     }
 
     @Override

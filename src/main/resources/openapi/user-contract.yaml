@@ -104,6 +104,21 @@ paths:
           required: false
           schema:
             type: number
+        - in: query
+          name: languages
+          description: query languages
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: gender
+          description: query gender
+          required: false
+          schema:
+            $ref: "#/components/schemas/Gender"
+#              $ref: "#/components/schemas/Language"
       responses:
         200:
           description: OK
@@ -725,6 +740,10 @@ components:
           type: string
         avatarUrl:
           type: string
+        languages:
+          type: array
+          items:
+            $ref: "#/components/schemas/Language"
 
     ErrorResponse:
       type: object
