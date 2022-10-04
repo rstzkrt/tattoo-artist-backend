@@ -7,6 +7,7 @@ import com.example.tattooartistbackend.generated.models.UserReportPostReqDto;
 import com.example.tattooartistbackend.generated.models.UserReportResDto;
 import com.example.tattooartistbackend.generated.models.UserReportResPageable;
 import com.example.tattooartistbackend.security.SecurityService;
+import com.example.tattooartistbackend.security.role.RoleService;
 import com.example.tattooartistbackend.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -24,12 +25,13 @@ public class UserReportService {
     private final UserReportRepository userReportRepository;
     private final UserRepository userRepository;
     private final SecurityService securityService;
+    private final RoleService roleService;
 
     public void closeReport(UUID id) {
         var authenticatedUser = securityService.getUser();
         var userReport = userReportRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-        if (!userReport.getReportOwner().getId().equals(authenticatedUser.getId())) {
-            throw new NotOwnerOfEntityException("only authenticated user can delete a report");
+        if (!userReport.getReportOwner().getId().equals(authenticatedUser.getId()) &&  !roleService.isAdmin(authenticatedUser.getUid())) {
+            throw new NotOwnerOfEntityException("only authenticated user or admin can delete a report");
         } else {
             userReportRepository.deleteById(id);
         }
@@ -60,6 +62,7 @@ public class UserReportService {
         return UserReport.fromEntityToResponseDto(userReportRepository.findById(id).orElseThrow(EntityNotFoundException::new));
     }
 
+    //TODO remove
     public UserReportResDto updateUserReport(UUID id, UserReportPatchReqDto userReportPatchReqDto) {
         var userReport = userReportRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         var authenticatedUser = securityService.getUser();
