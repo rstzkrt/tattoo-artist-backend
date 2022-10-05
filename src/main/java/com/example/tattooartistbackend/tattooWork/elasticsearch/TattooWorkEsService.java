@@ -70,7 +70,6 @@ public class TattooWorkEsService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
         List<TattooWorksResponseDto> tattooWorksResponseList = new ArrayList<>();
-
         ArrayNode arrayNode = (ArrayNode) jsonNode;
         Iterator<JsonNode> itr = arrayNode.elements();
         while (itr.hasNext()) {

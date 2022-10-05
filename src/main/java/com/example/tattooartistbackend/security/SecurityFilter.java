@@ -38,38 +38,37 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        verifyToken(request);
+        try {
+            verifyToken(request);
+        } catch (FirebaseAuthException e) {
+            throw new RuntimeException(e);
+        }
         filterChain.doFilter(request, response);
     }
 
     public String parseBearerToken(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
-        return (ObjectUtils.isNotEmpty(authHeader) && authHeader.startsWith("Bearer ") && authHeader.length() > 50) ? authHeader.substring(7) : null ;
+        return (ObjectUtils.isNotEmpty(authHeader) && authHeader.startsWith("Bearer ") && authHeader.length() > 50) ? authHeader.substring(7) : null;
     }
 
-    private void verifyToken(HttpServletRequest request) {
+    private void verifyToken(HttpServletRequest request) throws FirebaseAuthException {
         FirebaseToken decodedToken = null;
         String token = parseBearerToken(request);
         logger.info("Token: " + token);
-        try {
-            if (ObjectUtils.isNotEmpty(token)) {
-                decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
-                logger.info("decoded token :  " + decodedToken.getUid());
-            }
-        } catch (FirebaseAuthException e) {
-            logger.error("Firebase Exception:  "+e);
+        if (ObjectUtils.isNotEmpty(token)) {
+            decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
+            logger.info("decoded token :  " + decodedToken.getUid());
         }
         User user = firebaseTokenToUserDto(decodedToken);
         logger.info("user= " + user);
         List<GrantedAuthority> authorities = new ArrayList<>();
-        if (user != null && decodedToken != null) {
-            //if super
+        if (user != null) {
             if (securityProps.getSuperAdmins() != null && securityProps.getSuperAdmins().contains(user.getEmail())) {
                 if (!decodedToken.getClaims().containsKey(Role.ROLE_SUPER.toString())) {
                     try {
                         roleService.addRole(decodedToken.getUid(), Role.ROLE_SUPER);
                     } catch (Exception e) {
-                        logger.error("Super Role registration exception ", e);
+                        logger.error(" Admin role exception ", e);
                     }
                 }
                 authorities.add(new SimpleGrantedAuthority(Role.ROLE_SUPER.toString()));
@@ -84,7 +83,7 @@ public class SecurityFilter extends OncePerRequestFilter {
     private User firebaseTokenToUserDto(FirebaseToken decodedToken) {
         if (decodedToken != null) {
             return userRepository.findByUid(decodedToken.getUid()).orElse(null);
-        }else {
+        } else {
             return null;
         }
     }

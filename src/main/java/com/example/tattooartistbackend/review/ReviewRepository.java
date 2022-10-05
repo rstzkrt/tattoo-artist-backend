@@ -10,6 +10,5 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<Review, UUID> {
 
     List<Review> findAllByPostedBy_Id(UUID postedById);
-
     List<Review> findAllByReceiver_Id(UUID receiverId);
 }

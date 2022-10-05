@@ -30,7 +30,7 @@ public class UserReportService {
     public void closeReport(UUID id) {
         var authenticatedUser = securityService.getUser();
         var userReport = userReportRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-        if (!userReport.getReportOwner().getId().equals(authenticatedUser.getId()) &&  !roleService.isAdmin(authenticatedUser.getUid())) {
+        if (!userReport.getReportOwner().getId().equals(authenticatedUser.getId()) && !roleService.isAdmin(authenticatedUser.getUid())) {
             throw new NotOwnerOfEntityException("only authenticated user or admin can delete a report");
         } else {
             userReportRepository.deleteById(id);
@@ -62,7 +62,6 @@ public class UserReportService {
         return UserReport.fromEntityToResponseDto(userReportRepository.findById(id).orElseThrow(EntityNotFoundException::new));
     }
 
-    //TODO remove
     public UserReportResDto updateUserReport(UUID id, UserReportPatchReqDto userReportPatchReqDto) {
         var userReport = userReportRepository.findById(id).orElseThrow(EntityNotFoundException::new);
         var authenticatedUser = securityService.getUser();

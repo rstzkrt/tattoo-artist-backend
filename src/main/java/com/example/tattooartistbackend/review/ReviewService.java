@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
-
     private final UserRepository userRepository;
     private final SecurityService securityService;
     public ReviewResponseDto createReview(UUID receiverId, ReviewPostRequestDto reviewPostRequestDto) {

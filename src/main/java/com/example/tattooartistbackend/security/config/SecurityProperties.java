@@ -12,7 +12,6 @@ import java.util.List;
 @Getter
 @Setter
 public class SecurityProperties {
-
     FirebaseProperties firebaseProps;
     boolean allowCredentials;
     List<String> allowedOrigins;

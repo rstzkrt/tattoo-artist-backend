@@ -48,7 +48,7 @@ public class TattooWorkController implements TattooWorksApi {
     @Override
     public ResponseEntity<Void> deleteTattooWork(UUID id) {
         tattooWorkService.deleteTattooWork(id);
-        return new ResponseEntity<>( HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     /**
@@ -63,8 +63,8 @@ public class TattooWorkController implements TattooWorksApi {
      * or error payload (status code 200)
      */
     @Override
-    public ResponseEntity<TattooWorkResponsePageable> getAllTattooWorks(BigDecimal price, Integer page, Integer size, String country ) {
-        return ResponseEntity.ok(tattooWorkService.getAllTattooWorks(page,size,price,country));
+    public ResponseEntity<TattooWorkResponsePageable> getAllTattooWorks(BigDecimal price, Integer page, Integer size, String country) {
+        return ResponseEntity.ok(tattooWorkService.getAllTattooWorks(page, size, price, country));
     }
 
     /**
@@ -91,7 +91,7 @@ public class TattooWorkController implements TattooWorksApi {
      */
     @Override
     public ResponseEntity<TattooWorksResponseDto> patchTattooWork(UUID id, TattooWorkPatchRequestDto tattooWorkPatchRequestDto) {
-        return new ResponseEntity<>(tattooWorkService.patchTattooWork(id,tattooWorkPatchRequestDto), HttpStatus.CREATED);
+        return new ResponseEntity<>(tattooWorkService.patchTattooWork(id, tattooWorkPatchRequestDto), HttpStatus.CREATED);
     }
 
     /**
@@ -106,8 +106,8 @@ public class TattooWorkController implements TattooWorksApi {
      * or error payload (status code 200)
      */
     @Override
-    public ResponseEntity<List<TattooWorksResponseDto>> searchTattooWorks(String query, Integer minPrice, Integer maxPrice, String currency,String tattooStyle) {
-        return new ResponseEntity<>(tattooWorkEsService.getTattooWorkSearchResults(query, minPrice, maxPrice, currency,tattooStyle), HttpStatus.OK);
+    public ResponseEntity<List<TattooWorksResponseDto>> searchTattooWorks(String query, Integer minPrice, Integer maxPrice, String currency, String tattooStyle) {
+        return new ResponseEntity<>(tattooWorkEsService.getTattooWorkSearchResults(query, minPrice, maxPrice, currency, tattooStyle), HttpStatus.OK);
 
     }
 }

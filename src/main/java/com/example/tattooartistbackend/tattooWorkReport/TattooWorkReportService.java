@@ -9,9 +9,7 @@ import com.example.tattooartistbackend.generated.models.TattooWorkReportResDto;
 import com.example.tattooartistbackend.generated.models.TattooWorkReportResPageable;
 import com.example.tattooartistbackend.security.SecurityService;
 import com.example.tattooartistbackend.security.role.RoleService;
-import com.example.tattooartistbackend.tattooWork.TattooWork;
 import com.example.tattooartistbackend.tattooWork.TattooWorkRepository;
-import com.example.tattooartistbackend.tattooWork.TattooWorkService;
 import com.example.tattooartistbackend.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -27,11 +25,9 @@ import java.util.UUID;
 public class TattooWorkReportService {
 
     private final TattooWorkReportRepository tattooWorkReportRepository;
-
     private final TattooWorkRepository tattooWorkRepository;
     private final UserRepository userRepository;
     private final SecurityService securityService;
-
     private final RoleService roleService;
 
     public TattooWorkReportResDto createTattooWorkReport(TattooWorkReportPostReqDto tattooWorkReportPostReqDto) {
@@ -41,9 +37,7 @@ public class TattooWorkReportService {
         if (!reportOwner.getId().equals(authenticatedUser.getId())) {
             throw new NotOwnerOfEntityException("only authenticated user can create a report");
         } else {
-            return TattooWorkReport.fromEntityToResponseDto(
-                    tattooWorkReportRepository.save(
-                            TattooWorkReport.fromPostReqDtoToEntity(tattooWorkReportPostReqDto, reportedTattooWork, reportOwner)));
+            return TattooWorkReport.fromEntityToResponseDto(tattooWorkReportRepository.save(TattooWorkReport.fromPostReqDtoToEntity(tattooWorkReportPostReqDto, reportedTattooWork, reportOwner)));
         }
     }
 

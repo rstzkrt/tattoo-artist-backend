@@ -27,11 +27,8 @@ public class FirebaseConfig {
     @Bean
     public FirebaseApp getFirebaseApp() throws IOException {
         FirebaseOptions options = FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(new FileInputStream("src/main/resources/firebase/firebase_config.json")))
-//                .setCredentials(GoogleCredentials.getApplicationDefault())
-                .setDatabaseUrl(
-                        secProps.getFirebaseProps().getDatabaseUrl()
-                )
+                .setCredentials(GoogleCredentials.fromStream(new FileInputStream(FIREBASE_CONFIG_FILE_PATH)))
+                .setDatabaseUrl(secProps.getFirebaseProps().getDatabaseUrl())
                 .build();
         if (FirebaseApp.getApps().isEmpty()) {
             FirebaseApp.initializeApp(options);
@@ -53,8 +50,7 @@ public class FirebaseConfig {
     @Bean
     public Firestore getDatabase() throws IOException {
         FirestoreOptions firestoreOptions = FirestoreOptions.newBuilder()
-                .setCredentials(GoogleCredentials.fromStream(new FileInputStream("src/main/resources/firebase/firebase_config.json")))
-//                .setCredentials(GoogleCredentials.getApplicationDefault())
+                .setCredentials(GoogleCredentials.fromStream(new FileInputStream(FIREBASE_CONFIG_FILE_PATH)))
                 .build();
         return firestoreOptions.getService();
     }

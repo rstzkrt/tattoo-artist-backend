@@ -33,9 +33,9 @@ public class UserController implements UsersApi {
      * or error payload (status code 200)
      */
     @Override
-    public ResponseEntity<List<UserDocumentDto>> searchUsers(String query, String city,String  country, Boolean isTattooArtist, BigDecimal averageRating,List<String> languages,Gender gender) {
-        var avgRating= averageRating==null? null:averageRating.doubleValue();
-        return ResponseEntity.ok(userEsService.getUserSearchResults(query, city, country, isTattooArtist, avgRating,languages,gender));
+    public ResponseEntity<List<UserDocumentDto>> searchUsers(String query, String city, String country, Boolean isTattooArtist, BigDecimal averageRating, List<String> languages, Gender gender) {
+        var avgRating = averageRating == null ? null : averageRating.doubleValue();
+        return ResponseEntity.ok(userEsService.getUserSearchResults(query, city, country, isTattooArtist, avgRating, languages, gender));
     }
 
     @Override
@@ -58,7 +58,7 @@ public class UserController implements UsersApi {
      */
     @Override
     public ResponseEntity<Void> deleteUserById(UUID id) {
-         userService.deleteById(id);
+        userService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -86,8 +86,8 @@ public class UserController implements UsersApi {
 
     //pagination ekle
     @Override
-    public ResponseEntity<UserResponseDtoPageable> getAllUsers(Integer page,Integer size,String firstName, String lastName) {
-        return new ResponseEntity<>(userService.findAllUsers(page,size,firstName, lastName), HttpStatus.OK);
+    public ResponseEntity<UserResponseDtoPageable> getAllUsers(Integer page, Integer size, String firstName, String lastName) {
+        return new ResponseEntity<>(userService.findAllUsers(page, size, firstName, lastName), HttpStatus.OK);
     }
 
     /**
@@ -120,7 +120,7 @@ public class UserController implements UsersApi {
      */
     @Override
     public ResponseEntity<List<TattooWorksResponseDto>> getTattooWorks() {
-        return new ResponseEntity<>(userService.getTattooWorks(),HttpStatus.OK);
+        return new ResponseEntity<>(userService.getTattooWorks(), HttpStatus.OK);
     }
 
     @Override

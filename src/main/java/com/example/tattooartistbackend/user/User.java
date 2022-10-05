@@ -1,9 +1,16 @@
 package com.example.tattooartistbackend.user;
 
-import co.elastic.clients.json.JsonpDeserializable;
 import com.example.tattooartistbackend.address.Address;
 import com.example.tattooartistbackend.comment.Comment;
-import com.example.tattooartistbackend.generated.models.*;
+import com.example.tattooartistbackend.generated.models.ClientReqDto;
+import com.example.tattooartistbackend.generated.models.Gender;
+import com.example.tattooartistbackend.generated.models.Language;
+import com.example.tattooartistbackend.generated.models.MadeByInfo;
+import com.example.tattooartistbackend.generated.models.TattooArtistAccReqDto;
+import com.example.tattooartistbackend.generated.models.TattooStyle;
+import com.example.tattooartistbackend.generated.models.UserResponseDto;
+import com.example.tattooartistbackend.generated.models.UserUpdateRequestDto;
+import com.example.tattooartistbackend.generated.models.WorkingDays;
 import com.example.tattooartistbackend.review.Review;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
 import com.example.tattooartistbackend.tattooWorkReport.TattooWorkReport;
@@ -14,8 +21,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.checkerframework.common.aliasing.qual.Unique;
-import org.junit.jupiter.params.provider.EnumSource;
-
 import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -62,59 +67,41 @@ public class User {
     private String avatarUrl;
     private LocalDate dateOfBirth;
     private boolean hasArtistPage;
-
     @Enumerated(EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER)
     private List<Language> languages;
     private Double averageRating;
-
     @Enumerated(EnumType.STRING)
     private Gender gender;
-
     private String careerDescription;
-
-    @OneToMany(cascade = CascadeType.REMOVE ,mappedBy = "reportedUser")
-    private List<UserReport> benimBulundugumReportlar;// benim bulundugum reportlar
-
-    @OneToMany(cascade = CascadeType.REMOVE , mappedBy = "reportOwner" ,fetch = FetchType.EAGER)
-    private List<UserReport> userReport;// benim report yaptiklarim
-
-    @OneToMany(cascade = CascadeType.REMOVE , mappedBy = "tattooWorkReportOwner",fetch = FetchType.EAGER)
-    private List<TattooWorkReport> tattooWorkReports;// benim report yaptiklarim
-
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "reportedUser")
+    private List<UserReport> reportsUserBelongsTo;
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "reportOwner", fetch = FetchType.EAGER)
+    private List<UserReport> userReports;
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "tattooWorkReportOwner", fetch = FetchType.EAGER)
+    private List<TattooWorkReport> tattooWorkReports;
     @Enumerated(EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER)
-    private List<TattooStyle> tattooStyles;//
+    private List<TattooStyle> tattooStyles;
     @OneToOne
     private Address businessAddress;
     @Enumerated
     @ElementCollection(targetClass = WorkingDays.class, fetch = FetchType.EAGER)
     private List<WorkingDays> workingDaysList;
-
     @OneToMany(mappedBy = "postedBy", fetch = FetchType.EAGER)
     private List<Comment> comments;
-
     @ManyToMany(fetch = FetchType.EAGER)
-    private List<User> favouriteArtists;// change to one to many people i favorite
-
-//    @OneToMany
-//    private List<User> usersWhoFavoriteMe;
-
+    private List<User> favouriteArtists;
     @OneToMany(mappedBy = "madeBy", fetch = FetchType.EAGER)
     private List<TattooWork> tattooWorks;
-
     @ManyToMany(fetch = FetchType.EAGER)
     private List<TattooWork> favoriteTattooWorks;
-
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "likerIds")
     private List<TattooWork> likedTattooWorks;
-
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "dislikerIds")
     private List<TattooWork> dislikedTattooWorks;
-
     @OneToMany(mappedBy = "postedBy", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private List<Review> givenReviews;
-
     @OneToMany(mappedBy = "receiver", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private List<Review> takenReviews;
 
@@ -136,7 +123,7 @@ public class User {
                 .favoriteTattooWorks(new ArrayList<>())
                 .givenReviews(new ArrayList<>())
                 .takenReviews(new ArrayList<>())
-                .userReport(null)
+                .userReports(null)
                 .likedTattooWorks(new ArrayList<>())
                 .dislikedTattooWorks(new ArrayList<>())
                 .tattooStyles(new ArrayList<>())
@@ -146,7 +133,6 @@ public class User {
     }
 
     public static User fromTattooArtistAccReqDto(TattooArtistAccReqDto tattooArtistAccReqDto, Address address, List<TattooWork> favoriteTattooWorks, List<TattooWork> tattooWorks, List<User> favouriteArtists, List<Comment> comments, List<Review> takenReviews, List<Review> givenReviews) {
-        // TODO refactor ... dont create new instance..
         return User.builder()
                 .phoneNumber(tattooArtistAccReqDto.getPhoneNumber())
                 .workingDaysList(tattooArtistAccReqDto.getWorkDays())
@@ -163,9 +149,6 @@ public class User {
                 .gender(tattooArtistAccReqDto.getGender())
                 .tattooStyles(tattooArtistAccReqDto.getTattooStyles() == null ? new ArrayList<>() : tattooArtistAccReqDto.getTattooStyles())
                 .languages(tattooArtistAccReqDto.getLanguages() == null ? new ArrayList<>() : tattooArtistAccReqDto.getLanguages())
-//                .dislikedTattooWorks()
-//                .likedTattooWorks()
-//                .userReport()
                 .build();
     }
 
@@ -187,10 +170,6 @@ public class User {
                 .gender(userUpdateRequestDto.getGender())
                 .tattooStyles(userUpdateRequestDto.getTattooStyles() == null ? new ArrayList<>() : userUpdateRequestDto.getTattooStyles())
                 .languages(userUpdateRequestDto.getLanguages() == null ? new ArrayList<>() : userUpdateRequestDto.getLanguages())
-
-//                .dislikedTattooWorks()
-//                .likedTattooWorks()
-//                .userReport()
                 .build();
     }
 
@@ -213,7 +192,7 @@ public class User {
         madeByInfo.setBirthDate(dateOfBirth);
         madeByInfo.setHasArtistPage(hasArtistPage);
         madeByInfo.setWorkDays(workingDaysList);
-        madeByInfo.setTattooStyles(tattooStyles==null? new ArrayList<>(): tattooStyles);
+        madeByInfo.setTattooStyles(tattooStyles == null ? new ArrayList<>() : tattooStyles);
         if (averageRating != null) {
             madeByInfo.setAverageRating(BigDecimal.valueOf(averageRating));
         } else {
@@ -251,12 +230,10 @@ public class User {
         userResponseDto.setWorkDays(workingDaysList);
         userResponseDto.setCareerDescription(careerDescription);
         userResponseDto.setGender(gender);
-        userResponseDto.setTattooStyles(tattooStyles==null? new ArrayList<>(): tattooStyles);
+        userResponseDto.setTattooStyles(tattooStyles == null ? new ArrayList<>() : tattooStyles);
         userResponseDto.setLanguages(languages == null ? new ArrayList<>() : languages);
-
         userResponseDto.setTattooWorkReports(tattooWorkReports == null ? new ArrayList<>() : tattooWorkReports.stream().map(tattooWorkReport -> tattooWorkReport.getTattooWorkReportOwner().getId()).toList());
-        userResponseDto.setUserReports(userReport == null ? new ArrayList<>() : userReport.stream().map(userReport1 -> userReport1.getReportOwner().getId()).toList());
-
+        userResponseDto.setUserReports(userReports == null ? new ArrayList<>() : userReports.stream().map(userReport1 -> userReport1.getReportOwner().getId()).toList());
         if (averageRating != null) {
             userResponseDto.setAverageRating(BigDecimal.valueOf(averageRating));
         } else {
@@ -281,15 +258,12 @@ public class User {
         if (this.favouriteArtists.isEmpty()) {
             userResponseDto.setFavoriteArtistIds(new ArrayList<>());
         } else {
-            userResponseDto.setFavoriteArtistIds(
-                    favouriteArtists.stream().map(User::getId).toList()
-            );
+            userResponseDto.setFavoriteArtistIds(favouriteArtists.stream().map(User::getId).toList());
         }
         if (this.favoriteTattooWorks.isEmpty()) {
             userResponseDto.setFavoriteTattooWorkIds(new ArrayList<>());
         } else {
-            userResponseDto.setFavoriteTattooWorkIds(
-                    favoriteTattooWorks.stream().map(TattooWork::getId).toList());
+            userResponseDto.setFavoriteTattooWorkIds(favoriteTattooWorks.stream().map(TattooWork::getId).toList());
         }
         if (this.comments.isEmpty()) {
             userResponseDto.setCommentIds(new ArrayList<>());
@@ -302,9 +276,7 @@ public class User {
         if (this.tattooWorks.isEmpty()) {
             userResponseDto.setTattooWorkIds(new ArrayList<>());
         } else {
-            userResponseDto.setTattooWorkIds(
-                    tattooWorks.stream().map(TattooWork::getId).toList()
-            );
+            userResponseDto.setTattooWorkIds(tattooWorks.stream().map(TattooWork::getId).toList());
         }
         if (this.getAverageRating() != null) {
             userResponseDto.setAverageRating(userResponseDto.getAverageRating());

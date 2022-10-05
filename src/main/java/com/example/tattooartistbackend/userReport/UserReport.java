@@ -35,16 +35,7 @@ public class UserReport {
     @ManyToOne
     private User reportOwner;
 
-    public static UserReport fromResponseDtoToEntity(UserReportResDto userReportResDto,User reportedUser,User reportOwner){ //TODO make non static
-        return UserReport.builder()
-                .description(userReportResDto.getDescription())
-                .reportedUser(reportedUser)
-                .date(userReportResDto.getDate())
-                .reportOwner(reportOwner)
-                .build();
-    }
-
-    public static UserReport fromPostReqDtoToEntity(UserReportPostReqDto userReportReqDto, User reportedUser, User reportOwner){ //TODO make non static
+    public static UserReport fromPostReqDtoToEntity(UserReportPostReqDto userReportReqDto, User reportedUser, User reportOwner){
         return UserReport.builder()
                 .description(userReportReqDto.getDescription())
                 .reportedUser(reportedUser)

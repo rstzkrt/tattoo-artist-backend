@@ -1,6 +1,5 @@
 package com.example.tattooartistbackend.security.role;
 
-
 import com.example.tattooartistbackend.security.config.SecurityProperties;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
@@ -26,17 +25,14 @@ public class RoleServiceImpl implements RoleService {
         try {
             UserRecord user = firebaseAuth.getUser(uid);
             Map<String, Object> claims = new HashMap<>(user.getCustomClaims());
-
             if (securityProps.getValidApplicationRoles().contains(role.toString())) {
                 if (!claims.containsKey(role.toString())) {
                     claims.put(String.valueOf(role), true);
                 }
-
                 firebaseAuth.setCustomUserClaims(uid, claims);
             } else {
                 throw new Exception("Please provide a valid role");
             }
-
         } catch (FirebaseAuthException e) {
             log.error("Firebase Auth Error ", e);
         }
@@ -62,7 +58,6 @@ public class RoleServiceImpl implements RoleService {
     public boolean isAdmin(String uid) {
         try {
             UserRecord user = firebaseAuth.getUser(uid);
-            user.getCustomClaims().forEach((s, o) -> System.out.println(s + " , " + o.toString()));
             return user.getCustomClaims().containsKey(Role.ROLE_SUPER.toString());
         } catch (FirebaseAuthException e) {
             throw new RuntimeException(e);

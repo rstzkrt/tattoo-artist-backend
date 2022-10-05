@@ -5,9 +5,13 @@ import com.example.tattooartistbackend.generated.models.CommentRequestDto;
 import com.example.tattooartistbackend.generated.models.CommentResponseDto;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
 import com.example.tattooartistbackend.user.User;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -63,7 +67,7 @@ public class Comment {
 
     public static CommentResponseDto toResponseDto(Comment comment) {
         CommentResponseDto commentResponseDto = new CommentResponseDto();
-        if(comment!=null){
+        if (comment != null) {
             commentResponseDto.setId(comment.getId());
             commentResponseDto.setMessage(comment.getMessage());
             commentResponseDto.setPostDate(comment.getPostDate());
@@ -71,7 +75,7 @@ public class Comment {
             commentResponseDto.setWorkId(comment.getTattooWork().getId());
             commentResponseDto.setRate(comment.getRate());
             return commentResponseDto;
-        }else {
+        } else {
             return null;
         }
     }

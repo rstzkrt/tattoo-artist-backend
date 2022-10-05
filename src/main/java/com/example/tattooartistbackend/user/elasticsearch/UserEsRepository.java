@@ -10,10 +10,6 @@ import java.util.UUID;
 
 @Repository
 public interface UserEsRepository extends ElasticsearchRepository<UserDocument, UUID> {
-
-//    @Query("{\"multi_match\": {\"query\": \"?0\", \"fields\": [\"firstName\", \"lastName\"], \"fuzziness\": 2}}")
-//    Page<UserDocument> findByName(String name, Pageable pageable);
-
     @Query("{\"bool\": {\"must\": {\"multi_match\": {\"query\": \"?0\",\"fields\": [\"firstName\",\"lastName\"], \"fuzziness\": 2}},\"filter\": [{\"term\": {\"city\": \"?1\"},\"term\": {\"country\": \"?2\"}}]}}")
     Page<UserDocument> findByName(String query, String city, String country, Pageable pageable);
 

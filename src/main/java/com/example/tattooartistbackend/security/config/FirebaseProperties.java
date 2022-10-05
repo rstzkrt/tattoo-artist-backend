@@ -7,5 +7,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class FirebaseProperties {
-    String databaseUrl;
+    private String databaseUrl;
 }

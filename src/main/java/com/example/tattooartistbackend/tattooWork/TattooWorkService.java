@@ -57,34 +57,21 @@ public class TattooWorkService {
                 }
             }
             var convertedPrice = getConvertedPrice(tattooWorkPostRequestDto.getCurrency(), tattooWorkPostRequestDto.getPrice());
-            System.out.println("CURRENCY"+convertedPrice);
             var tattooWork = tattooWorkRepository.save(TattooWork.fromTattooWorkPostRequest(tattooWorkPostRequestDto, client, madeBy, convertedPrice));
-            var informationMessage=
-                    "Hi,\""+ client.getFirstName() +" "+client.getLastName() +"\""+ '\n'
-                            +" Tattoo Artist "+madeBy.getFirstName() + " "+  madeBy.getLastName() +" Published a tattoo work which is made on you. Now you can go to link and add your feelings about the work as comment and give a rating to help others to see Tattoo Arist average rating." + '\n' +'\n'+
-                            "Link : http://localhost:4200/tattoo-work/"+tattooWork.getId()+'\n'
-                            +"Thank you!";
-            mailSenderService.sendSimpleMessage(client.getEmail(),informationMessage);
+            var informationMessage =
+                    "Hi,\"" + client.getFirstName() + " " + client.getLastName() + "\"" + '\n'
+                            + " Tattoo Artist " + madeBy.getFirstName() + " " + madeBy.getLastName() + " " +
+                            "Published a tattoo work which is made on you." +
+                            " Now you can go to link and add your feelings about the work as comment " +
+                            "and give a rating to help others to see Tattoo Arist average rating." + '\n' + '\n' +
+                            "Link : http://localhost:4200/tattoo-work/" + tattooWork.getId() + '\n'
+                            + "Thank you!";
+            mailSenderService.sendSimpleMessage(client.getEmail(), informationMessage);
             tattooWorkEsRepository.save(TattooWorkDocument.fromTattooWork(tattooWork));
             return TattooWork.toTattooWorksResponseDto(tattooWork);
         } catch (RuntimeException e) {
             throw new RuntimeException(e);
         }
-    }
-
-
-
-    private BigDecimal getConvertedPrice(Currency currency, BigDecimal price) {
-        var url = "https://api.exchangerate.host/latest?base="+currency+"&amount=" + price+"&symbols=EUR";
-        var body = restTemplate.getForObject(url ,String.class);
-        System.out.println(body);
-        JsonNode jsonNode = null;
-        try {
-            jsonNode = objectMapper.readTree(body);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        return BigDecimal.valueOf(jsonNode.get("rates").get("EUR").asDouble());
     }
 
     public void deleteTattooWork(UUID id) {
@@ -116,7 +103,7 @@ public class TattooWorkService {
                 .stream()
                 .map(TattooWork::toTattooWorksResponseDto)
                 .collect(Collectors.toList());
-        TattooWorkResponsePageable tattooWorkResponsePageable=new TattooWorkResponsePageable();
+        TattooWorkResponsePageable tattooWorkResponsePageable = new TattooWorkResponsePageable();
         tattooWorkResponsePageable.setTattooWorks(list);
         tattooWorkResponsePageable.setTotalElements((int) tattooWorkRepository.findAllByPriceGreaterThan(price, pageable).getTotalElements());
         return tattooWorkResponsePageable;
@@ -125,11 +112,7 @@ public class TattooWorkService {
     public TattooWorksResponseDto patchTattooWork(UUID id, TattooWorkPatchRequestDto tattooWorkPatchRequestDto) {
         var tattooWork = tattooWorkRepository.findById(id).orElseThrow(TattooWorkNotFoundException::new);
         var authenticatedUser = securityService.getUser();
-
-        System.out.println(authenticatedUser.getId());
-        System.out.println(tattooWork.getMadeBy().getId());
-
-        if (authenticatedUser.getId().toString()==tattooWork.getMadeBy().getId().toString()) {
+        if (authenticatedUser.getId().toString() == tattooWork.getMadeBy().getId().toString()) {
             throw new NotOwnerOfEntityException("only the owner can edit the tattooWork!");
         }
         tattooWork.setDescription(tattooWorkPatchRequestDto.getDescription());
@@ -139,15 +122,26 @@ public class TattooWorkService {
         tattooWork.setCoverPhoto(tattooWorkPatchRequestDto.getCoverPhoto());
         var convertedPrice = getConvertedPrice(tattooWorkPatchRequestDto.getCurrency(), tattooWorkPatchRequestDto.getPrice());
         tattooWork.setConvertedPriceValue(convertedPrice);
-
         tattooWorkEsRepository.save(TattooWorkDocument.fromTattooWork(tattooWork));
         tattooWorkRepository.save(tattooWork);
-
         return TattooWork.toTattooWorksResponseDto(tattooWork);
     }
 
     public TattooWorksResponseDto getTattooWorkById(UUID id) {
         var tattooWork = tattooWorkRepository.findById(id).orElseThrow(TattooWorkNotFoundException::new);
         return TattooWork.toTattooWorksResponseDto(tattooWork);
+    }
+
+    private BigDecimal getConvertedPrice(Currency currency, BigDecimal price) {
+        var url = "https://api.exchangerate.host/latest?base=" + currency + "&amount=" + price + "&symbols=EUR";
+        var body = restTemplate.getForObject(url, String.class);
+        System.out.println(body);
+        JsonNode jsonNode = null;
+        try {
+            jsonNode = objectMapper.readTree(body);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        return BigDecimal.valueOf(jsonNode.get("rates").get("EUR").asDouble());
     }
 }

@@ -9,8 +9,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class Credentials {
-
     private FirebaseToken decodedToken;
     private String idToken;
-
 }

@@ -42,7 +42,7 @@ public class UserReportController implements UserReportsApi {
      */
     @Override
     public ResponseEntity<UserReportResDto> createUserReport(UserReportPostReqDto userReportPostReqDto) {
-        return new ResponseEntity<>(userReportService.createUserReport(userReportPostReqDto),HttpStatus.CREATED);
+        return new ResponseEntity<>(userReportService.createUserReport(userReportPostReqDto), HttpStatus.CREATED);
     }
 
     /**
@@ -54,7 +54,7 @@ public class UserReportController implements UserReportsApi {
      */
     @Override
     public ResponseEntity<UserReportResPageable> getAllUserReports(Integer page, Integer size) {
-        return new ResponseEntity<>(userReportService.getAllUserReports(page, size),HttpStatus.OK);
+        return new ResponseEntity<>(userReportService.getAllUserReports(page, size), HttpStatus.OK);
     }
 
     /**
@@ -67,7 +67,7 @@ public class UserReportController implements UserReportsApi {
      */
     @Override
     public ResponseEntity<UserReportResDto> getUserReportById(UUID id) {
-        return new ResponseEntity<>(userReportService.getUserReportById(id),HttpStatus.OK);
+        return new ResponseEntity<>(userReportService.getUserReportById(id), HttpStatus.OK);
     }
 
     /**
@@ -80,6 +80,6 @@ public class UserReportController implements UserReportsApi {
      */
     @Override
     public ResponseEntity<UserReportResDto> updateUserReport(UUID id, UserReportPatchReqDto userReportPatchReqDto) {
-        return new ResponseEntity<>(userReportService.updateUserReport(id, userReportPatchReqDto),HttpStatus.OK);
+        return new ResponseEntity<>(userReportService.updateUserReport(id, userReportPatchReqDto), HttpStatus.OK);
     }
 }

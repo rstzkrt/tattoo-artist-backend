@@ -2,7 +2,6 @@ package com.example.tattooartistbackend.tattooWorkReport;
 
 import com.example.tattooartistbackend.generated.models.TattooWorkReportPostReqDto;
 import com.example.tattooartistbackend.generated.models.TattooWorkReportResDto;
-import com.example.tattooartistbackend.generated.models.UserReportPostReqDto;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
 import com.example.tattooartistbackend.user.User;
 import lombok.AllArgsConstructor;

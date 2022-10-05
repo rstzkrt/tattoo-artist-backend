@@ -63,7 +63,7 @@ public class TattooWork {
     @ManyToOne
     private User client;
 
-    @OneToMany(cascade = CascadeType.REMOVE,mappedBy = "reportedTattooWork")
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "reportedTattooWork")
     private List<TattooWorkReport> takenReports;
 
     @ToString.Exclude
@@ -86,8 +86,7 @@ public class TattooWork {
     private List<User> favoriteUserList;
 
 
-
-    public static TattooWork fromTattooWorkPostRequest(TattooWorkPostRequestDto tattooWorkPostRequestDto, User client, User madeBy,BigDecimal convertedPriceValue) {
+    public static TattooWork fromTattooWorkPostRequest(TattooWorkPostRequestDto tattooWorkPostRequestDto, User client, User madeBy, BigDecimal convertedPriceValue) {
         return TattooWork.builder()
                 .client(client)
                 .comment(null)
@@ -112,31 +111,30 @@ public class TattooWork {
         res.setPrice(tattooWork.getPrice());
         res.setCoverPhoto(tattooWork.getCoverPhoto());
         res.setPhotos(tattooWork.getPhotos());
-        res.setClientId(tattooWork.getClient()==null? null :tattooWork.getClient().getId());
-        res.setCommentId(tattooWork.getComment()==null? null :tattooWork.getComment().getId());
+        res.setClientId(tattooWork.getClient() == null ? null : tattooWork.getClient().getId());
+        res.setCommentId(tattooWork.getComment() == null ? null : tattooWork.getComment().getId());
         res.setDislikeNumber(tattooWork.getDislikerIds().size());
         res.setLikeNumber(tattooWork.getLikerIds().size());
         res.tattooStyle(tattooWork.getTattooStyle());
-        if (tattooWork.getTakenReports()!= null){
+        if (tattooWork.getTakenReports() != null) {
             res.setTakenReports(tattooWork.takenReports.stream().map(tattooWorkReport -> {
-                TattooWorkTakenReportDto reportResDto= new TattooWorkTakenReportDto();
-                    reportResDto.setReportedTattooWork(tattooWorkReport.getId());
-                    reportResDto.setReportOwner(tattooWorkReport.getTattooWorkReportOwner().getId());
-                    return reportResDto;
-                }).collect(Collectors.toList()));
+                TattooWorkTakenReportDto reportResDto = new TattooWorkTakenReportDto();
+                reportResDto.setReportedTattooWork(tattooWorkReport.getId());
+                reportResDto.setReportOwner(tattooWorkReport.getTattooWorkReportOwner().getId());
+                return reportResDto;
+            }).collect(Collectors.toList()));
             res.setDisLikerIds(tattooWork.getDislikerIds().stream().map(User::getId).toList());
-        }else{
+        } else {
             res.takenReports(new ArrayList<>());
         }
-
-        if (tattooWork.getDislikerIds()!= null){
+        if (tattooWork.getDislikerIds() != null) {
             res.setDisLikerIds(tattooWork.getDislikerIds().stream().map(User::getId).toList());
-        }else{
+        } else {
             res.setDisLikerIds(new ArrayList<>());
         }
-        if (tattooWork.getLikerIds()!= null){
+        if (tattooWork.getLikerIds() != null) {
             res.setLikerIds(tattooWork.getLikerIds().stream().map(User::getId).toList());
-        }else{
+        } else {
             res.setLikerIds(new ArrayList<>());
         }
         res.setMadeBy(tattooWork.getMadeBy().toMadeByInfoDto());

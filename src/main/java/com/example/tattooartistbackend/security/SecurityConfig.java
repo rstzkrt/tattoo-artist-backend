@@ -24,12 +24,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 @CrossOrigin
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
     private final ObjectMapper objectMapper;
     private final SecurityFilter tokenAuthFilter;
 
     @Bean
-    public AuthenticationEntryPoint restAuthenticationEntryPoint() {
+    public AuthenticationEntryPoint customEntryPoint() {
         return (httpServletRequest, httpServletResponse, e) -> {
             Map<String, Object> errorObject = new HashMap<>();
             errorObject.put("message", "Unauthorized access");
@@ -47,7 +46,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .headers().cacheControl().disable().and()
                 .formLogin().disable()
                 .httpBasic().disable().exceptionHandling()
-                .authenticationEntryPoint(restAuthenticationEntryPoint())
+                .authenticationEntryPoint(customEntryPoint())
                 .and().authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/users/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/tattoo-works/**").permitAll()
