@@ -18,5 +18,4 @@ public class SecurityService {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Object principal = securityContext.getAuthentication().getPrincipal();
     }
-
 }

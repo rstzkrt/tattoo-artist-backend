@@ -63,7 +63,7 @@ public class TattooWork {
     @ManyToOne
     private User client;
 
-    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "reportedTattooWork")
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "reportedTattooWork",fetch = FetchType.EAGER)
     private List<TattooWorkReport> takenReports;
 
     @ToString.Exclude

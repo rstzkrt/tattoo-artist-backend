@@ -1,6 +1,9 @@
 package com.example.tattooartistbackend.tattooWork.elasticsearch;
 
+import com.example.tattooartistbackend.exceptions.TattooWorkNotFoundException;
 import com.example.tattooartistbackend.generated.models.TattooWorksResponseDto;
+import com.example.tattooartistbackend.tattooWork.TattooWork;
+import com.example.tattooartistbackend.tattooWork.TattooWorkRepository;
 import com.example.tattooartistbackend.tattooWork.TattooWorkService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,7 +32,7 @@ import java.util.UUID;
 public class TattooWorkEsService {
     private final RestHighLevelClient client;
     private final ObjectMapper objectMapper;
-    private final TattooWorkService tattooWorkService;
+    private final TattooWorkRepository tattooWorkRepository;
     private BoolQueryBuilder createBoolQueryForTattooWork(String query, Integer minPrice, Integer maxPrice, String currency, String tattooStyle) {
         var boolQuery = new BoolQueryBuilder();
         if(!query.equals("")){
@@ -75,7 +78,8 @@ public class TattooWorkEsService {
         while (itr.hasNext()) {
             JsonNode jsonNode1 = itr.next().get("_source");
             var tattooWorkId = jsonNode1.get("id").asText();
-            tattooWorksResponseList.add(tattooWorkService.getTattooWorkById(UUID.fromString(tattooWorkId)));
+            System.out.println(tattooWorkId);
+            tattooWorksResponseList.add(TattooWork.toTattooWorksResponseDto(tattooWorkRepository.findById(UUID.fromString(tattooWorkId)).orElseThrow(TattooWorkNotFoundException::new)));
         }
         return tattooWorksResponseList;
     }

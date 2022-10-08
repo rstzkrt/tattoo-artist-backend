@@ -85,12 +85,11 @@ public class UserEsService {
         ArrayNode arrayNode = (ArrayNode) jsonNode;
         Iterator<JsonNode> itr = arrayNode.elements();
         while (itr.hasNext()) {
-
             JsonNode jsonNode1 = itr.next().get("_source");
             var id = jsonNode1.get("id").asText();
             var fullName = jsonNode1.get("fullName") == null ? "empty" : jsonNode1.get("fullName").asText();
             var languages1 = (ArrayNode) jsonNode1.get("languages");
-            var gender1 = jsonNode1.get("gender").asText();
+            var gender1 = jsonNode1.get("gender")==null ? "":jsonNode1.get("gender").asText();
             List<String> list = null;
             try {
                 if (languages1 != null) {
@@ -110,8 +109,10 @@ public class UserEsService {
                     .hasTattooArtistAcc(Boolean.TRUE.equals(hasTattooArtistAcc))
                     .avatarUrl(avatarUrl)
                     .languages(list == null ? new ArrayList<>() : list)
-                    .gender(Gender.valueOf(gender1))
                     .build();
+            if(!gender1.equals("")){
+                userDocument.setGender(Gender.valueOf(gender1));
+            }
             userDocumentList.add(UserDocument.toDto(userDocument));
         }
         return userDocumentList;
