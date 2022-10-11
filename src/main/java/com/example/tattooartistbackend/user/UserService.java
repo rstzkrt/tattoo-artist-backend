@@ -3,13 +3,7 @@ package com.example.tattooartistbackend.user;
 import com.example.tattooartistbackend.address.Address;
 import com.example.tattooartistbackend.address.AddressRepository;
 import com.example.tattooartistbackend.comment.CommentRepository;
-import com.example.tattooartistbackend.exceptions.AddressNotFoundException;
-import com.example.tattooartistbackend.exceptions.AlreadyDislikedException;
-import com.example.tattooartistbackend.exceptions.AlreadyLikedException;
-import com.example.tattooartistbackend.exceptions.TattooWorkNotFoundException;
-import com.example.tattooartistbackend.exceptions.UnderAgeException;
-import com.example.tattooartistbackend.exceptions.UserArtistPageNotFoundException;
-import com.example.tattooartistbackend.exceptions.UserNotFoundException;
+import com.example.tattooartistbackend.exceptions.*;
 import com.example.tattooartistbackend.generated.models.ClientReqDto;
 import com.example.tattooartistbackend.generated.models.Language;
 import com.example.tattooartistbackend.generated.models.TattooArtistAccReqDto;
@@ -70,13 +64,13 @@ public class UserService {
 
     public UserResponseDtoPageable findAllUsers(Integer page, Integer size, String firstName, String lastName) {
         Pageable pageable = PageRequest.of(page, size);
-        var list = userRepository.findAllCustom(firstName, lastName, pageable)
+        var list = userRepository.findAllTattooArtist(firstName, lastName, pageable)
                 .getContent()
                 .stream()
                 .map(User::toUserResponseDto).toList();
         UserResponseDtoPageable userResponseDtoPageable = new UserResponseDtoPageable();
         userResponseDtoPageable.setTattooArtists(list);
-        userResponseDtoPageable.setTotalElements((int) userRepository.findAllCustom(firstName, lastName, pageable).getTotalElements());
+        userResponseDtoPageable.setTotalElements((int) userRepository.findAllTattooArtist(firstName, lastName, pageable).getTotalElements());
         return userResponseDtoPageable;
     }
 
@@ -95,6 +89,9 @@ public class UserService {
     public Optional<UserResponseDto> updateUser(UserUpdateRequestDto userUpdateRequestDto) {
         var authenticatedUser = securityService.getUser();
         var userDocument = userEsRepository.findById(authenticatedUser.getId()).orElseThrow(() -> new RuntimeException("userDocument not found!"));
+        if (LocalDate.now().getYear() - userUpdateRequestDto.getBirthDate().getYear() < 18) {
+            throw new UnderAgeException();
+        }
         if (authenticatedUser.isHasArtistPage()) {
             return Optional.ofNullable(userRepository.findById(authenticatedUser.getId())
                     .map(user -> {
@@ -176,19 +173,6 @@ public class UserService {
         return createTattooArtistPriceInterval(tattooWorkMAX, tattooWorkMIN);
     }
 
-    public TattooArtistPriceInterval createTattooArtistPriceInterval(TattooWork tattooWorkWithMaxPrice, TattooWork tattooWorkWithMinPrice) {
-        if (tattooWorkWithMaxPrice == null || tattooWorkWithMinPrice == null) {
-            return null;
-        } else {
-            TattooArtistPriceInterval tattooArtistPriceInterval = new TattooArtistPriceInterval();
-            tattooArtistPriceInterval.setMaxTattooWorkPrice(tattooWorkWithMaxPrice.getPrice());
-            tattooArtistPriceInterval.setMinTattooWorkPrice(tattooWorkWithMinPrice.getPrice());
-            tattooArtistPriceInterval.setMaxTattooWorkPriceCurrency(tattooWorkWithMaxPrice.getCurrency());
-            tattooArtistPriceInterval.setMinTattooWorkPriceCurrency(tattooWorkWithMinPrice.getCurrency());
-            return tattooArtistPriceInterval;
-        }
-    }
-
     public UserResponseDto getAuthenticatedUser() {
         var user = securityService.getUser();
         if (user == null) {
@@ -203,7 +187,7 @@ public class UserService {
         var user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
         if (!roleService.isAdmin(authenticatedUser.getUid())) {
-            throw new RuntimeException("Only Admin can perform this operation");
+            throw new NoAdminRightsException();
         }
         //handle favorites
         user.setFavoriteTattooWorks(null);
@@ -470,5 +454,18 @@ public class UserService {
         userToUpdate.setDateOfBirth(user.getDateOfBirth());
         userToUpdate.setAverageRating(user.getAverageRating());
         return userToUpdate;
+    }
+
+    private TattooArtistPriceInterval createTattooArtistPriceInterval(TattooWork tattooWorkWithMaxPrice, TattooWork tattooWorkWithMinPrice) {
+        if (tattooWorkWithMaxPrice == null || tattooWorkWithMinPrice == null) {
+            return null;
+        } else {
+            TattooArtistPriceInterval tattooArtistPriceInterval = new TattooArtistPriceInterval();
+            tattooArtistPriceInterval.setMaxTattooWorkPrice(tattooWorkWithMaxPrice.getPrice());
+            tattooArtistPriceInterval.setMinTattooWorkPrice(tattooWorkWithMinPrice.getPrice());
+            tattooArtistPriceInterval.setMaxTattooWorkPriceCurrency(tattooWorkWithMaxPrice.getCurrency());
+            tattooArtistPriceInterval.setMinTattooWorkPriceCurrency(tattooWorkWithMinPrice.getCurrency());
+            return tattooArtistPriceInterval;
+        }
     }
 }

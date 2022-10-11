@@ -24,9 +24,7 @@ create table APP_USER
     LAST_NAME           CHARACTER VARYING(255),
     PHONE_NUMBER        CHARACTER VARYING(255),
     UID                 CHARACTER VARYING(255),
-    BUSINESS_ADDRESS_ID uuid,
-    constraint FK95BKN8Y8WL7QYDLGBBCOF7HGQ
-        foreign key (BUSINESS_ADDRESS_ID) references ADDRESS
+    BUSINESS_ADDRESS_ID uuid, constraint FK95BKN8Y8WL7QYDLGBBCOF7HGQ foreign key (BUSINESS_ADDRESS_ID) references ADDRESS ON DELETE CASCADE
 );
 
 create table APP_USER_FAVOURITE_ARTISTS
@@ -81,13 +79,9 @@ create table TATTOO_WORK
     CLIENT_ID             uuid,
     COMMENT_ID            uuid,
     MADE_BY_ID            uuid,
-    constraint FK7VG50VLLI4NN69QV0B3LN5K1X
-        foreign key (CLIENT_ID) references APP_USER,
-    constraint FK82SL2GCJUQ6V9WJEELWL337PU
-        foreign key (MADE_BY_ID) references APP_USER,
-    constraint FKSPXJLILUF6Y148RJLBBAS3V1D
-        foreign key (COMMENT_ID) references COMMENT
-            on delete cascade
+    constraint FK7VG50VLLI4NN69QV0B3LN5K1X foreign key (CLIENT_ID) references APP_USER ON DELETE CASCADE,
+    constraint FK82SL2GCJUQ6V9WJEELWL337PU foreign key (MADE_BY_ID) references APP_USER ON DELETE CASCADE,
+    constraint FKSPXJLILUF6Y148RJLBBAS3V1D foreign key (COMMENT_ID) references COMMENT on delete cascade
 );
 
 create table APP_USER_FAVORITE_TATTOO_WORKS
@@ -109,19 +103,17 @@ create table TATTOO_WORK_DISLIKER_IDS
     DISLIKED_TATTOO_WORKS_ID uuid not null,
     DISLIKER_IDS_ID          uuid not null,
     constraint FK258X280WH8LMLC2DM9VDKQ3D5
-        foreign key (DISLIKER_IDS_ID) references APP_USER,
+        foreign key (DISLIKER_IDS_ID) references APP_USER ON DELETE CASCADE,
     constraint FKG4LVP7Q8PVPG4NGL7T8086XW3
-        foreign key (DISLIKED_TATTOO_WORKS_ID) references TATTOO_WORK
+        foreign key (DISLIKED_TATTOO_WORKS_ID) references TATTOO_WORK ON DELETE CASCADE
 );
 
 create table TATTOO_WORK_LIKER_IDS
 (
     LIKED_TATTOO_WORKS_ID uuid not null,
     LIKER_IDS_ID          uuid not null,
-    constraint FK7GBAE8C4GGRUSNN8KGRGTLU32
-        foreign key (LIKER_IDS_ID) references APP_USER,
-    constraint FKMQ6IBDYUVF2TK9GRP7RDMYQKE
-        foreign key (LIKED_TATTOO_WORKS_ID) references TATTOO_WORK
+    constraint FK7GBAE8C4GGRUSNN8KGRGTLU32 foreign key (LIKER_IDS_ID) references APP_USER  ON DELETE CASCADE,
+    constraint FKMQ6IBDYUVF2TK9GRP7RDMYQKE  foreign key (LIKED_TATTOO_WORKS_ID) references TATTOO_WORK ON DELETE CASCADE
 );
 
 create table TATTOO_WORK_PHOTOS
@@ -151,13 +143,12 @@ create table USER_LANGUAGES
     USER_ID   uuid not null,
     LANGUAGES CHARACTER VARYING(255),
     constraint FKSAYFMXVI5JLDAN4VMJ16MO9YE
-        foreign key (USER_ID) references APP_USER
+        foreign key (USER_ID) references APP_USER ON DELETE CASCADE
 );
 
 create table USER_REPORT
 (
-    ID               uuid not null
-        primary key,
+    ID               uuid not null primary key,
     DATE             DATE,
     DESCRIPTION      CHARACTER VARYING(255),
     REPORT_OWNER_ID  uuid,
@@ -173,14 +164,13 @@ create table USER_TATTOO_STYLES
     USER_ID       uuid not null,
     TATTOO_STYLES CHARACTER VARYING(255),
     constraint FKQ91GESGVUURWRWBI8F22EKS6X
-        foreign key (USER_ID) references APP_USER
+        foreign key (USER_ID) references APP_USER ON DELETE CASCADE
 );
 
 create table USER_WORKING_DAYS_LIST
 (
     USER_ID           uuid not null,
     WORKING_DAYS_LIST INTEGER,
-    constraint FKL068S4LHFWXM75X46U89OWXGR
-        foreign key (USER_ID) references APP_USER
+    constraint FKL068S4LHFWXM75X46U89OWXGR  foreign key (USER_ID) references APP_USER ON DELETE CASCADE
 );
 

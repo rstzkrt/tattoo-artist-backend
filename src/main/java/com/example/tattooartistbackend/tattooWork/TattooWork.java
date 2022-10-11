@@ -76,13 +76,14 @@ public class TattooWork {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JsonIgnore
+
     private List<User> dislikerIds;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JsonIgnore
     private List<User> likerIds;
 
-    @ManyToMany(mappedBy = "favoriteTattooWorks")
+    @ManyToMany(mappedBy = "favoriteTattooWorks", fetch = FetchType.EAGER)
     private List<User> favoriteUserList;
 
 

@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class CommentFlowTest {
+class CommentIntegrationTest {
 
     @BeforeEach
     void setUp() {

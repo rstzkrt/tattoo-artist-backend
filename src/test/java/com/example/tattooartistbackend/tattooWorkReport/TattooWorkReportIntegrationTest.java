@@ -1,4 +1,4 @@
-package com.example.tattooartistbackend.userReport;
+package com.example.tattooartistbackend.tattooWorkReport;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class UserReportFLowTest {
+class TattooWorkReportIntegrationTest {
 
     @BeforeEach
     void setUp() {

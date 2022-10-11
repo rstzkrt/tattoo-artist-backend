@@ -48,6 +48,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.METHOD_NOT_ALLOWED);
     }
 
+
+    @ExceptionHandler({
+        NoAdminRightsException.class
+    })
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<ErrorResponse> handleAdminRights(RuntimeException exception, WebRequest webRequest) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setCode(HttpStatus.FORBIDDEN.value());
+        errorResponse.setMessage(exception.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    }
     @Override
     @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
     public ResponseEntity<Object> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
@@ -56,13 +67,4 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         errorResponse.setMessage(ex.getMessage());
         return new ResponseEntity<>(errorResponse, status);
     }
-//    @ExceptionHandler({
-//            FirebaseAuthException.class,
-//    })
-//    public ResponseEntity<Object> firebaseExc(FirebaseAuthException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-//        ErrorResponse errorResponse = new ErrorResponse();
-//        errorResponse.setCode(status.value());
-//        errorResponse.setMessage(ex.getMessage());
-//        return new ResponseEntity<>(errorResponse, status);
-//    }
 }
