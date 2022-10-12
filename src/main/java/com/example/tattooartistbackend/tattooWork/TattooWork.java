@@ -60,6 +60,7 @@ public class TattooWork {
     private User madeBy;
 
     @ToString.Exclude
+    @JsonIgnore
     @ManyToOne
     private User client;
 
@@ -76,7 +77,6 @@ public class TattooWork {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JsonIgnore
-
     private List<User> dislikerIds;
 
     @ManyToMany(fetch = FetchType.EAGER)

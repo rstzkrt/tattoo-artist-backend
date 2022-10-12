@@ -1,10 +1,7 @@
 package com.example.tattooartistbackend.tattooWork;
 
 import com.example.tattooartistbackend.generated.apis.TattooWorksApi;
-import com.example.tattooartistbackend.generated.models.TattooWorkPatchRequestDto;
-import com.example.tattooartistbackend.generated.models.TattooWorkPostRequestDto;
-import com.example.tattooartistbackend.generated.models.TattooWorkResponsePageable;
-import com.example.tattooartistbackend.generated.models.TattooWorksResponseDto;
+import com.example.tattooartistbackend.generated.models.*;
 import com.example.tattooartistbackend.tattooWork.elasticsearch.TattooWorkEsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -98,16 +95,18 @@ public class TattooWorkController implements TattooWorksApi {
      * GET /tattoo-works/search
      * search
      *
-     * @param query    descrptn (optional)
-     * @param minPrice query keyword (optional)
-     * @param maxPrice query keyword (optional)
-     * @param currency query keyword (optional)
+     * @param page        (required)
+     * @param size        (required)
+     * @param query       description (optional)
+     * @param minPrice    query keyword (optional)
+     * @param maxPrice    query keyword (optional)
+     * @param currency    query keyword (optional)
+     * @param tattooStyle query tattooStyle (optional)
      * @return OK (status code 200)
      * or error payload (status code 200)
      */
     @Override
-    public ResponseEntity<List<TattooWorksResponseDto>> searchTattooWorks(String query, Integer minPrice, Integer maxPrice, String currency, String tattooStyle) {
-        return new ResponseEntity<>(tattooWorkEsService.getTattooWorkSearchResults(query, minPrice, maxPrice, currency, tattooStyle), HttpStatus.OK);
-
+    public ResponseEntity<TattooWorkResponsePageable> searchTattooWorks(Integer page, Integer size, String query, Integer minPrice, Integer maxPrice, String currency, String tattooStyle) {
+        return new ResponseEntity<>(tattooWorkEsService.getTattooWorkSearchResults(query, minPrice, maxPrice, currency, tattooStyle,page ,size), HttpStatus.OK);
     }
 }

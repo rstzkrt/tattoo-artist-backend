@@ -118,16 +118,23 @@ paths:
           required: false
           schema:
             $ref: "#/components/schemas/Gender"
-#              $ref: "#/components/schemas/Language"
+        - in: query
+          name: page
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: size
+          required: true
+          schema:
+            type: integer
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/UserDocumentDto'
+                $ref: '#/components/schemas/UserResponseDtoPageable'
         default:
           description: error payload
           content:

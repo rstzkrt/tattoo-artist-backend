@@ -2,6 +2,8 @@ package com.example.tattooartistbackend.user.elasticsearch;
 
 import com.example.tattooartistbackend.generated.models.Gender;
 import com.example.tattooartistbackend.generated.models.UserDocumentDto;
+import com.example.tattooartistbackend.generated.models.UserResponseDtoPageable;
+import com.example.tattooartistbackend.user.UserRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,6 +37,8 @@ public class UserEsService {
     private final RestHighLevelClient client;
     private final ObjectMapper objectMapper;
 
+    private final UserRepository userRepository;
+
     private BoolQueryBuilder createBoolQueryForUser(String query, String city, String country, Boolean isTattooArtist, Double averageRating, List<String> languages, Gender gender) {
         var boolQuery = new BoolQueryBuilder();
         if (!query.equals("")) {
@@ -65,12 +69,12 @@ public class UserEsService {
         return boolQuery;
     }
 
-    public List<UserDocumentDto> getUserSearchResults(String query, String city, String country, Boolean isTattooArtist, Double averageRating, List<String> languages, Gender gender) {
+    public UserResponseDtoPageable getUserSearchResults(String query, Integer page, Integer size, String city, String country, Boolean isTattooArtist, Double averageRating, List<String> languages, Gender gender) {
         ObjectReader reader = objectMapper.readerFor(new TypeReference<List<String>>() {
         });
         var request = new Request("GET", "/user/_search");
         var searchSource = new SearchSourceBuilder();
-        searchSource.size(20);
+        searchSource.from(page).size(size);
         searchSource.query(createBoolQueryForUser(query, city, country, isTattooArtist, averageRating, languages, gender));
         request.setJsonEntity(searchSource.toString());
         JsonNode jsonNode;
@@ -115,6 +119,12 @@ public class UserEsService {
             }
             userDocumentList.add(UserDocument.toDto(userDocument));
         }
-        return userDocumentList;
+
+        System.out.println(userDocumentList.size());
+
+        UserResponseDtoPageable userResponseDtoPageable = new UserResponseDtoPageable();
+        userResponseDtoPageable.setTattooArtists(userDocumentList.stream().map(userDocumentDto -> userRepository.findById(userDocumentDto.getId()).orElseThrow().toUserResponseDto()).toList());
+        userResponseDtoPageable.setTotalElements(userDocumentList.size());
+        return userResponseDtoPageable;
     }
 }

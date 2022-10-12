@@ -1,6 +1,7 @@
 package com.example.tattooartistbackend.tattooWork.elasticsearch;
 
 import com.example.tattooartistbackend.exceptions.TattooWorkNotFoundException;
+import com.example.tattooartistbackend.generated.models.TattooWorkResponsePageable;
 import com.example.tattooartistbackend.generated.models.TattooWorksResponseDto;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
 import com.example.tattooartistbackend.tattooWork.TattooWorkRepository;
@@ -40,7 +41,7 @@ public class TattooWorkEsService {
             boolQuery.must(matchPhrasePrefixQuery1);
         }
         if (ObjectUtils.isNotEmpty(currency)) {
-            var currencyFilterQuery = new TermQueryBuilder("currency", currency.toLowerCase());
+            var currencyFilterQuery = new TermQueryBuilder("currency", currency);
             boolQuery.filter(currencyFilterQuery);
         }
         if (ObjectUtils.isNotEmpty(minPrice)) {
@@ -58,10 +59,10 @@ public class TattooWorkEsService {
         return boolQuery;
     }
 
-    public List<TattooWorksResponseDto> getTattooWorkSearchResults(String query, Integer minPrice, Integer maxPrice, String currency,String tattooStyle) {
+    public TattooWorkResponsePageable getTattooWorkSearchResults(String query, Integer minPrice, Integer maxPrice, String currency, String tattooStyle, Integer page, Integer size) {
         var request = new Request("GET", "/tattoo/_search");
         var searchSource = new SearchSourceBuilder();
-        searchSource.size(20);
+        searchSource.from(page).size(size);
         searchSource.query(createBoolQueryForTattooWork(query, minPrice,maxPrice,currency, tattooStyle));
         request.setJsonEntity(searchSource.toString());
         final JsonNode jsonNode;
@@ -78,10 +79,12 @@ public class TattooWorkEsService {
         while (itr.hasNext()) {
             JsonNode jsonNode1 = itr.next().get("_source");
             var tattooWorkId = jsonNode1.get("id").asText();
-            System.out.println(tattooWorkId);
             tattooWorksResponseList.add(TattooWork.toTattooWorksResponseDto(tattooWorkRepository.findById(UUID.fromString(tattooWorkId)).orElseThrow(TattooWorkNotFoundException::new)));
         }
-        return tattooWorksResponseList;
+        TattooWorkResponsePageable tattooWorkResponsePageable = new TattooWorkResponsePageable();
+        tattooWorkResponsePageable.setTattooWorks(tattooWorksResponseList);
+        tattooWorkResponsePageable.setTotalElements(tattooWorksResponseList.size());
+        return tattooWorkResponsePageable;
     }
 
 }

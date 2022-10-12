@@ -21,23 +21,6 @@ public class UserController implements UsersApi {
     private final UserService userService;
     private final UserEsService userEsService;
 
-    /**
-     * GET /users/search
-     * search
-     *
-     * @param query          query keyword (required)
-     * @param isTattooArtist query keyword (optional)
-     * @param city           query keyword (optional)
-     * @param country        query keyword (optional)
-     * @return OK (status code 200)
-     * or error payload (status code 200)
-     */
-    @Override
-    public ResponseEntity<List<UserDocumentDto>> searchUsers(String query, String city, String country, Boolean isTattooArtist, BigDecimal averageRating, List<String> languages, Gender gender) {
-        var avgRating = averageRating == null ? null : averageRating.doubleValue();
-        return ResponseEntity.ok(userEsService.getUserSearchResults(query, city, country, isTattooArtist, avgRating, languages, gender));
-    }
-
     @Override
     public ResponseEntity<UserResponseDto> createArtistAccount(TattooArtistAccReqDto tattooArtistAccReqDto) {
         return ResponseEntity.ok(userService.createArtistAccount(tattooArtistAccReqDto));
@@ -134,6 +117,28 @@ public class UserController implements UsersApi {
     public ResponseEntity<Void> likeTattooWork(UUID postId) {
         userService.like(postId);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    /**
+     * GET /users/search
+     * search
+     *
+     * @param query          query keyword (required)
+     * @param page           (required)
+     * @param size           (required)
+     * @param city           query keyword (optional)
+     * @param country        query keyword (optional)
+     * @param isTattooArtist query keyword (optional)
+     * @param averageRating  query keyword (optional)
+     * @param languages      query languages (optional)
+     * @param gender         query gender (optional)
+     * @return OK (status code 200)
+     * or error payload (status code 200)
+     */
+    @Override
+    public ResponseEntity<UserResponseDtoPageable> searchUsers(String query, Integer page, Integer size, String city, String country, Boolean isTattooArtist, BigDecimal averageRating, List<String> languages, Gender gender) {
+        var avgRating = averageRating == null ? null : averageRating.doubleValue();
+        return ResponseEntity.ok(userEsService.getUserSearchResults(query, page, size, city, country, isTattooArtist, avgRating, languages, gender));
     }
 
 

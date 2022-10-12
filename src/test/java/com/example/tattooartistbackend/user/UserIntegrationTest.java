@@ -36,13 +36,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -451,6 +451,8 @@ class UserIntegrationTest {
         userDocument.setAverageRating(tattooArtist.getAverageRating());
         var updatedUserDocument = userEsRepository.save(userDocument);
         mockMvc.perform(get("/users/search")
+                        .param("page", String.valueOf(0))
+                        .param("size", String.valueOf(20))
                         .param("query", tattooArtist.getFirstName())
                         .param("city", tattooArtist.getBusinessAddress().getCity())
                         .param("country", tattooArtist.getBusinessAddress().getCountry())
@@ -461,11 +463,11 @@ class UserIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(jsonPath("$").isNotEmpty())
-                .andExpect(jsonPath("$.size()").value(1))
-                .andExpect(jsonPath("$[0].id").value(updatedUserDocument.getId().toString()))
-                .andExpect(jsonPath("$[0].fullName").value(updatedUserDocument.getFullName()))
-                .andExpect(jsonPath("$[0].avatarUrl").value(updatedUserDocument.getAvatarUrl()));
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.tattooArtists[0].id").value(tattooArtist.getId().toString()))
+                .andExpect(jsonPath("$.tattooArtists[0].firstName").value(tattooArtist.getFirstName()))
+                .andExpect(jsonPath("$.tattooArtists[0].lastName").value(tattooArtist.getLastName()))
+                .andExpect(jsonPath("$.tattooArtists[0].avatarUrl").value(tattooArtist.getAvatarUrl()));
 
     }
 
@@ -488,6 +490,8 @@ class UserIntegrationTest {
         var updatedUserDocument = userEsRepository.save(userDocument);
         //when
         mockMvc.perform(get("/users/search")
+                        .param("page", String.valueOf(0))
+                        .param("size", String.valueOf(20))
                         .param("query", tattooArtist.getFirstName())
                         .param("city", tattooArtist.getBusinessAddress().getCity())
                         .param("country", tattooArtist.getBusinessAddress().getCountry())
@@ -499,11 +503,109 @@ class UserIntegrationTest {
                         .accept(MediaType.APPLICATION_JSON))
                 //then
                 .andDo(print())
-                .andExpect(jsonPath("$").isNotEmpty())
-                .andExpect(jsonPath("$.size()").value(1))
-                .andExpect(jsonPath("$[0].id").value(updatedUserDocument.getId().toString()))
-                .andExpect(jsonPath("$[0].fullName").value(updatedUserDocument.getFullName()))
-                .andExpect(jsonPath("$[0].avatarUrl").value(updatedUserDocument.getAvatarUrl()));
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.tattooArtists[0].id").value(tattooArtist.getId().toString()))
+                .andExpect(jsonPath("$.tattooArtists[0].firstName").value(tattooArtist.getFirstName()))
+                .andExpect(jsonPath("$.tattooArtists[0].lastName").value(tattooArtist.getLastName()))
+                .andExpect(jsonPath("$.tattooArtists[0].avatarUrl").value(tattooArtist.getAvatarUrl()));
+    }
+
+    @Test
+    @DisplayName("users/search - GET - 200")
+    void searchTattooArtistsWithNullQuery_shouldReturnOK() throws Exception {
+        //given
+        authenticatedUser.setHasArtistPage(true);
+        authenticatedUser.setBusinessAddress(address);
+        authenticatedUser.setGender(Gender.MALE);
+        authenticatedUser.setLanguages(List.of(Language.PORTUGUESE));
+        var tattooArtist = userRepository.save(authenticatedUser);
+        var userDocument = userEsRepository.findById(authenticatedUser.getId()).orElseThrow();
+        userDocument.setHasTattooArtistAcc(tattooArtist.isHasArtistPage());
+        userDocument.setLanguages(tattooArtist.getLanguages().stream().map(Language::toString).toList());
+        userDocument.setGender(tattooArtist.getGender());
+        userDocument.setCountry(tattooArtist.getBusinessAddress().getCountry());
+        userDocument.setCity(tattooArtist.getBusinessAddress().getCity());
+        userDocument.setAverageRating(tattooArtist.getAverageRating());
+        var updatedUserDocument = userEsRepository.save(userDocument);
+        //when
+        mockMvc.perform(get("/users/search")
+                        .param("page", String.valueOf(0))
+                        .param("size", String.valueOf(20))
+                        .param("query", "")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                //then
+                .andDo(print())
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.tattooArtists[0].id").value(tattooArtist.getId().toString()))
+                .andExpect(jsonPath("$.tattooArtists[0].firstName").value(tattooArtist.getFirstName()))
+                .andExpect(jsonPath("$.tattooArtists[0].lastName").value(tattooArtist.getLastName()))
+                .andExpect(jsonPath("$.tattooArtists[0].avatarUrl").value(tattooArtist.getAvatarUrl()));
+    }
+
+    @Test
+    @DisplayName("users/search - GET - 200")
+    void searchTattooArtistsWithNullQueryAndCountry_shouldReturnOK() throws Exception {
+        //given
+        authenticatedUser.setHasArtistPage(true);
+        authenticatedUser.setBusinessAddress(address);
+        authenticatedUser.setGender(Gender.MALE);
+        authenticatedUser.setLanguages(List.of(Language.PORTUGUESE));
+        var tattooArtist = userRepository.save(authenticatedUser);
+        var userDocument = userEsRepository.findById(authenticatedUser.getId()).orElseThrow();
+        userDocument.setHasTattooArtistAcc(tattooArtist.isHasArtistPage());
+        userDocument.setLanguages(tattooArtist.getLanguages().stream().map(Language::toString).toList());
+        userDocument.setGender(tattooArtist.getGender());
+        userDocument.setCountry(tattooArtist.getBusinessAddress().getCountry());
+        userDocument.setCity(tattooArtist.getBusinessAddress().getCity());
+        userDocument.setAverageRating(tattooArtist.getAverageRating());
+        var updatedUserDocument = userEsRepository.save(userDocument);
+        //when
+        mockMvc.perform(get("/users/search")
+                        .param("page", String.valueOf(0))
+                        .param("size", String.valueOf(20))
+                        .param("query", "")
+                        .param("country", tattooArtist.getBusinessAddress().getCountry())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                //then
+                .andDo(print())
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.tattooArtists[0].id").value(tattooArtist.getId().toString()))
+                .andExpect(jsonPath("$.tattooArtists[0].firstName").value(tattooArtist.getFirstName()))
+                .andExpect(jsonPath("$.tattooArtists[0].lastName").value(tattooArtist.getLastName()))
+                .andExpect(jsonPath("$.tattooArtists[0].avatarUrl").value(tattooArtist.getAvatarUrl()));
+    }
+
+    @Test
+    @DisplayName("users/search - GET - 200")
+    void searchTattooArtistsWithNullQueryAndWrongCountry_shouldReturnEmptyList() throws Exception {
+        //given
+        authenticatedUser.setHasArtistPage(true);
+        authenticatedUser.setBusinessAddress(address);
+        authenticatedUser.setGender(Gender.MALE);
+        authenticatedUser.setLanguages(List.of(Language.PORTUGUESE));
+        var tattooArtist = userRepository.save(authenticatedUser);
+        var userDocument = userEsRepository.findById(authenticatedUser.getId()).orElseThrow();
+        userDocument.setHasTattooArtistAcc(tattooArtist.isHasArtistPage());
+        userDocument.setLanguages(tattooArtist.getLanguages().stream().map(Language::toString).toList());
+        userDocument.setGender(tattooArtist.getGender());
+        userDocument.setCountry(tattooArtist.getBusinessAddress().getCountry());
+        userDocument.setCity(tattooArtist.getBusinessAddress().getCity());
+        userDocument.setAverageRating(tattooArtist.getAverageRating());
+        var updatedUserDocument = userEsRepository.save(userDocument);
+        //when
+        mockMvc.perform(get("/users/search")
+                        .param("page", String.valueOf(0))
+                        .param("size", String.valueOf(20))
+                        .param("query", "")
+                        .param("country", "not_a_country")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                //then
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements").value(0));
     }
 
     @Test

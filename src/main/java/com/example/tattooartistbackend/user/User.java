@@ -15,11 +15,9 @@ import com.example.tattooartistbackend.review.Review;
 import com.example.tattooartistbackend.tattooWork.TattooWork;
 import com.example.tattooartistbackend.tattooWorkReport.TattooWorkReport;
 import com.example.tattooartistbackend.userReport.UserReport;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import lombok.*;
+import net.minidev.json.annotate.JsonIgnore;
 import org.checkerframework.common.aliasing.qual.Unique;
 
 import javax.persistence.CascadeType;
@@ -75,7 +73,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Gender gender;
     private String careerDescription;
-    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "reportedUser")
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "reportedUser",fetch = FetchType.EAGER)
     private List<UserReport> reportsUserBelongsTo;
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "reportOwner", fetch = FetchType.EAGER)
     private List<UserReport> userReports;
@@ -94,6 +92,8 @@ public class User {
     @ManyToMany(fetch = FetchType.EAGER)
     private List<User> favouriteArtists;
     @OneToMany(mappedBy = "madeBy", fetch = FetchType.EAGER)
+    @ToString.Exclude
+@JsonBackReference
     private List<TattooWork> tattooWorks;
     @ManyToMany(fetch = FetchType.EAGER)
     private List<TattooWork> favoriteTattooWorks;

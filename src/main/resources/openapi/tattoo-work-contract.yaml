@@ -4,7 +4,7 @@ info:
   description: tattoo-work
   version: 1.0.0
 paths:
-  /tattoo-works: #get all to show on the main page ,will be able to filtered
+  /tattoo-works:
     get:
       operationId: getAllTattooWorks
       description: get all tattooWorks
@@ -101,15 +101,23 @@ paths:
           required: false
           schema:
             type: string
+        - in: query
+          name: page
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: size
+          required: true
+          schema:
+            type: integer
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TattooWorksResponseDto'
+                $ref: '#/components/schemas/TattooWorkResponsePageable'
         default:
           description: error payload
           content:

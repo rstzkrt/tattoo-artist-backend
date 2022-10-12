@@ -32,17 +32,17 @@ services:
     ports:
       - 9200:9200
 
-  elasticsearch-test:
+  elasticsearchTest:
     container_name: es-test-container
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.3.1
     environment:
       xpack.security.enabled: "false"
       discovery.type: single-node
-      ES_JAVA_OPTS: -Xms256m -Xmx256m
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
     networks:
       - es-net
     ports:
-      - "9201:9201"
+      - 9100:9100
 
 networks:
   es-net:

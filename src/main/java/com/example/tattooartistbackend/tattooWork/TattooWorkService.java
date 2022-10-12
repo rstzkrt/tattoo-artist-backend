@@ -46,7 +46,6 @@ public class TattooWorkService {
     private final TattooWorkEsRepository tattooWorkEsRepository;
 
     public TattooWorksResponseDto createTattooWork(TattooWorkPostRequestDto tattooWorkPostRequestDto) {
-        try {
             var client = userRepository.findById(tattooWorkPostRequestDto.getClientId()).orElseThrow(UserNotFoundException::new);
             var madeBy = securityService.getUser();
             if (!madeBy.isHasArtistPage()) {
@@ -69,16 +68,13 @@ public class TattooWorkService {
             mailSenderService.sendSimpleMessage(client.getEmail(), informationMessage);
             tattooWorkEsRepository.save(TattooWorkDocument.fromTattooWork(tattooWork));
             return TattooWork.toTattooWorksResponseDto(tattooWork);
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public void deleteTattooWork(UUID id) {
         var authenticatedUser = securityService.getUser();
-        var tattooWork = tattooWorkRepository.findById(id).orElseThrow(ReviewNotFoundException::new);
+        var tattooWork = tattooWorkRepository.findById(id).orElseThrow(TattooWorkNotFoundException::new);
         if (!authenticatedUser.getId().equals(tattooWork.getMadeBy().getId()) && !roleService.isAdmin(authenticatedUser.getUid())) {
-            throw new NotOwnerOfEntityException("only the owner can delete the tattooWork!");
+            throw new NotOwnerOfEntityException("only the owner or Admin can delete the tattooWork!");
         } else {
             if (tattooWork.getFavoriteUserList() != null) {
                 var userDetails = tattooWork.getFavoriteUserList();
