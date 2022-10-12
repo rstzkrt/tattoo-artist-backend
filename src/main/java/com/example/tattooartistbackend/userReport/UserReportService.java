@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +53,7 @@ public class UserReportService {
         Pageable pageable = PageRequest.of(page, size);
         var userReportPageable = userReportRepository.getAllPageable(pageable);
         var userReportResponsePageable = new UserReportResPageable();
-        userReportResponsePageable.setUserReports(userReportPageable.getContent().stream().map(UserReport::fromEntityToResponseDto).toList());
+        userReportResponsePageable.setUserReports(userReportPageable.getContent().stream().map(UserReport::fromEntityToResponseDto).collect(Collectors.toList()));
         userReportResponsePageable.setTotalElements((int) userReportPageable.getTotalElements());
         userReportResponsePageable.setTotalPages(userReportPageable.getTotalPages());
         return userReportResponsePageable;

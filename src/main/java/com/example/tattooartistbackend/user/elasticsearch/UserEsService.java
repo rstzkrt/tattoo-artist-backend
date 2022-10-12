@@ -20,15 +20,16 @@ import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.index.query.TermsQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,11 +47,11 @@ public class UserEsService {
             boolQuery.must(matchPhrasePrefixQuery1);
         }
         if (ObjectUtils.isNotEmpty(city)) {
-            var cityFilterQuery = new TermQueryBuilder("city", city.toLowerCase());
+            var cityFilterQuery = new TermQueryBuilder("city.keyword", city);
             boolQuery.filter(cityFilterQuery);
         }
         if (ObjectUtils.isNotEmpty(country)) {
-            var countryFilterQuery = new TermQueryBuilder("country", country.toLowerCase());
+            var countryFilterQuery = new TermQueryBuilder("country.keyword", country);
             boolQuery.filter(countryFilterQuery);
         }
         if (ObjectUtils.isNotEmpty(isTattooArtist)) {
@@ -62,12 +63,13 @@ public class UserEsService {
             boolQuery.filter(rangeQueryBuilder);
         }
         if (ObjectUtils.isNotEmpty(languages)) {
-            var languagesTermQuery = new TermsQueryBuilder("languages", languages.stream().map(String::toLowerCase).toList());
+            var languagesTermQuery = new TermsQueryBuilder("languages.keyword", languages.stream().map(String::new).collect(Collectors.toList()));
             boolQuery.filter(languagesTermQuery);
         }
         System.out.println(boolQuery);
         return boolQuery;
     }
+
 
     public UserResponseDtoPageable getUserSearchResults(String query, Integer page, Integer size, String city, String country, Boolean isTattooArtist, Double averageRating, List<String> languages, Gender gender) {
         ObjectReader reader = objectMapper.readerFor(new TypeReference<List<String>>() {
@@ -119,11 +121,10 @@ public class UserEsService {
             }
             userDocumentList.add(UserDocument.toDto(userDocument));
         }
-
         System.out.println(userDocumentList.size());
 
         UserResponseDtoPageable userResponseDtoPageable = new UserResponseDtoPageable();
-        userResponseDtoPageable.setTattooArtists(userDocumentList.stream().map(userDocumentDto -> userRepository.findById(userDocumentDto.getId()).orElseThrow().toUserResponseDto()).toList());
+        userResponseDtoPageable.setTattooArtists(userDocumentList.stream().map(userDocumentDto -> userRepository.findById(userDocumentDto.getId()).orElseThrow().toUserResponseDto()).collect(Collectors.toList()));
         userResponseDtoPageable.setTotalElements(userDocumentList.size());
         return userResponseDtoPageable;
     }

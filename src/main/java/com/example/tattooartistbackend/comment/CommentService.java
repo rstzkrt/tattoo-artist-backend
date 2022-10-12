@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -100,7 +101,7 @@ public class CommentService {
                     } else {
                         return tattooWork1.getComment().getRate();
                     }
-                }).toList();
+                }).collect(Collectors.toList());
         BigDecimal total = BigDecimal.valueOf(0);
         for (BigDecimal bigDecimal : s) {
             System.out.println(bigDecimal);
@@ -108,10 +109,10 @@ public class CommentService {
                 total = bigDecimal.add(total);
             }
         }
-        if (s.stream().filter(Objects::nonNull).toList().size() == 0) {
+        if (s.stream().filter(Objects::nonNull).collect(Collectors.toList()).size() == 0) {
             tattooWorkOwner.setAverageRating(BigDecimal.valueOf(0, 2).doubleValue());
         } else {
-            tattooWorkOwner.setAverageRating(total.divide(BigDecimal.valueOf(s.stream().filter(Objects::nonNull).toList().size()), 2, RoundingMode.HALF_EVEN).doubleValue());
+            tattooWorkOwner.setAverageRating(total.divide(BigDecimal.valueOf(s.stream().filter(Objects::nonNull).collect(Collectors.toList()).size()), 2, RoundingMode.HALF_EVEN).doubleValue());
         }
         userRepository.save(tattooWorkOwner);
     }
@@ -123,7 +124,7 @@ public class CommentService {
 
         Set<Comment> clientComments = new HashSet<>(client.getComments());
         clientComments.add(comment);
-        client.setComments(clientComments.stream().toList());
+        client.setComments(clientComments.stream().collect(Collectors.toList()));
 
         setAverageRating(tattooWorkOwner);
         return Comment.toResponseDto(comment);

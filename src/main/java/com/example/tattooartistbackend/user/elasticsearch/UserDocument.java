@@ -10,13 +10,12 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Document(indexName = "user")
 @Getter
@@ -34,10 +33,12 @@ public class UserDocument {
     @Field(type = FieldType.Text)
     private String fullName;
 
-    @Field(type = FieldType.Keyword)
+    @MultiField(mainField = @Field(type = FieldType.Text),
+            otherFields = { @InnerField(suffix = "keyword", type = FieldType.Keyword) })
     private String country;
 
-    @Field(type = FieldType.Keyword)
+    @MultiField(mainField = @Field(type = FieldType.Text),
+            otherFields = { @InnerField(suffix = "keyword", type = FieldType.Keyword) })
     private String city;
 
     @Field(type = FieldType.Keyword)
@@ -49,9 +50,12 @@ public class UserDocument {
     @Field(type = FieldType.Double)
     private Double averageRating;
 
+    @MultiField(mainField = @Field(type = FieldType.Text),
+            otherFields = { @InnerField(suffix = "keyword", type = FieldType.Keyword) })
     private List<String> languages;
 
-    @Field(type = FieldType.Keyword)
+    @MultiField(mainField = @Field(type = FieldType.Text),
+            otherFields = { @InnerField(suffix = "keyword", type = FieldType.Keyword) })
     private Gender gender;
 
     public static UserDocumentDto toDto(UserDocument userDocument){
@@ -59,7 +63,7 @@ public class UserDocument {
         userDocumentDto.setAvatarUrl(userDocument.getAvatarUrl());
         userDocumentDto.setFullName(userDocument.getFullName());
         userDocumentDto.setId(userDocument.getId());
-        userDocumentDto.setLanguages(userDocument.getLanguages()==null ? new ArrayList<>(): userDocument.getLanguages().stream().map(Language::valueOf).toList());
+        userDocumentDto.setLanguages(userDocument.getLanguages()==null ? new ArrayList<>(): userDocument.getLanguages().stream().map(Language::valueOf).collect(Collectors.toList()));
         return userDocumentDto;
     }
 }

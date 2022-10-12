@@ -15,6 +15,7 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:/db.changelog-test/db.changelog-master-test.yaml
-#  elasticsearch:
-#    uris: localhost:9100
+  elasticsearch:
+    uris: localhost:9200
+
 

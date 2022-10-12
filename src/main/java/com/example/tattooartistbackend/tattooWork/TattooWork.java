@@ -124,17 +124,17 @@ public class TattooWork {
                 reportResDto.setReportOwner(tattooWorkReport.getTattooWorkReportOwner().getId());
                 return reportResDto;
             }).collect(Collectors.toList()));
-            res.setDisLikerIds(tattooWork.getDislikerIds().stream().map(User::getId).toList());
+            res.setDisLikerIds(tattooWork.getDislikerIds().stream().map(User::getId).collect(Collectors.toList()));
         } else {
             res.takenReports(new ArrayList<>());
         }
         if (tattooWork.getDislikerIds() != null) {
-            res.setDisLikerIds(tattooWork.getDislikerIds().stream().map(User::getId).toList());
+            res.setDisLikerIds(tattooWork.getDislikerIds().stream().map(User::getId).collect(Collectors.toList()));
         } else {
             res.setDisLikerIds(new ArrayList<>());
         }
         if (tattooWork.getLikerIds() != null) {
-            res.setLikerIds(tattooWork.getLikerIds().stream().map(User::getId).toList());
+            res.setLikerIds(tattooWork.getLikerIds().stream().map(User::getId).collect(Collectors.toList()));
         } else {
             res.setLikerIds(new ArrayList<>());
         }

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -45,7 +46,7 @@ public class TattooWorkReportService {
         Pageable pageable = PageRequest.of(page, size);
         var workReportRepositoryAllPageable = tattooWorkReportRepository.getAllPageable(pageable);
         var tattooWorkReportResPageable = new TattooWorkReportResPageable();
-        tattooWorkReportResPageable.setTattooWorkReports(workReportRepositoryAllPageable.getContent().stream().map(TattooWorkReport::fromEntityToResponseDto).toList());
+        tattooWorkReportResPageable.setTattooWorkReports(workReportRepositoryAllPageable.getContent().stream().map(TattooWorkReport::fromEntityToResponseDto).collect(Collectors.toList()));
         tattooWorkReportResPageable.setTotalElements((int) workReportRepositoryAllPageable.getTotalElements());
         tattooWorkReportResPageable.setTotalPages(workReportRepositoryAllPageable.getTotalPages());
         return tattooWorkReportResPageable;

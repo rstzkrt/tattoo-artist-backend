@@ -67,7 +67,7 @@ public class UserService {
         var list = userRepository.findAllTattooArtist(firstName, lastName, pageable)
                 .getContent()
                 .stream()
-                .map(User::toUserResponseDto).toList();
+                .map(User::toUserResponseDto).collect(Collectors.toList());
         UserResponseDtoPageable userResponseDtoPageable = new UserResponseDtoPageable();
         userResponseDtoPageable.setTattooArtists(list);
         userResponseDtoPageable.setTotalElements((int) userRepository.findAllTattooArtist(firstName, lastName, pageable).getTotalElements());
@@ -242,13 +242,13 @@ public class UserService {
     public List<TattooWorksResponseDto> getFavoriteTattooWorks() {
         var user = securityService.getUser();
         var tattooWorkList = new ArrayList<>(user.getFavoriteTattooWorks());
-        return tattooWorkList.stream().map(TattooWork::toTattooWorksResponseDto).toList();
+        return tattooWorkList.stream().map(TattooWork::toTattooWorksResponseDto).collect(Collectors.toList());
     }
 
     public List<UserResponseDto> getFavoriteTattooArtists() {
         var user = securityService.getUser();
         var favoriteTattooArtistList = new ArrayList<>(user.getFavouriteArtists());
-        return favoriteTattooArtistList.stream().map(User::toUserResponseDto).toList();
+        return favoriteTattooArtistList.stream().map(User::toUserResponseDto).collect(Collectors.toList());
     }
 
     public void deleteUser() {
@@ -366,7 +366,7 @@ public class UserService {
                     userDocument.setCity(userToUpdate.getBusinessAddress().getCity());
                     userDocument.setCountry(userToUpdate.getBusinessAddress().getCountry());
                     userDocument.setHasTattooArtistAcc(true);
-                    userDocument.setLanguages(userToUpdate.getLanguages().stream().map(Language::getValue).toList());
+                    userDocument.setLanguages(userToUpdate.getLanguages().stream().map(Language::getValue).collect(Collectors.toList()));
                     userDocument.setGender(userToUpdate.getGender());
                     userEsRepository.save(userDocument);
                     return userRepository.save(userToUpdate);
@@ -433,7 +433,7 @@ public class UserService {
         userDocument.setCountry(updatedUser.getBusinessAddress().getCountry());
         userDocument.setHasTattooArtistAcc(true);
         userDocument.setAvatarUrl(updatedUser.getAvatarUrl());
-        userDocument.setLanguages(userToUpdate.getLanguages().stream().map(Language::getValue).toList());
+        userDocument.setLanguages(userToUpdate.getLanguages().stream().map(Language::getValue).collect(Collectors.toList()));
         userDocument.setGender(userToUpdate.getGender());
     }
 

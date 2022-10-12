@@ -96,7 +96,7 @@ create table APP_USER_FAVORITE_TATTOO_WORKS
 
 alter table COMMENT
     add constraint FKBI6AVIUSPP5YKIIX1E16AGQAN
-        foreign key (TATTOO_WORK_ID) references TATTOO_WORK;
+        foreign key (TATTOO_WORK_ID) references TATTOO_WORK on delete cascade ;
 
 create table TATTOO_WORK_DISLIKER_IDS
 (

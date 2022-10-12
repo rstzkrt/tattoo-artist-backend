@@ -39,6 +39,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static javax.persistence.GenerationType.AUTO;
 
@@ -233,8 +234,8 @@ public class User {
         userResponseDto.setGender(gender);
         userResponseDto.setTattooStyles(tattooStyles == null ? new ArrayList<>() : tattooStyles);
         userResponseDto.setLanguages(languages == null ? new ArrayList<>() : languages);
-        userResponseDto.setTattooWorkReports(tattooWorkReports == null ? new ArrayList<>() : tattooWorkReports.stream().map(tattooWorkReport -> tattooWorkReport.getTattooWorkReportOwner().getId()).toList());
-        userResponseDto.setUserReports(userReports == null ? new ArrayList<>() : userReports.stream().map(userReport1 -> userReport1.getReportOwner().getId()).toList());
+        userResponseDto.setTattooWorkReports(tattooWorkReports == null ? new ArrayList<>() : tattooWorkReports.stream().map(tattooWorkReport -> tattooWorkReport.getTattooWorkReportOwner().getId()).collect(Collectors.toList()));
+        userResponseDto.setUserReports(userReports == null ? new ArrayList<>() : userReports.stream().map(userReport1 -> userReport1.getReportOwner().getId()).collect(Collectors.toList()));
         if (averageRating != null) {
             userResponseDto.setAverageRating(BigDecimal.valueOf(averageRating));
         } else {
@@ -259,25 +260,25 @@ public class User {
         if (this.favouriteArtists.isEmpty()) {
             userResponseDto.setFavoriteArtistIds(new ArrayList<>());
         } else {
-            userResponseDto.setFavoriteArtistIds(favouriteArtists.stream().map(User::getId).toList());
+            userResponseDto.setFavoriteArtistIds(favouriteArtists.stream().map(User::getId).collect(Collectors.toList()));
         }
         if (this.favoriteTattooWorks.isEmpty()) {
             userResponseDto.setFavoriteTattooWorkIds(new ArrayList<>());
         } else {
-            userResponseDto.setFavoriteTattooWorkIds(favoriteTattooWorks.stream().map(TattooWork::getId).toList());
+            userResponseDto.setFavoriteTattooWorkIds(favoriteTattooWorks.stream().map(TattooWork::getId).collect(Collectors.toList()));
         }
         if (this.comments.isEmpty()) {
             userResponseDto.setCommentIds(new ArrayList<>());
         } else {
             userResponseDto.setCommentIds(comments.stream()
                     .map(Comment::getId)
-                    .toList()
+                    .collect(Collectors.toList())
             );
         }
         if (this.tattooWorks.isEmpty()) {
             userResponseDto.setTattooWorkIds(new ArrayList<>());
         } else {
-            userResponseDto.setTattooWorkIds(tattooWorks.stream().map(TattooWork::getId).toList());
+            userResponseDto.setTattooWorkIds(tattooWorks.stream().map(TattooWork::getId).collect(Collectors.toList()));
         }
         if (this.getAverageRating() != null) {
             userResponseDto.setAverageRating(userResponseDto.getAverageRating());

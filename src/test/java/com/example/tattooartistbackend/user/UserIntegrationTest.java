@@ -19,16 +19,23 @@ import com.example.tattooartistbackend.user.elasticsearch.UserDocument;
 import com.example.tattooartistbackend.user.elasticsearch.UserEsRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -48,9 +55,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles(value = "test")
-@SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
+@Testcontainers
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserIntegrationTest {
+
+//    @Container
+//    private static final GenericContainer<?> elasticsearchContainer =
+//            new GenericContainer<>(DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch:7.11.0"))
+//                    .withEnv("xpack.security.enabled", "false")
+//                    .withEnv("discovery.type", "single-node")
+//                    .withEnv("ES_JAVA_OPTS", "-Xms512m -Xmx512m")
+//                    .withExposedPorts(9200);
 
     @Autowired
     private MockMvc mockMvc;
@@ -87,14 +104,26 @@ class UserIntegrationTest {
     private UserUpdateRequestDto userUpdateRequestDto;
     private Address address;
 
+
+//    @BeforeAll
+//    static void setUpp() {
+//        elasticsearchContainer.start();
+//    }
+//
+//    @BeforeEach
+//    void testIsContainerRunning() {
+//        assertTrue(elasticsearchContainer.isRunning());
+////        recreateIndex();
+//    }
+
     @BeforeEach
     void setUp() {
         address = Address.builder()
-                .state("Mazovian")
+                .state("mazovian")
                 .postalCode("0123")
                 .street("Hoza")
-                .country("Poland")
-                .city("Warsaw")
+                .country("poland")
+                .city("warsaw")
                 .otherInformation("TattooStudio")
                 .build();
         addressRepository.save(address);
@@ -444,12 +473,13 @@ class UserIntegrationTest {
         authenticatedUser.setLanguages(List.of(Language.PORTUGUESE));
         var tattooArtist = userRepository.save(authenticatedUser);
         var userDocument = userEsRepository.findById(authenticatedUser.getId()).orElseThrow();
-        userDocument.setLanguages(tattooArtist.getLanguages().stream().map(Language::toString).toList());
+        userDocument.setLanguages(tattooArtist.getLanguages().stream().map(Language::toString).collect(Collectors.toList()));
         userDocument.setGender(tattooArtist.getGender());
         userDocument.setCountry(tattooArtist.getBusinessAddress().getCountry());
         userDocument.setCity(tattooArtist.getBusinessAddress().getCity());
         userDocument.setAverageRating(tattooArtist.getAverageRating());
         var updatedUserDocument = userEsRepository.save(userDocument);
+        userEsRepository.findAll().forEach(System.out::println);
         mockMvc.perform(get("/users/search")
                         .param("page", String.valueOf(0))
                         .param("size", String.valueOf(20))
@@ -458,7 +488,7 @@ class UserIntegrationTest {
                         .param("country", tattooArtist.getBusinessAddress().getCountry())
                         .param("isTattooArtist", String.valueOf(tattooArtist.isHasArtistPage()))
                         .param("averageRating", String.valueOf(tattooArtist.getAverageRating()))
-                        .param("languages", String.valueOf(tattooArtist.getLanguages().get(0)))
+                        .param("languages", String.valueOf(tattooArtist.getLanguages().get(0).getValue()))
                         .param("gender", tattooArtist.getGender().toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -482,7 +512,7 @@ class UserIntegrationTest {
         var tattooArtist = userRepository.save(authenticatedUser);
         var userDocument = userEsRepository.findById(authenticatedUser.getId()).orElseThrow();
         userDocument.setHasTattooArtistAcc(tattooArtist.isHasArtistPage());
-        userDocument.setLanguages(tattooArtist.getLanguages().stream().map(Language::toString).toList());
+        userDocument.setLanguages(tattooArtist.getLanguages().stream().map(Language::toString).collect(Collectors.toList()));
         userDocument.setGender(tattooArtist.getGender());
         userDocument.setCountry(tattooArtist.getBusinessAddress().getCountry());
         userDocument.setCity(tattooArtist.getBusinessAddress().getCity());
@@ -521,7 +551,7 @@ class UserIntegrationTest {
         var tattooArtist = userRepository.save(authenticatedUser);
         var userDocument = userEsRepository.findById(authenticatedUser.getId()).orElseThrow();
         userDocument.setHasTattooArtistAcc(tattooArtist.isHasArtistPage());
-        userDocument.setLanguages(tattooArtist.getLanguages().stream().map(Language::toString).toList());
+        userDocument.setLanguages(tattooArtist.getLanguages().stream().map(Language::toString).collect(Collectors.toList()));
         userDocument.setGender(tattooArtist.getGender());
         userDocument.setCountry(tattooArtist.getBusinessAddress().getCountry());
         userDocument.setCity(tattooArtist.getBusinessAddress().getCity());
@@ -554,12 +584,13 @@ class UserIntegrationTest {
         var tattooArtist = userRepository.save(authenticatedUser);
         var userDocument = userEsRepository.findById(authenticatedUser.getId()).orElseThrow();
         userDocument.setHasTattooArtistAcc(tattooArtist.isHasArtistPage());
-        userDocument.setLanguages(tattooArtist.getLanguages().stream().map(Language::toString).toList());
+        userDocument.setLanguages(tattooArtist.getLanguages().stream().map(Language::toString).collect(Collectors.toList()));
         userDocument.setGender(tattooArtist.getGender());
         userDocument.setCountry(tattooArtist.getBusinessAddress().getCountry());
         userDocument.setCity(tattooArtist.getBusinessAddress().getCity());
         userDocument.setAverageRating(tattooArtist.getAverageRating());
         var updatedUserDocument = userEsRepository.save(userDocument);
+        userEsRepository.findAll().forEach(System.out::println);
         //when
         mockMvc.perform(get("/users/search")
                         .param("page", String.valueOf(0))
@@ -588,7 +619,7 @@ class UserIntegrationTest {
         var tattooArtist = userRepository.save(authenticatedUser);
         var userDocument = userEsRepository.findById(authenticatedUser.getId()).orElseThrow();
         userDocument.setHasTattooArtistAcc(tattooArtist.isHasArtistPage());
-        userDocument.setLanguages(tattooArtist.getLanguages().stream().map(Language::toString).toList());
+        userDocument.setLanguages(tattooArtist.getLanguages().stream().map(Language::toString).collect(Collectors.toList()));
         userDocument.setGender(tattooArtist.getGender());
         userDocument.setCountry(tattooArtist.getBusinessAddress().getCountry());
         userDocument.setCity(tattooArtist.getBusinessAddress().getCity());
