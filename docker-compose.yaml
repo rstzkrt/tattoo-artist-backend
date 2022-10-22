@@ -1,41 +1,8 @@
 version: '3.8'
 services:
-
-#  postgres:
-#    container_name: tattoo_postgres
-#    image: postgres
-#    restart: always
-#    environment:
-#      POSTGRES_USER: postgres
-#      POSTGRES_PASSWORD: admin123
-#      POSTGRES_DB: tattoo_artist
-#    ports:
-#      - "5432:5432"
-#  pgadmin:
-#    container_name: pgadmin4_container
-#    image: dpage/pgadmin4
-#    restart: always
-#    environment:
-#      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-#      PGADMIN_DEFAULT_PASSWORD: root
-#    ports:
-#      - "5050:80"
-#
-#  elasticsearch:
-#    container_name: es-container
-#    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.0
-#    environment:
-#       xpack.security.enabled: "false"
-#       discovery.type: single-node
-#       ES_JAVA_OPTS: -Xms512m -Xmx512m
-#    networks:
-#      - es-net
-#    ports:
-#      - 9200:9200
-
   elasticsearch-test:
-    container_name: es-container-test2
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.0
+    container_name: es-container-test223
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
     environment:
        xpack.security.enabled: "false"
        discovery.type: single-node
@@ -44,8 +11,6 @@ services:
       - es-net
     ports:
       - 9200:9200
-
-
 networks:
   es-net:
     driver: bridge

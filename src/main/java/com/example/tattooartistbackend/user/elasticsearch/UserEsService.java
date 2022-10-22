@@ -20,9 +20,7 @@ import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.index.query.TermsQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -66,7 +64,6 @@ public class UserEsService {
             var languagesTermQuery = new TermsQueryBuilder("languages.keyword", languages.stream().map(String::new).collect(Collectors.toList()));
             boolQuery.filter(languagesTermQuery);
         }
-        System.out.println(boolQuery);
         return boolQuery;
     }
 
@@ -81,15 +78,28 @@ public class UserEsService {
         request.setJsonEntity(searchSource.toString());
         JsonNode jsonNode;
         try {
-            var response = client.getLowLevelClient().performRequest(request);
+            var response =  client.getLowLevelClient().performRequest(request);
             var responseBody = EntityUtils.toString(response.getEntity());
             jsonNode = objectMapper.readTree(responseBody).get("hits").get("hits");
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
+        return toUserResponseDtoPageable(reader, (ArrayNode) jsonNode);
+    }
+
+    @NotNull
+    private UserResponseDtoPageable toUserResponseDtoPageable(ObjectReader reader, ArrayNode jsonNode) {
+        List<UserDocumentDto> userDocumentList = frommJsonNodeToUserDocumentList(reader, jsonNode);
+        UserResponseDtoPageable userResponseDtoPageable = new UserResponseDtoPageable();
+        userResponseDtoPageable.setTattooArtists(userDocumentList.stream().map(userDocumentDto -> userRepository.findById(userDocumentDto.getId()).orElseThrow().toUserResponseDto()).collect(Collectors.toList()));
+        userResponseDtoPageable.setTotalElements(userDocumentList.size());
+        return userResponseDtoPageable;
+    }
+
+    @NotNull
+    private static List<UserDocumentDto> frommJsonNodeToUserDocumentList(ObjectReader reader, ArrayNode jsonNode) {
         List<UserDocumentDto> userDocumentList = new ArrayList<>();
-        ArrayNode arrayNode = (ArrayNode) jsonNode;
-        Iterator<JsonNode> itr = arrayNode.elements();
+        Iterator<JsonNode> itr = jsonNode.elements();
         while (itr.hasNext()) {
             JsonNode jsonNode1 = itr.next().get("_source");
             var id = jsonNode1.get("id").asText();
@@ -121,11 +131,6 @@ public class UserEsService {
             }
             userDocumentList.add(UserDocument.toDto(userDocument));
         }
-        System.out.println(userDocumentList.size());
-
-        UserResponseDtoPageable userResponseDtoPageable = new UserResponseDtoPageable();
-        userResponseDtoPageable.setTattooArtists(userDocumentList.stream().map(userDocumentDto -> userRepository.findById(userDocumentDto.getId()).orElseThrow().toUserResponseDto()).collect(Collectors.toList()));
-        userResponseDtoPageable.setTotalElements(userDocumentList.size());
-        return userResponseDtoPageable;
+        return userDocumentList;
     }
 }

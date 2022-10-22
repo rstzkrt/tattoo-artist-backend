@@ -2,6 +2,7 @@ spring:
   datasource:
     password: resat123
     username: postgres
+#    url: jdbc:postgresql://tattoo-artist-app.c13ghomntiap.us-east-1.rds.amazonaws.com:5432/tattooArtistApp
     url: jdbc:postgresql://localhost:5432/tattoo_artist
     driver-class-name: org.postgresql.Driver
   jpa:
@@ -10,7 +11,11 @@ spring:
     enabled: true
     change-log: classpath:/db.changelog/db.changelog-master.yaml
   elasticsearch:
-    uris: localhost:9200
+#    uris: https://search-tattoo-es-yqho3qxtj4jumtih3fq7h4qewm.us-east-1.es.amazonaws.com
+    uris: https://o46jiaa89c:2q7670b8tm@tattoo-4983783903.us-east-1.bonsaisearch.net:443
+#    uris: localhost:9200
+#    username: esresat
+#    password: '!R3sat123'
   mail:
     host: smtp.gmail.com
     port: 587

@@ -5,7 +5,6 @@ import com.example.tattooartistbackend.address.AddressRepository;
 import com.example.tattooartistbackend.generated.models.UserReportPostReqDto;
 import com.example.tattooartistbackend.security.SecurityService;
 import com.example.tattooartistbackend.security.role.RoleService;
-import com.example.tattooartistbackend.tattooWork.elasticsearch.TattooWorkDocument;
 import com.example.tattooartistbackend.user.User;
 import com.example.tattooartistbackend.user.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,12 +26,12 @@ import java.util.ArrayList;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserReportIntegrationTest {
 
     @Autowired
