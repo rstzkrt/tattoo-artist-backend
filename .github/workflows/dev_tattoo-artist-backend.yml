@@ -11,12 +11,10 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
-        with:
-          node-version: 16
 
       - name: Set up Java version
         uses: actions/setup-java@v1
@@ -24,7 +22,7 @@ jobs:
           java-version: '11'
 
       - name: Build with Maven
-        run: mvn clean install -DskipTests
+        run: mvn clean install
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
@@ -33,25 +31,23 @@ jobs:
           path: '${{ github.workspace }}/target/*.jar'
 
   deploy:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     needs: build
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
+    
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v2
         with:
-          node-version: 16
           name: java-app
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          node-version: 16
           app-name: 'tattoo-artist-backend'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_40DC8EF11D0D4FF8999B2B5D8263E575 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_72A96EE66F0C4C49BA2040840D4E923C }}
           package: '*.jar'
