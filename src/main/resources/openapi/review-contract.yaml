@@ -1,13 +1,13 @@
 openapi: 3.0.3
 info:
-  title: item-contract
-  description: item
+  title: review-contract
+  description: review
   version: 1.0.0
 paths:
   /reviews/{id}:
     get:
       operationId: getReviewsById
-      description: get revie
+      description: get review
       parameters:
         - in: path
           name: id

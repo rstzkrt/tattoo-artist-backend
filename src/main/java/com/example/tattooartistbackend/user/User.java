@@ -16,8 +16,12 @@ import com.example.tattooartistbackend.tattooWork.TattooWork;
 import com.example.tattooartistbackend.tattooWorkReport.TattooWorkReport;
 import com.example.tattooartistbackend.userReport.UserReport;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import lombok.*;
-import net.minidev.json.annotate.JsonIgnore;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.checkerframework.common.aliasing.qual.Unique;
 
 import javax.persistence.CascadeType;
@@ -195,6 +199,11 @@ public class User {
         madeByInfo.setHasArtistPage(hasArtistPage);
         madeByInfo.setWorkDays(workingDaysList);
         madeByInfo.setTattooStyles(tattooStyles == null ? new ArrayList<>() : tattooStyles);
+
+        madeByInfo.setLanguages(languages == null ? new ArrayList<>() : languages);
+        madeByInfo.setCareerDescription(careerDescription);
+        madeByInfo.setGender(gender);
+
         if (averageRating != null) {
             madeByInfo.setAverageRating(BigDecimal.valueOf(averageRating));
         } else {
@@ -234,8 +243,8 @@ public class User {
         userResponseDto.setGender(gender);
         userResponseDto.setTattooStyles(tattooStyles == null ? new ArrayList<>() : tattooStyles);
         userResponseDto.setLanguages(languages == null ? new ArrayList<>() : languages);
-        userResponseDto.setTattooWorkReports(tattooWorkReports == null ? new ArrayList<>() : tattooWorkReports.stream().map(tattooWorkReport -> tattooWorkReport.getTattooWorkReportOwner().getId()).collect(Collectors.toList()));
-        userResponseDto.setUserReports(userReports == null ? new ArrayList<>() : userReports.stream().map(userReport1 -> userReport1.getReportOwner().getId()).collect(Collectors.toList()));
+        userResponseDto.setTattooWorkReports(tattooWorkReports == null ? new ArrayList<>() : tattooWorkReports.stream().map(tattooWorkReport -> tattooWorkReport.getReportedTattooWork().getId()).collect(Collectors.toList()));
+        userResponseDto.setUserReports(userReports == null ? new ArrayList<>() : userReports.stream().map(userReport1 -> userReport1.getReportedUser().getId()).collect(Collectors.toList()));
         if (averageRating != null) {
             userResponseDto.setAverageRating(BigDecimal.valueOf(averageRating));
         } else {

@@ -289,6 +289,14 @@ components:
           type: string
         otherInformation:
           type: string
+        careerDescription:
+          type: string
+        gender:
+          $ref: './user-contract.yaml/#/components/schemas/Gender'
+        languages:
+          type: array
+          items:
+            $ref: './user-contract.yaml/#/components/schemas/Language'
 
     TattooStyle:
       enum:

@@ -307,7 +307,6 @@ components:
           items:
             $ref: '#/components/schemas/TattooWorksResponseDto'
 
-
     MadeByInfo:
       type: object
       properties:
@@ -338,6 +337,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/WorkingDays'
+        careerDescription:
+          type: string
+        gender:
+          $ref: './user-contract.yaml/#/components/schemas/Gender'
+        languages:
+          type: array
+          items:
+            $ref: './user-contract.yaml/#/components/schemas/Language'
         averageRating:
           type: number
         phoneNumber:
@@ -355,6 +362,7 @@ components:
         otherInformation:
           type: string
 
+
     TattooWorkReportResponseDto:
       type: object
       properties:
@@ -364,7 +372,6 @@ components:
         reportedTattooWorkId:
           type: string
           format: uuid
-
 
     TattooStyle:
       enum:

@@ -8,8 +8,12 @@ spring:
     username: sa
     password: password
     driverClassName: org.h2.Driver
+
   jpa:
     show-sql: true
   liquibase:
     enabled: true
     change-log: classpath:/db.changelog-test/db.changelog-master-test.yaml
+  testcontainers:
+    reuse:
+      enable: true

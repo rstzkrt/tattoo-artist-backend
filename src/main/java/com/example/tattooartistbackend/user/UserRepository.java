@@ -17,7 +17,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<User> findAllUsers(String firstName,String lastName);
     List<User> findAllByFavouriteArtistsIn(List<User> users);
     Optional<User> findByUid(String uid);
-    @Query("SELECT u from User u WHERE u.hasArtistPage=true AND (:firstName is null or u.firstName = :firstName) " +
+    @Query("SELECT u from User u WHERE (u.hasArtistPage = true )AND (:firstName is null or u.firstName = :firstName) " +
             "AND (:lastName is null or u.lastName = :lastName)")
     Page<User> findAllTattooArtist(String firstName, String lastName, Pageable pageable);
 }
