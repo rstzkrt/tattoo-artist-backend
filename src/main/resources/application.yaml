@@ -30,7 +30,6 @@ spring:
 logging:
   level:
     root: info
-
 security:
   firebase-props:
     databaseUrl: https://tattoo-artist.firebaseapp.com
@@ -69,3 +68,5 @@ security:
     - ROLE_USER
   super-admins:
     - ozkurtresat@gmail.com
+server:
+  port: 8080
