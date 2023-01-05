@@ -35,8 +35,9 @@ security:
     databaseUrl: https://tattoo-artist.firebaseapp.com
   allow-credentials: true
   allowed-origins:
-    - http://localhost:8080
+    - http://tattoo-angular.s3-website-us-east-1.amazonaws.com
     - http://localhost:4200
+    - http://localhost:8080
   allowed-methods:
     - GET
     - POST
@@ -60,6 +61,7 @@ security:
     - Cache-Control
     - Id-Token
   exposed-headers:
+    - Access-Control-Allow-Origin
     - X-Xsrf-Token
   valid-application-roles:
     - ROLE_ADMIN

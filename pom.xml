@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.example</groupId>
     <artifactId>tattoo-artist-backend</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.4-SNAPSHOT</version>
     <name>tattoo-artist-backend</name>
     <description>tattoo-artist-backend</description>
     <packaging>jar</packaging>
