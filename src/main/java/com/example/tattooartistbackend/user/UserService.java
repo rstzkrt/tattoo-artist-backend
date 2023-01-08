@@ -89,7 +89,9 @@ public class UserService {
     public Optional<UserResponseDto> updateUser(UserUpdateRequestDto userUpdateRequestDto) {
         var authenticatedUser = securityService.getUser();
         var userDocument = userEsRepository.findById(authenticatedUser.getId()).orElseThrow(() -> new RuntimeException("userDocument not found!"));
-        if (LocalDate.now().getYear() - userUpdateRequestDto.getBirthDate().getYear() < 18) {
+
+
+        if (userUpdateRequestDto.getBirthDate()!=null && LocalDate.now().getYear() - userUpdateRequestDto.getBirthDate().getYear() < 18 ) {
             throw new UnderAgeException();
         }
         if (authenticatedUser.isHasArtistPage()) {

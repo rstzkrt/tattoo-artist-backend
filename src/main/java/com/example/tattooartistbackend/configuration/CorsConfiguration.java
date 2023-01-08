@@ -14,6 +14,7 @@ public class CorsConfiguration {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
+//                        .allowedOrigins("http://localhost:4200");
                         .allowedOrigins("http://tattoo-angular.s3-website-us-east-1.amazonaws.com");
             }
         };
