@@ -38,7 +38,7 @@ public class UserEsService {
 
     private final UserRepository userRepository;
 
-    private BoolQueryBuilder createBoolQueryForUser(String query, String city, String country, Boolean isTattooArtist, Double averageRating, List<String> languages, Gender gender) {
+    private BoolQueryBuilder createBoolQueryForUser(String query, String city, String country, Boolean isTattooArtist, Double averageRating, List<String> languages, String gender) {
         var boolQuery = new BoolQueryBuilder();
         if (!query.equals("")) {
             var matchPhrasePrefixQuery1 = new MatchPhrasePrefixQueryBuilder("fullName", query);
@@ -47,6 +47,10 @@ public class UserEsService {
         if (ObjectUtils.isNotEmpty(city)) {
             var cityFilterQuery = new TermQueryBuilder("city.keyword", city);
             boolQuery.filter(cityFilterQuery);
+        }
+        if (ObjectUtils.isNotEmpty(gender)) {
+            var genderFilterQuery = new TermQueryBuilder("gender.keyword", gender);
+            boolQuery.filter(genderFilterQuery);
         }
         if (ObjectUtils.isNotEmpty(country)) {
             var countryFilterQuery = new TermQueryBuilder("country.keyword", country);
@@ -74,7 +78,7 @@ public class UserEsService {
         var request = new Request("GET", "/user/_search");
         var searchSource = new SearchSourceBuilder();
         searchSource.from(page).size(size);
-        searchSource.query(createBoolQueryForUser(query, city, country, isTattooArtist, averageRating, languages, gender));
+        searchSource.query(createBoolQueryForUser(query, city, country, isTattooArtist, averageRating, languages, String.valueOf(gender)));
         request.setJsonEntity(searchSource.toString());
         JsonNode jsonNode;
         try {
