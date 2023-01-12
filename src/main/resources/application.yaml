@@ -2,11 +2,73 @@ spring:
   datasource:
     password: resat123
     username: postgres
-    url: jdbc:postgresql://localhost:5432/tattoo_artist
+    url: jdbc:postgresql://tattooartistapp.c13ghomntiap.us-east-1.rds.amazonaws.com:5432/tattooArtistApp
+#    url: jdbc:postgresql://localhost:5432/tattoo_artist
+    driver-class-name: org.postgresql.Driver
   jpa:
     show-sql: true
-    hibernate:
-      ddl-auto: create
-#logging:
-#  level:
-#    root: info
+  liquibase:
+    enabled: true
+    change-log: classpath:/db.changelog/db.changelog-master.yaml
+  elasticsearch:
+    uris: https://o46jiaa89c:2q7670b8tm@tattoo-4983783903.us-east-1.bonsaisearch.net:443
+#    uris: localhost:9200
+#    username: esresat
+#    password: '!R3sat123'
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: tt7373634@gmail.com
+    password: gykmqlbkpqfroffv
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+        debug: true
+logging:
+  level:
+    root: info
+security:
+  firebase-props:
+    databaseUrl: https://tattoo-artist.firebaseapp.com
+  allow-credentials: true
+  allowed-origins:
+    - http://tattoo-angular.s3-website-us-east-1.amazonaws.com
+    - http://localhost:4200
+    - http://localhost:8080
+  allowed-methods:
+    - GET
+    - POST
+    - PUT
+    - PATCH
+    - DELETE
+    - OPTIONS
+  allowed-headers:
+    - Authorization
+    - Origin
+    - Content-Type
+    - Accept
+    - Accept-Encoding
+    - Accept-Language
+    - Access-Control-Allow-Origin
+    - Access-Control-Allow-Headers
+    - Access-Control-Request-Method
+    - X-Requested-With
+    - X-Auth-Token
+    - X-Xsrf-Token
+    - Cache-Control
+    - Id-Token
+  exposed-headers:
+    - Access-Control-Allow-Origin
+    - X-Xsrf-Token
+  valid-application-roles:
+    - ROLE_ADMIN
+    - ROLE_SUPER
+    - ROLE_MODERATOR
+    - ROLE_USER
+  super-admins:
+    - ozkurtresat@gmail.com
+server:
+  port: 8080

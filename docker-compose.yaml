@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  elasticsearch-test:
+    container_name: es-container-test223
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+    environment:
+       xpack.security.enabled: "false"
+       discovery.type: single-node
+       ES_JAVA_OPTS: -Xms512m -Xmx512m
+    networks:
+      - es-net
+    ports:
+      - 9200:9200
+networks:
+  es-net:
+    driver: bridge

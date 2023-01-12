@@ -7,4 +7,7 @@ import java.util.UUID;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, UUID> {
+    Comment findByTattooWork_Id(UUID tattooWorkId);
+    Comment findByPostedBy_Id(UUID uuid);
+    boolean existsByPostedBy_Id(UUID uuid);
 }

@@ -1,0 +1,185 @@
+openapi: 3.0.3
+info:
+  title: review-contract
+  description: review
+  version: 1.0.0
+paths:
+  /reviews/{id}:
+    get:
+      operationId: getReviewsById
+      description: get review
+      parameters:
+        - in: path
+          name: id
+          description: reviewId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewResponseDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: './user-contract.yaml/#/components/schemas/ErrorResponse'
+
+    delete:
+      operationId: deleteReviewById
+      description: delete review
+      parameters:
+        - in: path
+          name: id
+          description: reviewId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        204:
+          description: no content
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: './user-contract.yaml/#/components/schemas/ErrorResponse'
+
+    patch:
+      operationId: reviewPatchUpdate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewPatchRequestDto'
+      parameters:
+        - in: path
+          name: id
+          description: reviewId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewResponseDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+               $ref: './user-contract.yaml/#/components/schemas/ErrorResponse'
+
+
+  /reviews/users/{receiver_id}:
+    post:
+      operationId: createReview
+      description: post review for tattooArtist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewPostRequestDto'
+      parameters:
+        - in: path
+          name: receiver_id
+          description: receiverId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                 $ref: '#/components/schemas/ReviewResponseDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: './user-contract.yaml/#/components/schemas/ErrorResponse'
+
+    get:
+      operationId: getAllReviewByUserId
+      description: get all
+      parameters:
+        - in: path
+          name: receiver_id
+          description: receiverId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReviewResponseDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: './user-contract.yaml/#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    ReviewPatchRequestDto:
+      type: object
+      properties:
+        message:
+          type: string
+        reviewType:
+          $ref: "#/components/schemas/ReviewType"
+
+    ReviewPostRequestDto:
+      type: object
+      properties:
+        message:
+          type: string
+        postedBy:
+          type: string
+          format: uuid
+        reviewType:
+          $ref: "#/components/schemas/ReviewType"
+
+    ReviewResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        message:
+          type: string
+        postedBy:
+          $ref: "./user-contract.yaml/#/components/schemas/UserResponseDto"
+        receiver:
+          type: string
+          format: uuid
+        reviewType:
+          $ref: "#/components/schemas/ReviewType"
+
+    ReviewType:
+      enum:
+        - POSITIVE
+        - NEGATIVE
+        - NEUTRAL

@@ -1,0 +1,18 @@
+embedded:
+  containers:
+    enabled: true
+  elasticsearch:
+    dockerImage: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+    enabled: true
+    env:
+      discovery.type: single-node
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+      xpack.security.enabled: "false"
+    reuseContainer: true
+  testcontainers:
+    reuse:
+      enable: true
+spring:
+  elasticsearch:
+    rest:
+      uris: http://${embedded.elasticsearch.host}:${embedded.elasticsearch.httpPort}

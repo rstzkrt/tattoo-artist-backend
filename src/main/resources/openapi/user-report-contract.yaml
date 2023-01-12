@@ -1,0 +1,175 @@
+openapi: 3.0.3
+info:
+  title: Title
+  description: Title
+  version: 1.0.0
+paths:
+  /user-reports:
+    get:
+      operationId: getAllUserReports
+      description: get user reports
+      parameters:
+        - in: query
+          name: page
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: size
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserReportResPageable'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      operationId: createUserReport
+      description: create User Report
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserReportPostReqDto'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserReportResDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+  /user-reports/{id}:
+    get:
+      operationId: getUserReportById
+      description: get user report by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserReportResDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      operationId: updateUserReport
+      description: update user report
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserReportPatchReqDto'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserReportResDto'
+
+    delete:
+      operationId: closeReport
+      description: delete user report
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        204:
+          description: No Content
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+
+components:
+  schemas:
+
+    UserReportPostReqDto:
+      type: object
+      properties:
+        description:
+          type: string
+        reportedUserId:
+          type: string
+          format: uuid
+        reportOwnerId:
+          type: string
+          format: uuid
+
+    UserReportPatchReqDto:
+      type: object
+      properties:
+        description:
+          type: string
+
+    UserReportResDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        description:
+          type: string
+        date:
+          type: string
+          format: date
+        reportOwner:
+          $ref: './user-contract.yaml/#/components/schemas/UserResponseDto'
+        reportedUser:
+          $ref: './user-contract.yaml/#/components/schemas/UserResponseDto'
+
+    UserReportResPageable:
+      type: object
+      properties:
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+        userReports:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserReportResDto'
+

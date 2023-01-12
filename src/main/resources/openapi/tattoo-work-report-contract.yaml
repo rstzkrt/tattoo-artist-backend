@@ -1,0 +1,504 @@
+openapi: 3.0.3
+info:
+  title: Tattoo-Work Contract
+  description: Title
+  version: 1.0.0
+paths:
+  /tattoo-work-reports:
+    get:
+      operationId: getAllTattooWorkReports
+      description: get tattoo work reports
+      parameters:
+        - in: query
+          name: page
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: size
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TattooWorkReportResPageable'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      operationId: createTattooWorkReport
+      description: create tattooWork Report
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TattooWorkReportPostReqDto'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TattooWorkReportResDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /tattoo-work-reports/{id}:
+    get:
+      operationId: getTattooWorkReportById
+      description: get tattoo work report by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TattooWorkReportResDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      operationId: updateTattooWorkReport
+      description: update tattooWork report
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TattooWorkReportPatchReqDto'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TattooWorkReportResDto'
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      operationId: removeTattooWorkReport
+      description: delete tattooWork report
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        204:
+          description: No Content
+        default:
+          description: error payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+
+    TattooWorkReportPostReqDto:
+      type: object
+      properties:
+        description:
+          type: string
+        reportedTattooWorkId:
+          type: string
+          format: uuid
+        reportOwnerId:
+          type: string
+          format: uuid
+
+    TattooWorkReportPatchReqDto:
+      type: object
+      properties:
+        description:
+          type: string
+
+    TattooWorkReportResDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        description:
+          type: string
+        date:
+          type: string
+          format: date
+        reportOwner:
+          $ref: './user-contract.yaml/#/components/schemas/UserResponseDto'
+        reportedTattooWork:
+          $ref: '#/components/schemas/TattooWorksResponseDto'
+
+    TattooWorkReportResPageable:
+      type: object
+      properties:
+        totalPages:
+          type: integer
+        totalElements:
+          type: integer
+        tattooWorkReports:
+          type: array
+          items:
+            $ref: '#/components/schemas/TattooWorkReportResDto'
+
+    TattooWorksResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        description:
+          type: string
+        clientId:
+          type: string
+          format: uuid
+        price:
+          type: number
+        commentId:
+          type: string
+          format: uuid
+        currency:
+          $ref: '#/components/schemas/Currency'
+        dislike_number:
+          type: integer
+        like_number:
+          type: integer
+        coverPhoto:
+          type: string
+        photos:
+          type: array
+          items:
+            type: string
+        madeBy:
+          $ref: '#/components/schemas/MadeByInfo'
+        disLikerIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        likerIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        tattooStyle:
+          $ref: '#/components/schemas/TattooStyle'
+        takenReports:
+          type: array
+          items:
+            $ref: '#/components/schemas/TattooWorkTakenReportDto'
+
+    TattooWorkTakenReportDto:
+      properties:
+        reportOwner:
+          type: string
+          format: uuid
+        reportedTattooWork:
+          type: string
+          format: uuid
+
+    TattooWorkResponsePageable:
+      properties:
+        totalElements:
+          type: integer
+        tattooWorks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TattooWorksResponseDto'
+
+
+    MadeByInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        uid:
+          type: string
+          description: id for firebase auth
+        firstName:
+          type: string
+        lastName:
+          type: string
+        avatarUrl:
+          type: string
+        birthDate:
+          type: string
+          format: date
+        tattooStyles:
+          type: array
+          items:
+            $ref: '#/components/schemas/TattooStyle'
+        email:
+          type: string
+        hasArtistPage:
+          type: boolean
+        workDays:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkingDays'
+        averageRating:
+          type: number
+        phoneNumber:
+          type: string
+        street:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+        state:
+          type: string
+        postalCode:
+          type: string
+        otherInformation:
+          type: string
+        careerDescription:
+          type: string
+        gender:
+          $ref: './user-contract.yaml/#/components/schemas/Gender'
+        languages:
+          type: array
+          items:
+            $ref: './user-contract.yaml/#/components/schemas/Language'
+
+    TattooStyle:
+      enum:
+        - OLD_SCHOOL
+        - TRIBAL
+        - ASIAN_ORIENTAL
+        - SCRIPT
+        - WATERCOLOUR
+        - PORTRAITS
+        - NEW_SCHOOL
+        - BLACK_AND_GREY
+        - BIOMECHANICAL
+        - REALISTIC
+        - DOT_WORK
+
+    Currency:
+      enum:
+        - AED
+        - AFN
+        - ALL
+        - AMD
+        - ANG
+        - AOA
+        - ARS
+        - AUD
+        - AWG
+        - AZN
+        - BAM
+        - BBD
+        - BDT
+        - BGN
+        - BHD
+        - BIF
+        - BMD
+        - BND
+        - BOB
+        - BOV
+        - BRL
+        - BSD
+        - BTC
+        - BTN
+        - BWP
+        - BYR
+        - BYN
+        - BZD
+        - CAD
+        - CDF
+        - CHE
+        - CHF
+        - CHW
+        - CLF
+        - CLP
+        - CNY
+        - COP
+        - COU
+        - CRC
+        - CUC
+        - CUP
+        - CVE
+        - CZK
+        - DJF
+        - DKK
+        - DOP
+        - DZD
+        - EGP
+        - ERN
+        - ETB
+        - EUR
+        - FJD
+        - FKP
+        - GBP
+        - GEL
+        - GHS
+        - GIP
+        - GMD
+        - GNF
+        - GTQ
+        - GYD
+        - HKD
+        - HNL
+        - HRK
+        - HTG
+        - HUF
+        - IDR
+        - ILS
+        - INR
+        - IQD
+        - IRR
+        - ISK
+        - JMD
+        - JOD
+        - JPY
+        - KES
+        - KGS
+        - KHR
+        - KMF
+        - KPW
+        - KRW
+        - KWD
+        - KYD
+        - KZT
+        - LAK
+        - LBP
+        - LKR
+        - LRD
+        - LSL
+        - LTL
+        - LVL
+        - LYD
+        - MAD
+        - MDL
+        - MGA
+        - MKD
+        - MMK
+        - MNT
+        - MOP
+        - MRO
+        - MRU
+        - MUR
+        - MVR
+        - MWK
+        - MXN
+        - MXV
+        - MYR
+        - MZN
+        - NAD
+        - NGN
+        - NIO
+        - NOK
+        - NPR
+        - NZD
+        - OMR
+        - PAB
+        - PEN
+        - PGK
+        - PHP
+        - PKR
+        - PLN
+        - PYG
+        - QAR
+        - RON
+        - RSD
+        - RUB
+        - RWF
+        - SAR
+        - SBD
+        - SCR
+        - SDG
+        - SEK
+        - SGD
+        - SHP
+        - SLL
+        - SOS
+        - SRD
+        - STD
+        - STN
+        - SVC
+        - SYP
+        - SZL
+        - THB
+        - TJS
+        - TMT
+        - TND
+        - TOP
+        - TRY
+        - TTD
+        - TWD
+        - TZS
+        - UAH
+        - UGX
+        - USD
+        - USN
+        - UYI
+        - UYU
+        - UYW
+        - UZS
+        - VED
+        - VEF
+        - VES
+        - VND
+        - VUV
+        - WST
+        - XAG
+        - XAU
+        - XAF
+        - XBA
+        - XBB
+        - XBC
+        - XBD
+        - XCD
+        - XDR
+        - XOF
+        - XPD
+        - XPF
+        - XPT
+        - XSU
+        - XTS
+        - XUA
+        - XXX
+        - YER
+        - ZAR
+        - ZMK
+        - ZWL
+        - ZMW
+        - SSP
